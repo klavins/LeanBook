@@ -1,0 +1,360 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Inductive Types - Foundations of Lean</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A light introduction to the foundations of mathematics and proof checking with Lean">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Foundations of Lean</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/klavins/LeanBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="inductive-types"><a class="header" href="#inductive-types">Inductive Types</a></h1>
+<p>As we saw in the chapter on the <a href="LambdaCalculus.html">λ-Calculus</a>, we can encode fairly sophisticated objects like the natural numbers using just abstractions and applications. However, such encodings are a best clunky and hard to read. Additionally, encoding complex data types as λ-Calculus expressions has other problems:</p>
+<p><strong>Noncanonical terms:</strong> The types of such encodings are not guaranteed to result in <em>canonical</em> terms. For example, Church numerals were defined to have type</p>
+<pre><code class="language-lean">def α := Type
+def N := (α → α) → α → α
+</code></pre>
+<p>But we can define expressions that have this type but that do not correspond to natural numbers. For example,</p>
+<pre><code class="language-lean">def nc : N := λ (f : α  → α) (x : α) =&gt; x
+</code></pre>
+<p>It would be vastly preferable if (a) every object of a given type was a legitimate representative of that type and every object also had exactly one representative.</p>
+<p><strong>Pattern Matching and Induction:</strong> To prove properties above objects of a given type, it is useful to apply induction on the structure of the object. For example, a natural number is either zero, or it is the successor of some other natural number. To prove a statement about natural numbers one would like support for pattern matching on the way the number was constructed.</p>
+<p><strong>Termination:</strong> As we have seem, operations on terms of a given type in the pure lambda calculus are not guaranteed to terminate. However, we will see that all terms of a given inductive type support <em>structural recursion</em>: We can define functions on that break the term into smaller pieces which eventual lead to indivisible elements, at which point the function terminates.</p>
+<p>Thus, Lean and other type theoretic languages include a way to define types inductively. One lists all the ways to construct objects of a given type. Lean then provides a powerful pattern matching capability that can be used in definitions and theorems when operating or reasoning on an object defined inductively.</p>
+<h3 id="namespaces"><a class="header" href="#namespaces">Namespaces</a></h3>
+<p>In this chapter we will be redefining several fundamental types in Lean, such as the natural numbers <code>ℕ</code> and the propositional connectives <code>And</code> and <code>Or</code>. Since these are part of Lean's standard library (included by default), if we do not take appropriate measures, we will get naming collisions. The easiest way to avoid this is to open a temporary namespace.</p>
+<pre><code class="language-lean">namespace Temp
+</code></pre>
+<p>Now, when we define a new symbol, such as</p>
+<pre><code class="language-lean">def Thing := Type
+</code></pre>
+<p>we are actually defining Temp.Thing. If Thing is defined in some inluded library, our new definition will not collide with it.</p>
+<h2 id="leans-inductive-types"><a class="header" href="#leans-inductive-types">Lean's Inductive Types</a></h2>
+<p>So far we have introduced only simple <strong>arrow types</strong> composed Lean's basic type (called Type) and functions from those types into types. We now introduce a powerful way to make new types, which covers almost all of mathematics, called <strong>inductive types</strong>.</p>
+<p>An inductive type is <strong>generated</strong> by <strong>constructors</strong> that may refer to the type itself. They say how to make objects of the given type.</p>
+<p><strong>Example:</strong> A type with only two elements is defined by:</p>
+<pre><code class="language-lean">inductive Two where
+  | a : Two
+  | b : Two
+
+#check Two.a
+#check Two.b
+
+def t := Two.a
+#eval t
+</code></pre>
+<p><strong>Example:</strong> The simplest inductive yype has <em>no</em> constructors, meaning it specifies the empty type.</p>
+<pre><code class="language-lean">inductive Empty
+</code></pre>
+<h2 id="constructors-with-arguments"><a class="header" href="#constructors-with-arguments">Constructors With Arguments</a></h2>
+<p>You can also have constructors that take arguments and transform them into objects of the given type.</p>
+<p><strong>Example:</strong> The type Nat of <strong>Natural Numbers</strong> is defined by two constructors:</p>
+<pre><code class="language-lean">inductive Nat where
+  | zero : Nat
+  | succ : Nat → Nat           -- succ stand for `successor`
+
+open Nat
+#check succ (succ (succ zero)) -- 3
+</code></pre>
+<p>All the constructors in an inductively defined type live in a namespace with the same name as the type. The open command allows us to write succ instead of Nat.succ. We can also write</p>
+<pre><code class="language-lean">#check zero.succ.succ.succ
+</code></pre>
+<p>using so-called dot-notation.</p>
+<p>Objects of type <code>Nat</code> thus either have the form <code>zero</code> or they consist of some finite number of applications of <code>succ</code> to the element <code>zero</code>. With more types, we can define even more complicated objects.</p>
+<p><strong>Example:</strong> A simple model of arithmetic expressions can be defined by the type:</p>
+<pre><code class="language-lean">inductive Expr where
+  | var : String → Expr
+  | add : Expr → Expr → Expr
+  | mul : Expr → Expr → Expr
+  | neg : Expr → Expr
+
+open Expr
+</code></pre>
+<p>Some example terms include</p>
+<pre><code class="language-lean">#check add (var "x") (var "y")                          -- x+y
+#check add (var "x") (mul (neg (var "y")) (var "z"))    -- x-yz
+</code></pre>
+<h2 id="functions-of-inductive-types"><a class="header" href="#functions-of-inductive-types">Functions of Inductive Types</a></h2>
+<p>To work with objects of inductive types, we usually need to know how the object was constructed. Lean uses the keyword <code>match</code> for that.</p>
+<p><strong>Example:</strong> Toggling a Two</p>
+<pre><code class="language-lean">def Two.toggle ( x : Two ) := match x with
+  | a =&gt; b
+  | b =&gt; a
+</code></pre>
+<p>Lean also knows how to reduce expressions involving match.</p>
+<pre><code class="language-lean">open Two
+
+#reduce toggle (toggle a)
+#reduce a.toggle.toggle
+</code></pre>
+<p><strong>Example:</strong> 1+1 = 2</p>
+<pre><code class="language-lean">def Nat.plus (n m : Nat) := match n with
+  | zero =&gt; m
+  | succ x =&gt; succ (plus x m)
+
+open Nat
+
+#reduce plus (succ zero) (succ zero)
+</code></pre>
+<p><strong>Example:</strong> Swap Adds and Muls</p>
+<pre><code class="language-lean">def Expr.swap (e : Expr) := match e with
+  | var s =&gt; var s
+  | add x y =&gt; add y x
+  | mul x y =&gt; mul y x
+  | neg x =&gt; neg x
+
+
+def e := add (var "x") (mul (neg (var "y")) (var "z"))
+
+#reduce e.swap -- -zy+x
+</code></pre>
+<h1 id="inductive-types-may-depend-on-other-types"><a class="header" href="#inductive-types-may-depend-on-other-types">INDUCTIVE TYPES MAY DEPEND ON OTHER TYPES</a></h1>
+<p>The types we have defined so far do not interact with other types. Here's an example that does: Lists of Nats.</p>
+<pre><code class="language-lean">inductive NatList where
+  | empty : NatList
+  | cons : Nat → NatList → NatList
+
+namespace NatList
+
+#check cons zero (cons zero empty)              -- [0, 0]
+#check (empty.cons zero).cons zero              -- [0, 0]
+
+end NatList
+
+#check [1,2]
+</code></pre>
+<p>Or we can define a List of elements of any type. In the the next bit of code, we implicitly state (using curly braced instead of parens) that List depends on an arbitrary type α.</p>
+<pre><code class="language-lean">inductive List {α : Type} where
+  | empty : List
+  | cons : α → List → List
+
+namespace List
+#check cons "lean" (cons "is cool" empty)       -- ["lean", "is cool"]
+#check cons 3.4 (cons 1.21 empty)       -- ["lean", "is cool"]
+
+end List
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="CurryHoward.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="Connectives.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="CurryHoward.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="Connectives.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="highlight.js"></script>
+        <script src="lean-book.js"></script>
+
+
+    </div>
+    </body>
+</html>

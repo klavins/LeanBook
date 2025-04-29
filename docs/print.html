@@ -1,0 +1,3037 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Foundations of Lean</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A light introduction to the foundations of mathematics and proof checking with Lean">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Foundations of Lean</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/klavins/LeanBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="foundations-of-lean"><a class="header" href="#foundations-of-lean">Foundations of Lean</a></h1>
+<p>by Eric Klavins</p>
+<p>The notes presented here were initially developed for a special topics graudate course on Lean I taught in the Winter of 2025. The course was taken mainly by Electrical and Computer Engineers with standard programming experience, some engineering mathematics background, and a variety of different application areas in mind. The main reading for the course included all the standard Lean references and books. These notes are merely a supplement for those excellent resources.</p>
+<p>That said, I hope the material presented here presents a unique and useful perspective that arose over several decades of my periodically checking in on proof assistants, becoming enamored for a while, and then moving on to other projects. For me, the alure of theorem provers is the possibility of once and for all connecting the foundations of mathematics (Type Theory in the case of Lean) with the work of practicing mathematicians and engineers. Thus, my presentation focuses on foundations, whereas other resources may focus more on the use of Lean for particular applications.</p>
+<p>Every new generation of proof assistant gets a bit closer to realizing the goal of making all of mathematics easily formalized. Of all of the tools available, from Agda to Rocq, none has captured my attention like Lean 4 has. I think it is the combination of tooling in VS Code, the self-boostrapping nature of Lean 4 being written in Lean 4, the simultaneous blossoming of machine learning, and the inspiring community of researchers exploring how to use Lean 4. These taken together seem to be giving Lean considerable momentum.</p>
+<p>My hope is that these notes are useful for students wishing to understand the type theoretic foundations of Lean and similar tools. I think such an understanding is useful for a variety of reasons. First, I think learning a computer programming language is aided by an understanding of how the language is executed or intepreted. For a language like C, it is hard to imagine becoming a true expert without understanding assembly language, stacks, memory allocation, and compilation. Just using a C debugger like <code>gdb</code> requires a fair amount of knowledge about the underlying model of computation. For Lean, the model is the lambda calculus, type checking, and type inference. When Lean doesn't work, students can spend hours trying various incantations to make it do what they want. With some understanding of the underlying model of computation, getting unstuck becomes easier. Second, there is no reason to think that the development of proof checkers is somehow complete with Lean as the final solution to the problems that have plagued such tools for decades. Understanding how Lean works will hopefully inspire someone (perhaps even me) to write their own proof checker someday, using Lean and its foundations as a reference architecture.</p>
+<p>Finally, the study of the foundations of mathematics is incredibly rich and interesting in its own right, like topology or number theory. I encourage the interested student to dig deeply into this material and then read the primary literature on Type Theory, to gain at least an appreciation if not a mastery of the wonders that underpin how Lean and its cohort of proof checkers work.</p>
+<h2 id="acknowledgements"><a class="header" href="#acknowledgements">Acknowledgements</a></h2>
+<p>I would like to acknowledge the students who took my special topics course offered the Winter of 2025 at the University of Washington. We all learned Lean together. At first, I was a few weeks ahead, and by the end of the course I was a few weeks behind. Much of the material here was developed in response to their questions and ideas.</p>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><h1 id="a-tour-of-lean-4"><a class="header" href="#a-tour-of-lean-4">A Tour of Lean 4</a></h1>
+<h2 id="installing-lean"><a class="header" href="#installing-lean">Installing Lean</a></h2>
+<p>The easiest way to install Lean is to follow the quickstart guide at</p>
+<ul>
+<li><a href="https://lean-lang.org/lean4/doc/quickstart.html">Lean Quickstart</a></li>
+</ul>
+<p>You will need first install VS Code:</p>
+<ul>
+<li><a href="https://code.visualstudio.com/">VS Code</a></li>
+</ul>
+<p>Then go to <code>View &gt; Extensions</code> and search for "Lean 4" and install it.</p>
+<p>This will put a <code>∀</code> in the upper right menu bar of VS Code. From there, you can create a new project, which should install Lean and all of the associated tools.</p>
+<h2 id="lean-project-types"><a class="header" href="#lean-project-types">Lean "Project" Types</a></h2>
+<p>With the VS Code Extension, you can install two types of projects:</p>
+<ul>
+<li>
+<p><strong>Standalone</strong> project. Just the basics.</p>
+</li>
+<li>
+<p><strong>Mathlib</strong> project. Includes a <em>huge</em> library of most basic and several advanced areas of mathematics. Choose this if in particular if you want to use real numbers, algebra, sets, matrices, etc.</p>
+</li>
+</ul>
+<p>Despite its size, I recommend starting a <em>Mathlib</em> based project. You never know when you might need something from Mathlib.</p>
+<p>Notes:</p>
+<ul>
+<li>Wait for the tool to completely finish before opening or changing anything.</li>
+<li>I don't like the option where it creates a new workspace</li>
+<li>Don't make a new project every time you want to try something out. You will use up all the space on your hard drive. Instead, create a single monolithic project and mkae subdirectores for ideas you want to explore.</li>
+</ul>
+<h2 id="directory-structure"><a class="header" href="#directory-structure">Directory Structure</a></h2>
+<p>If you create a new project called <code>MyProject</code>, you will get a whole directory of stuff:</p>
+<pre><code>   MyProject
+     .github/
+     .lake/
+     MyProject/                    &lt;-- put your code here
+       Basic.lean
+     .gitignore
+     MyProject.lean
+     lake-manifest.json
+     lakefile.toml
+     lean-toolchain
+     README.md
+</code></pre>
+<p>For now, you mainly need to know that the subdirectory with the same name as your project is where you can put your .lean files. It has one in it already, called <code>Basic.lean</code>. Open this and you can start playing with Lean.</p>
+<h2 id="testing-an-installation"><a class="header" href="#testing-an-installation">Testing an Installation</a></h2>
+<p>Try replacing the code in <code>Basic.lean</code> with the following:</p>
+<pre><code class="language-lean">import Mathlib.Tactic.Linarith
+
+#eval 1+2
+
+example (x y z : ℚ)
+        (h1 : 2*x &lt; 3*y)
+        (h2 : -4*x + 2*z &lt; 0)
+        (h3 : 12*y - 4* z &lt; 0) : False := by
+  linarith
+</code></pre>
+<p>If it is not open already, open <code>Lean infoview</code> via the ∀ menu.</p>
+<ul>
+<li>Put your curor over <code>1+2</code>. You should see 3 in the messages.</li>
+<li>Put your cursor just before <code>by</code> you will get some goals.</li>
+<li>Rut it after <code>linarith</code> you will see "No Goals", since the theorem is proved.</li>
+</ul>
+<h2 id="fancy-characters"><a class="header" href="#fancy-characters">Fancy Characters</a></h2>
+<p>You can enter fancy characters in Lean using escape sequences</p>
+<pre><code>  →                   \to
+  ↔                   \iff
+  ∀                   \forall
+  ∃                   \exists
+  ℕ                   \N
+  xᵢ                  x\_i
+</code></pre>
+<p>Go to</p>
+<pre><code>  ∀ &gt; Documentation &gt; ... Unicode ...
+</code></pre>
+<p>for a complete list.</p>
+<h2 id="type-checking"><a class="header" href="#type-checking">Type Checking</a></h2>
+<p>Lean is based on type theory. This means that every term has a very well defined type. To find the type of an expression, use #check. The result will show up in the Infoview.</p>
+<pre><code class="language-lean">#check 1
+#check "1"
+#check ∃ (x : Nat) , x &gt; 0
+#check λ x =&gt; x+1
+#check (4,5)
+#check ℕ × ℕ
+#check Type
+</code></pre>
+<h2 id="evaluation"><a class="header" href="#evaluation">Evaluation</a></h2>
+<p>You can use Lean to evaluate expressions using the #eval command. The result will show up in the Infoview.</p>
+<pre><code class="language-lean">#eval 1+1
+#eval "hello".append " world"
+#eval if 2 &gt; 2 then "the universe has a problem" else "everything is ok"
+#eval Nat.Prime 741013183
+</code></pre>
+<h2 id="proofs"><a class="header" href="#proofs">Proofs</a></h2>
+<p>We will go into proofs in great detail next week. For now, know that you can state theorems using the <code>theorem</code> keyword.</p>
+<pre><code class="language-lean">theorem my_amazing_result (p : Prop) : p → p :=
+  λ h =&gt; h
+</code></pre>
+<p>In this expression,</p>
+<p>my_amazing_result is the name of the theorem
+(p : Prop)        is an assumption that p is a proposition
+(true or false statement)
+p → p             is the actual theory
+:=                delinates the statement of the theorem
+from the proof
+λ h =&gt; h          (the identity function) is the proof</p>
+<p>You can use your theorems to prove other theorems:</p>
+<pre><code class="language-lean">theorem a_less_amazing_result : True → True :=
+  my_amazing_result True
+</code></pre>
+<h2 id="examples-vs-proofs"><a class="header" href="#examples-vs-proofs">Examples vs Proofs</a></h2>
+<p>Results don't have to be named, which is useful for trying things out or when you don't need the result again.</p>
+<pre><code class="language-lean">example (p : Prop) : p → p :=
+  λ h =&gt; h
+
+example (p q r : Prop) : (p → q) ∧ (q → r) → (p → r) :=
+  λ ⟨ hpq, hqr ⟩ hp =&gt; hqr (hpq hp)
+</code></pre>
+<h2 id="the-tactic-language-and-sorry"><a class="header" href="#the-tactic-language-and-sorry">The Tactic Language and <code>sorry</code></a></h2>
+<p>The examples above use fairly low level Lean expressions to prove statements. Lean provides a very powerful, higher level DSL (domain specific language) for proving. You enter the Tactic DSL using <code>by</code>.</p>
+<p>Proving results uses the super <code>sorry</code> keyword. Here is an example of Tactics and sorry.</p>
+<pre><code class="language-lean">example (p q r : Prop) : (p → q) ∧ (q → r) → (p → r) := by
+  intro h hp
+  have hpq := h.left
+  have hqr := h.right
+  exact hqr (hpq hp)
+</code></pre>
+<p>which can be built up part by part into</p>
+<pre><code class="language-lean">example (p q r : Prop) : (p → q) ∧ (q → r) → (p → r) := by
+  intro ⟨ hpq, hqr ⟩
+  intro hp
+  have hq : q := hpq hp
+  have hr : r := hqr hq
+  exact hr
+</code></pre>
+<p>Don't worry if none of this makes sense. We'll go into all the gory details later.</p>
+<h2 id="programming"><a class="header" href="#programming">Programming</a></h2>
+<p>Lean is also a full-fledged functional programming language. For example, much of Lean is programmed in Lean (and then compiled). That said, the Lean Programming Language is not really general purpose: You would probably lose your mind trying to build an operating system with Lean. Rather, Lean is a programming language designed first for programming Lean itself, and second for build mathematical data structures and algorithms.</p>
+<p>If you are not familiar with functional programming: you will be by then end of this book.</p>
+<p>Here is an example program:</p>
+<pre><code class="language-lean">def remove_zeros (L : List ℕ) : List ℕ := match L with
+  | [] =&gt; List.nil
+  | x::Q =&gt; if x = 0 then remove_zeros Q else x::(remove_zeros Q)
+
+#check remove_zeros
+
+#eval remove_zeros [1,2,3,0,5,0,0]
+</code></pre>
+<p>Note the similarity between <code>def</code> and <code>theorem</code>. The latter is simply a special kind of definition.</p>
+<h2 id="documentation"><a class="header" href="#documentation">Documentation</a></h2>
+<ul>
+<li>
+<p><a href="https://loogle.lean-lang.org/">Loogle</a> - Google for Lean</p>
+</li>
+<li>
+<p><a href="https://leanprover.zulipchat.com/">Zulip Chat</a></p>
+</li>
+<li>
+<p><a href="https://lean-lang.org/theorem_proving_in_lean4/title_page.html">Lean Theorem Proving Book</a></p>
+</li>
+<li>
+<p><a href="https://lean-lang.org/functional_programming_in_lean/title.html">Lean Functional Programming Book</a></p>
+</li>
+<li>
+<p><a href="https://leanprover-community.github.io/lean4-metaprogramming-book/">Lean Metaprogramming</a> -- Advanced!</p>
+</li>
+<li>
+<p><a href="https://leanprover-community.github.io/mathematics_in_lean">Mathematics in Lean</a></p>
+</li>
+<li>
+<p><a href="https://github.com/haruhisa-enomoto/mathlib4-all-tactics/blob/main/all-tactics.md">Tactics</a></p>
+</li>
+<li>
+<p><a href="https://github.com/leanprover/lean4/blob/ffac974dba799956a97d63ffcb13a774f700149c/src/Init/Prelude.lean">The Standard Library</a></p>
+</li>
+</ul>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><h1 id="the-simply-typed-λ-lambda-calculus"><a class="header" href="#the-simply-typed-λ-lambda-calculus">The Simply Typed λ-Lambda Calculus</a></h1>
+<h2 id="background"><a class="header" href="#background">Background</a></h2>
+<p>The <strong>λ-calculus</strong> was introduced in the 1930s by Alonzo Church as a way to represent how functions on natural numbers are calculated using symbols. The goal was to determine whether every function on the natural numbers had an effective means of being calculated.</p>
+<p>Said differently, the question is: Does every function have an algorithm? Astonishingly, Church showed that the answer is "no". In fact, there are functions on the natural numbers for which there is no effective algorithm. Church's 1935 paper "An unsolvable problem in elementary number theory" proved this result.</p>
+<p>The reasoning, roughly, is this:</p>
+<ul>
+<li>Devise a simple programming language, the λ-calculus</li>
+<li>Define computation as rewriting operations on λ-calculus terms</li>
+<li>Correspond to every term a natural number</li>
+<li>Conclude that questions about terms are thus questions about numbers</li>
+<li>Show there are more functions from terms into terms than there are terms.</li>
+</ul>
+<p>A specific problem that Church showed to be unsolvable is: Given λ-calculus terms M and N, show there does not exist a λ-calculus function that can determine whether M can be rewritten as N. Those who have studied theoretical computer science, may be familiar with Alan Turing's similar result which shows there is no Turing Machine that can determine whether a given Turing Machine eventually terminates. In fact, the λ-calculus can simulate Turing Machines and vice verse.</p>
+<p>The Church-Turing Thesis is the observation that <em>all</em> formalizations of computation are in fact equivalent to the λ-calculus or, equivalently, Turing Machines. The former is more convenient for symbolic reasoning, while the latter is more akin to how electromechanical computers actually work.</p>
+<h2 id="programming-languages"><a class="header" href="#programming-languages">Programming Languages</a></h2>
+<p>Thus, the λ-calclus and the formal notion of computation has its roots in the foundations of mathematics. Later, around the 1960s, linguists and computer scientists realized that the λ-calculus was an useful framework for the theory and design of programming languages.</p>
+<p>Simultaenously, logicians were becoming frustrated with Set Theory as a foundation for mathematics and started exploring Type Theory as an alternative. Around the 1990s many of these ideas came together, especially through the work of Thierry Coquand on the Calculus of Constructions. It was observed that typed programming languages were not only an ideal foundation for all of mathematics, they could be used to develop computational proof assistants and theoerm provers.</p>
+<h2 id="currys-paradox"><a class="header" href="#currys-paradox">Curry's Paradox</a></h2>
+<p>The original formulation of the λ-calculus allowed for infinite loops, as do most programming languages. This made the λ-calculus expressive enough for Church to prove his undecidability results, but it caused other problems when logicians wished to use formalisms like the λ-calculus as systems of logic.</p>
+<p>Haskel Curry discovered that one could encode the following paradox:</p>
+<ul>
+<li>Consider the self-referential statement X = X → Y where Y is <em>any</em> statement.</li>
+<li>Certainly X → X is true for any statement X.</li>
+<li>Substituting X → Y for the second X gives X → (X → Y)</li>
+<li>This statement is equivalent to X → Y, which is the same as X</li>
+<li>Thus X is true</li>
+<li>So Y is true since X → Y</li>
+</ul>
+<p>For example, X → Y could mean "If this sentence is true, then 1 &gt; 0." Any framework in which you can make this argument allows you to prove any statement Y, and so the framework is useless logically.</p>
+<h2 id="types"><a class="header" href="#types">Types</a></h2>
+<p>The solution was to give <em>types</em> to all terms in the λ-calculus. We will see below that certain self referential programs are impossible to assign types to. At the same time, infinite loops are no longer allowed, making the formalism not as powerful from a computational point of view.</p>
+<p>Thus was born the <em>simply-typed λ-calculus</em>. Eventually, more complicated types were added, in which type definitions could depend on other types or on even terms. Most modern programming languages and some logical frameworks have these properties.</p>
+<p>Church's paper on the subject is quite complicated, elucidating ideas that were fairly novel at the time. Since then, comptuer scientists have refined the ideas into a very simple framework, which is presented here, and which can be found in numerous textbooks. The notes in the first part of this section follow video lectures by students of Prof. Uwe Nestmann at the Technical University of Berlin, except that I have restated the formulas in Lean. A link to the videos can be found in the references at the end of this chapter. A Google search will yield hundreds of similar lectures, notes, books, and papers.</p>
+<h3 id="basic-types"><a class="header" href="#basic-types">Basic Types</a></h3>
+<p>The <code>simply typed λ-calculus</code> is an extremely simple programming language that nevertheless captures the essence of computation. It uses type expressions and terms that have those types. We start with the types. First, we assume a base type. In Lean the base type is called <code>Type</code>. You can ask lean what <code>Type</code> is using the <code>#check</code> directive (which stands for "Type Check").</p>
+<pre><code class="language-lean">#check Type
+</code></pre>
+<p>Lean tells you <code>Type</code> has <code>Type 1</code>, which is a synonym for <code>Type</code>. Don't worry about this right now and just accept that <code>Type</code> is a type. One constructs new types using the arrow <code>→</code> as in the following examples:</p>
+<pre><code class="language-lean">#check Type → Type
+#check Type → (Type → Type)
+#check (Type → Type) → Type
+</code></pre>
+<p>That is, whenevever τ is a type, so is τ → τ. Arrow types are supposed to denote function types. So τ → τ is the type of any function that takes objects in τ and returns objects in τ. Note that the arrow → associates to the right. So the second expression above is equivalent to <code>Type → Type → Type</code>.</p>
+<h3 id="type-variables-and-applications"><a class="header" href="#type-variables-and-applications">Type Variables and Applications</a></h3>
+<p>You can also define type variables using <code>def</code></p>
+<pre><code class="language-lean">def A := Type
+def B := Type → Type
+</code></pre>
+<p>Which looks a bit more like what you would see in a textbook on type theory. Now you can construct more types.</p>
+<pre><code class="language-lean">#check A → B
+</code></pre>
+<h2 id="terms"><a class="header" href="#terms">Terms</a></h2>
+<p>Next, we define the terms of the lambda calculus. These are the programs. We start with <strong>variables</strong>, for example <code>x</code> and <code>f</code>, which we declare in Lean as follows:</p>
+<pre><code class="language-lean">variable (x : A)               -- declare a variable x of type a
+variable (f : A → A)           -- declare a function f from A into A
+
+#check x
+#check f
+</code></pre>
+<p>What we've said here is that <code>x</code> is a simple object with type <code>A</code>, while <code>f</code> is an function type from <code>A</code> into <code>A</code>. Next we have <strong>applications</strong>. These have the form <code>e₁ e₁</code> where <code>e₁</code> and <code>e₂</code> are terms. For example,</p>
+<pre><code class="language-lean">#check f x
+#check f (f x)
+#check f (f (f x))
+</code></pre>
+<p>are all applications of terms to terms.</p>
+<h3 id="abstractions"><a class="header" href="#abstractions">Abstractions</a></h3>
+<p>Finally, we have <strong>abstractions</strong>, which have the form <code>λ (x : τ) =&gt; e</code> where <code>τ</code> is a type and <code>e</code> is a term. The <code>x</code> in this expression is said to be <code>bound</code> to the abstraction. It is a dummy variable and could be renamed without any change in meaning. For example, the following are terms in the λ-calculus:</p>
+<pre><code class="language-lean">#check λ (y : A) =&gt; y
+#check λ (g : A → A) =&gt; λ (y : A) =&gt; g y
+</code></pre>
+<p>In the first example, the abstraction defines a function that simply returns its argument. In the second example, the abstraction defines a function that takes another function <code>g</code> and returns yet another abstraction that takes an object <code>y</code> and returns <code>g</code> applied to <code>y</code>.</p>
+<p>Note that the parentheses group to the right, so the second example is equivalent to:</p>
+<pre><code class="language-lean">#check λ (g : A → A) =&gt; ( λ (y : A) =&gt; g y )
+</code></pre>
+<p>In Lean, we can also abbreviate a chained lamdba abstractions by writing:</p>
+<pre><code class="language-lean">#check λ (g : A → A) (y : A) =&gt; g y
+</code></pre>
+<h3 id="equivalence-with-def"><a class="header" href="#equivalence-with-def">Equivalence with <code>def</code></a></h3>
+<p>A lambda abstraction is basically an unamed function. You could also give your functions names and use <code>def</code>.</p>
+<pre><code class="language-lean">def inc₁ (x : Nat) : Nat := x + 1
+def inc₂ := λ x =&gt; x + 1
+
+#eval inc₁ 3
+#eval inc₂ 3
+#eval (λ x =&gt; x + 1) 3
+</code></pre>
+<h3 id="currying"><a class="header" href="#currying">Currying</a></h3>
+<p>Consider the lambda abstraction</p>
+<pre><code class="language-lean">variable (X : Type)
+variable (a : X)
+
+#check λ (g : X → X) =&gt; λ (x: X) =&gt; g x
+</code></pre>
+<p>If we apply the abstraction to particular function, then we get another function.</p>
+<pre><code class="language-lean">#reduce (λ (g : X → X) =&gt; λ (x: X) =&gt; g x) (λ x =&gt; x)
+</code></pre>
+<p>This way this new function is obtained is called <em>Currying</em> after Haskel Curry. The function can then be applied again:</p>
+<pre><code class="language-lean">#reduce (λ (g : X → X) =&gt; λ (x: X) =&gt; g x) (λ x =&gt; x) a
+</code></pre>
+<h2 id="type-derivation"><a class="header" href="#type-derivation">Type Derivation</a></h2>
+<p>All <strong>terms have types</strong>. These can be found using type theory's <strong>derivation rules</strong>:</p>
+<p><strong>VAR</strong>: Variables are declared either globally to have a given type (using Lean's variable command) or are bound in a λ-expression.</p>
+<p><strong>ABST</strong>: The type of an abstraction is always of the form A → B where A is the type of the argument and B is the type of the result.</p>
+<p><strong>APPL</strong>: If f : A → B and x : A, then the type of the application of f to x is B.</p>
+<p>These derivation rules are applied automatically by Lean in the process of type checking using the #check directive. We can see the types Lean derives as follows.</p>
+<pre><code class="language-lean">def h₁ := λ (y : A) =&gt; y
+def h₂ := λ (g : A → A) =&gt; λ (y : A) =&gt; g y
+
+#check x
+#check h₁
+#check h₂
+#check h₁ x
+#check h₂ h₁               --&gt; Example of currying
+#check h₂ h₁ x
+</code></pre>
+<p>Note: Currying is named after the Logician Haskel Curry, who studied Electrical Engineering at MIT in the 1920s, although he eventually switched to Physics.</p>
+<h2 id="type-errors"><a class="header" href="#type-errors">Type Errors</a></h2>
+<p>The typed lambda calculus disallows expressions that do not follow typing rules. For example, the following expression produces a type error</p>
+<pre><code class="language-lean">#check_failure λ (g : A) =&gt; λ (y : A) =&gt; g y
+</code></pre>
+<p>because g is not declared to be a function type and therefore cannot be applied to y.</p>
+<p>Another example is</p>
+<pre><code class="language-lean">#check_failure λ (y : A) =&gt; q
+</code></pre>
+<p>about which Lean complains because q has not been declared in the present context.</p>
+<h2 id="judgements-and-contexts"><a class="header" href="#judgements-and-contexts">Judgements and Contexts</a></h2>
+<p>When you hover over a #check directive, Lean shows the results of the type derivation as what is called a <strong>judgement</strong>. It is an expression in two parts separated by a <strong>turnstile</strong> ⊢. For example: <code>#check h₁ x</code> produces</p>
+<pre><code>  x : A
+  f : A → A
+  ⊢ A
+</code></pre>
+<p>Before the turnstile is the <strong>context</strong>, a list of all the variables introduced so far. After the turnstile is the type of (h₁ x), which in this case is A. In the literature, this written:</p>
+<pre><code>  { x : A, f : A → A }  ⊢  h₁ x : A
+</code></pre>
+<p>which reads: "If A has type A and f has type A → A, then we can derive h₁ x has type A". In an expression such as</p>
+<pre><code>  λ (y : A) =&gt; f y
+</code></pre>
+<p>the variable f is not bound to an enclosing lambda. In this case it is called <strong>free</strong>. The variable y on the other hand is <code>bound</code>. Free variables have to be declared in Lean for expressions to use them. And they have to have types consistent to how they are used. When this is done properly, you will see the free variable declarations in the context part of Lean's results.</p>
+<h2 id="beta-reduction"><a class="header" href="#beta-reduction">Beta Reduction</a></h2>
+<p>An abstraction can be <code>applied</code> to another term to produce a new term. This is called β-reduction. It is defined like this:</p>
+<pre><code>  (λ (x:α) =&gt; M) N   —β—&gt;   M[x:=N]
+</code></pre>
+<p>The notation M[x:=N] means: take all <strong>free</strong> occurances of x in M and replace them with the expression N. We have to be careful that N does not use the variable x freely. Lean does this internally for us The bound version of x above is, internally, a completely unique variable that is just displayed as x for our convenience.</p>
+<p>To apply β-reduction in Lean, you can use the #reduce directive. For example, we can see that</p>
+<p>(λ (g : α → α) =&gt; λ (y : α) =&gt; g y) f   —β—&gt;   λ (y : α) =&gt; f y</p>
+<p>This is obtained by replacing g in g y with f, as the rule describes. You can have Lean do this for you using the #reduce directive. The #reduce directive needs permission to be aggressive, which we can do using the (types := true) option.</p>
+<pre><code class="language-lean">#reduce (types:=true) (λ (y : A) =&gt; y) x
+#reduce (types:=true) (λ (g : A → A) =&gt; λ (y : A) =&gt; g y) (λ (y : A) =&gt; y)
+#reduce (types:=true) (λ (g : A → A) =&gt; λ (y : A) =&gt; g y) (λ (y : A) =&gt; y) x
+</code></pre>
+<h2 id="properties-of-the-simply-typed-λ-calculus"><a class="header" href="#properties-of-the-simply-typed-λ-calculus">Properties of the Simply Typed λ-calculus</a></h2>
+<p>Some interesting observations are in order. We won't prove these here, but they are good to know:</p>
+<p><strong>Uniqueness of Types</strong>: Every term has exacly one type.</p>
+<p><strong>Subject Reduction Lemma</strong>: If M₁ : α and M₁ —β—&gt; M₂ then M₂ : α. That is, beta reduction does't change the type of expressions. It just simplifies them.</p>
+<p><strong>Church-Rosser Theorem</strong>: If M —β—&gt; N₁ and M —β—&gt; N₂ then there is some N₃ such that N₁ —β—&gt; N₃ and N₂ —β—&gt; N₃. That is, it doesn't matter what order you β-reduce an expression's sub-expressions in, you always end up with the same term.</p>
+<p><strong>Strong Normalization</strong>: β-reduction eventually stops at an irreducible term. This is a very strong statement. In most programming languages, you can write infinite loops. But not in the simply typed lambda calculus!</p>
+<h2 id="why-is-it-called-simply-typed"><a class="header" href="#why-is-it-called-simply-typed">Why is it Called "Simply Typed"?</a></h2>
+<p>You might be asking yourself, is there a non-simply typed λ-calculus? The answer is yes! We will get there eventually. Here's a preview:</p>
+<p><strong>Simple types</strong> Terms depend on terms.</p>
+<blockquote>
+<p>Example: In (λ x : A =&gt; M) the term M depends on the term x.</p>
+</blockquote>
+<p><strong>Polymorphism</strong> Terms can depend on types.</p>
+<blockquote>
+<p>Example: (λ α : Type =&gt; λ x : α =&gt; x) is a polymorphic identity function.</p>
+</blockquote>
+<p><strong>Parameterized Types</strong> Types can depend on types.</p>
+<blockquote>
+<p>Example: Pair X Y is a type for any types X and Y.</p>
+</blockquote>
+<p><strong>Dependent types</strong> Types can depend on terms.</p>
+<blockquote>
+<p>Example: Vector n X, the vector of n objects of type X.</p>
+</blockquote>
+<p><strong>Calculus of Constructions</strong> All of the above.</p>
+<p><strong>Inductive Types</strong>: Types can be defined inductively.</p>
+<blockquote>
+<p>Example: The natural numbers are defined by a base case (zero) and a successor function (succ), from which all other natural numbers can be constructed.</p>
+</blockquote>
+<p><strong>Quotients</strong>: Quotients of types via equivalence relations.</p>
+<blockquote>
+<p>Example: A real number is defined to be the set of all Cauchy sequences of rational numbers that converge to it. That is, the reals are the quotient of the set of Cauchy Sequences by Cauchy equivalence.</p>
+</blockquote>
+<p>With all of these types of types, you can define an most of logic and mathematics!</p>
+<h2 id="extended-example-church-numerals"><a class="header" href="#extended-example-church-numerals">Extended Example: Church Numerals</a></h2>
+<p>Even though the λ-calculus looks simple, you can encode quite a bit of math with it. The goal of this next section is to show you how do do arithmetic with only what we have so far. We do this not because it is efficient -- it isn't! Instead, we want to show that the essence of arithmetic is captured by the λ-calculus.</p>
+<p>First, we need a way to represent numbers. Church devised the following scheme, where c₀ is the <strong>Church Numeral</strong> for 0 and so on.</p>
+<pre><code class="language-lean">def α := Type
+
+def c₀ := λ ( f : α → α ) =&gt; λ ( x : α ) =&gt; x
+def c₁ := λ ( f : α → α ) =&gt; λ ( x : α ) =&gt; f x
+def c₂ := λ ( f : α → α ) =&gt; λ ( x : α ) =&gt; f (f x)
+def c₃ := λ ( f : α → α ) =&gt; λ ( x : α ) =&gt; f (f (f x))
+</code></pre>
+<p>You can check the type of a Church numeral:</p>
+<pre><code class="language-lean">#check c₂
+</code></pre>
+<p>For convenience, let's give this type a name:</p>
+<pre><code class="language-lean">def N := (α → α) → α → α
+
+#check N
+</code></pre>
+<h3 id="arithmetic"><a class="header" href="#arithmetic">Arithmetic</a></h3>
+<p>We can define functions on numbers. For example, the successor function is defined below.</p>
+<pre><code class="language-lean">def succ := λ (m : N) =&gt; λ (f : α → α) =&gt; λ (x: α) =&gt; f (m f x)
+</code></pre>
+<p>To see how this works, let's apply succ to c₀. We omit the types to make it easier to read. Note for clarity we use the dummy variables g and y in c₀ instead of f and x.</p>
+<p>succ c₀ = ( λ m =&gt; λ f =&gt; λ x =&gt; f (m f x) )  ( λ g =&gt; λ y =&gt; y )
+—β—&gt; λ f =&gt; λ x =&gt; f ( ( λ g =&gt; λ y =&gt; y ) f x )
+[note, g is not used, so f x disappears]
+—β—&gt; λ f =&gt; λ x =&gt; f ( ( λ y =&gt; y ) x )
+—β—&gt; λ f =&gt; λ x =&gt; f x
+= c₁</p>
+<p>This is a lot of work, so let's let Lean do this for us:</p>
+<pre><code class="language-lean">#reduce (types := true ) succ c₀
+#reduce (types := true ) succ c₃
+</code></pre>
+<h3 id="other-operations"><a class="header" href="#other-operations">Other Operations</a></h3>
+<p>We can also add two numbers together:</p>
+<pre><code class="language-lean">def add := λ (m : N) =&gt; λ (n : N) =&gt; λ (f : α → α) =&gt; λ (x: α) =&gt; m f (n f x)
+
+#reduce (types := true) add c₃ c₂
+#reduce (types := true) add (succ c₃) (add c₁ c₂)
+</code></pre>
+<p>And here is multiplication:</p>
+<pre><code class="language-lean">def mul :=  λ (m : N) =&gt; λ (n : N) =&gt; λ (f : α → α) =&gt; λ (x: α) =&gt; m (n f) x
+
+#reduce (types := true) mul c₃ c₂
+</code></pre>
+<p>We can even do a sort of if-statement:</p>
+<pre><code class="language-lean">def ifzero := λ (m : N) =&gt; λ (n : N) =&gt; λ (p : N) =&gt;
+              λ (f : α → α) =&gt; λ (x: α) =&gt;
+              n (λ ( y : _ ) =&gt; p f x) (m f x)
+
+#reduce (types := true) ifzero c₂ c₀ c₃
+#reduce (types := true) ifzero c₂ c₁ c₃
+</code></pre>
+<h3 id="lean-can-prove-11--2"><a class="header" href="#lean-can-prove-11--2">LEAN CAN PROVE 1+1 = 2</a></h3>
+<pre><code class="language-lean">theorem one_plus_one_is_two : add c₁ c₁ = c₂ :=
+  rfl
+</code></pre>
+<p>You can prove this by rfl because, as we will see, two lambda expressions that beta reduce to the same thing are considered <code>definitionally equal</code>. Although this is not scalable and in fact Lean has a much more expressive type system that we will harness soon.</p>
+<h3 id="church-numerals-are-inconvenient"><a class="header" href="#church-numerals-are-inconvenient">Church Numerals are Inconvenient</a></h3>
+<p>You can define other opertations on the natural numbers in a similar fashion. It is also fairly straightforward to define Booleans and Boolean Logic, as well as a number of other basic mathematical structures.</p>
+<p>Building up from these basic ideas to more complex mathematics is the point of Lean. Eventually, we will arrive at cutting edge mathematics in Lean. Because it is defined in terms of thee basic building blocks, we always have a proof that goes from the high level mathematica statements to the low level meaning in terms of the typed λ-calculus: That is, a proof from first princples.</p>
+<p>That said, it will ultimately be better to define a richer set of types. For example, we'll define the natural numbers and almost every other mathematical object in Lean using what are called <a href="InductiveTypes.html">Inductive Types</a>.</p>
+<h2 id="type-theory-questions"><a class="header" href="#type-theory-questions">Type Theory Questions</a></h2>
+<p>Now that we have a simple programming language and a way to assign types to terms in that language, we can explore a number of problems in type theory, each with its own purpose and challenges.</p>
+<p><strong>TYPE CHECKING</strong>: In a given context, does a term M have a given type σ?</p>
+<pre><code>Γ ⊢ M : σ
+</code></pre>
+<p><strong>WELL TYPEDNESS</strong>: Does there exist a context in which a type be assigned to a term M? Another way of saying this is "is M a legal term?"</p>
+<pre><code>? ⊢ M : ?
+</code></pre>
+<p><strong>TYPE INFERENCE</strong>: Can M be assigned a type consistent with a given context?</p>
+<pre><code>Γ ⊢ M : ?
+</code></pre>
+<p><strong>INHABITATION</strong>: Does there exist a term of a given type? If σ is a logical statement, then this is the question of whether σ has a proof.</p>
+<pre><code>Γ ⊢ ? : σ
+</code></pre>
+<h1 id="type-inference"><a class="header" href="#type-inference">Type Inference</a></h1>
+<p>Lean is good at type inference. We can go a step further with Lean and leave out types in expressions, letting Lean infer what they must be. For example, the Church numerals can be written more consicely, skipping some of the type declarations and using multi-argument lambdas, as follows:</p>
+<pre><code class="language-lean">#check λ _ y =&gt; y
+#check λ ( g : α → α ) y =&gt; g y
+#check λ ( g : α → α ) y =&gt; g (g y)
+</code></pre>
+<p>We haven't said what the type of y is in these expressions. And we haven't even given the first bound variable in c₀ a name, since it isn't used in the the body of the abstraction. Lean infers that y must have type α because it is being acted upon by a function from α to α. We can also write the other operations, like multiplication, more concisely:</p>
+<pre><code class="language-lean">#check λ (m n : N) f x =&gt; m (n f) x
+</code></pre>
+<p>We can't leave out all of the type information though. Consider:</p>
+<pre><code class="language-lean">#check_failure λ g y =&gt; g y
+</code></pre>
+<p>In the above, there are any number of ways types could be assigned to g and y, so Lean complains that it can't assign types to them. So while the expression is typeable, Lean can't infer a type for it and you have to give it more information.</p>
+<h3 id="self-application-is-untypeable"><a class="header" href="#self-application-is-untypeable">Self-application is Untypeable</a></h3>
+<p>Dropping types for the moment, define the term</p>
+<pre><code>Ω := λ x =&gt; x x
+</code></pre>
+<p>and consider Ω applied to itself Ω:</p>
+<pre><code>(λ x =&gt; x x) (λ x =&gt; x x)       —β—&gt;       (λ x =&gt; x x) (λ x =&gt; x x)
+</code></pre>
+<p>producing an infinite loop. Suppose you could give M M a type:</p>
+<pre><code>M M : σ
+</code></pre>
+<p>For this to work, M has to be a function:</p>
+<pre><code>M : τ → σ
+</code></pre>
+<p>But since M is operating on itself, M has to be of type τ:</p>
+<pre><code>M : τ
+</code></pre>
+<p>So M has two different types, which is not possible. Lean is not able to find a type for x. The placeholder symbol _ is used by Lean as a way to ask the type checker to infer a type.</p>
+<pre><code class="language-lean">#check_failure (λ (M:_) =&gt; M M)
+</code></pre>
+<h2 id="propositions"><a class="header" href="#propositions">Propositions</a></h2>
+<p>Lean has a special type called <code>Prop</code> which stands for <code>Proposition</code>. It treats this type somewhat differently than all other types, but in most ways it ist just another type.</p>
+<pre><code class="language-lean">variable (p : Prop)
+#check Prop
+#check p
+</code></pre>
+<p>If p is of type <code>Prop</code>, then an element <code>hp : p</code> is evidence that the type p is not empty. Alternatively, you can think of hp as a <code>proof</code> of p.</p>
+<p>Furthermore, arrow types which above denoted functions, can be thought of as denoting <strong>implication</strong> if <code>Prop</code> is involved.</p>
+<pre><code class="language-lean">#check p → p
+</code></pre>
+<p>Armed with the lambda calculus and we can now prove theorems involving implication:</p>
+<pre><code class="language-lean">example (p : Prop) : p → p :=
+  λ hp =&gt; hp
+
+example (p q : Prop) : p → (p → q) → q :=
+  λ hp =&gt; λ hpq =&gt; hpq hp
+</code></pre>
+<h2 id="looking-ahead-the-curry-howard-correspondence"><a class="header" href="#looking-ahead-the-curry-howard-correspondence">Looking ahead: the Curry-Howard Correspondence</a></h2>
+<p>The most important problem in using type theory for proofs is INHABITATION, followed by TYPE CHECKING. To motivate why, we will see later the following remarkable fact, called the Curry-Howard corresponence, which says that in the judgement Γ ⊢ M : σ,</p>
+<ul>
+<li>Γ can be considered a set of givens or assumptions</li>
+<li>σ can be considered a mathematical statement like a theorem or lemma</li>
+<li>M can be considered a proof of the theorem assuming the statements in Γ.</li>
+</ul>
+<p>Thus, type checking amounts to checking that M is a proof of σ, which is a relatively straightfoward problem and we have seen that Lean is quite good at it. This is why tools like Lean are called <code>proof assistants</code>. They check to make sure your proofs are correct.</p>
+<p>On the other hand, type inhabitation amounts to finding a proof of σ. This is a very difficult problem, essentially the job of the working mathematician. From a computational point of view, finding a proof means searching over terms M until one finds one that has type σ. Depending on how expressive the programming language for terms is, this can either be a computationally intractable problem (meaning search is the best you can do) or it can be a computationally unsolvable problem (meaning there may not be an algorithm that is guaranteed to find an M of type σ). Both of these observations are job security for mathematicians!</p>
+<p>Going a step further, we'll see that an abstraction</p>
+<pre><code>λ p : σ =&gt; q
+</code></pre>
+<p>which may have type</p>
+<pre><code>σ → τ
+</code></pre>
+<p>is the general form of a proof of the statement σ → τ where → means "implies". It can be thought of as a transformation taking a proof of σ, which one assumes is available, and returning a proof of τ, which is thought of as a goal to be proved. Writing the details of what q is amounts to programming.</p>
+<p>As a computer scientist myself it is very satisfying to know that programming functions with given type specifications is <em>the same thing as</em> proving theorems!</p>
+<p>This idea is not merely cute. By building on it, as Lean and similar tools do, one can enocde an astonishingly large set of all of mathematics, and presumably knowledge in general. We'll learn how to take advantage of the Curry-Howard corresponence soon.</p>
+<h1 id="references"><a class="header" href="#references">REFERENCES</a></h1>
+<p>Alonzo Church
+"An Unsolvable Problem of Elementary Number Theory"
+American Journal of Mathematics, 1936.
+https://www.jstor.org/stable/2371045</p>
+<p>Haskell B Curry
+"The Inconsistency of Certain Formal Logics"
+The Journal of Symbolic Logic, 1942.
+https://www.cambridge.org/core/journals/journal-of-symbolic-logic/article/abs/inconsistency-of-certain-formal-logics/FF38B653569E479408EC4DDD26DD7918</p>
+<p>Alonzo Church
+"A formulation of the simple theory of types"
+Journal of Symbolic Logic, 1940
+http://www.classes.cs.uchicago.edu/archive/2007/spring/32001-1/papers/church-1940.pdf</p>
+<p>Uwe Nestmann and Students
+"The Lambda Cube Unboxed"
+YouTube, 2020
+https://www.youtube.com/playlist?list=PLNwzBl6BGLwOKBFVbvp-GFjAA_ESZ--q4</p>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><h1 id="propositional-logic"><a class="header" href="#propositional-logic">Propositional Logic</a></h1>
+<h1 id="propositions-1"><a class="header" href="#propositions-1">Propositions</a></h1>
+<p>A <strong>proposition</strong> is a statement that is either true or false. The following are examples:</p>
+<ul>
+<li>It is raining outside.</li>
+<li>All cats are animals.</li>
+<li>Darth Vader is Luke's Father.</li>
+<li>Four is greater than five.</li>
+</ul>
+<p>In propositional logic, we assign <strong>propositional variables</strong> to represent the value of these statments. So we might make the assignments:</p>
+<ul>
+<li>p := It is raining outside.</li>
+<li>q := All cats are animals.</li>
+<li>r := Darth Vader is Luke's Father.</li>
+<li>s := Four is greater than five.</li>
+</ul>
+<p>In Lean, we declare propositional variables as follows:</p>
+<pre><code class="language-lean">variable (p q r s : Prop)
+</code></pre>
+<p>Note that we are not saying p is the English language sentence "It is raining outside". We are not doing natural language processing here. Rather, we are saying that <code>p</code> is a <strong>propositional variable</strong> that is true when it actually is raining outside, and false otherwise. To determine the truth value of <code>p</code>, we would need some way to check whether it is raining outside (as well as some specifics like outside <em>where</em> and <em>when</em>? For now, we'll just be informal about such things).</p>
+<h2 id="atomic-vs-compound-propositions"><a class="header" href="#atomic-vs-compound-propositions">Atomic vs Compound Propositions</a></h2>
+<p>A propsition that corresponds to a direct measurement or other basic truth is called <strong>atomic</strong>. It cannot be sub-divided into more basic propositions. Otherwise it is called compound. For example, the proposition</p>
+<ul>
+<li>It is raining outside or all cats are animals.</li>
+</ul>
+<p>is a compound proposition that uses the <em>connective</em> "or", written as <code>∨</code> to connect two atomic propositions. Symbolically, we write</p>
+<pre><code class="language-lean">#check p ∨ q
+</code></pre>
+<p>to check that the compound <code>p ∨ q</code> is a proposition.</p>
+<p>Students used to digital logic will wonder why we are using ∨ instead of the symbol +. The main reason is that + will usually mean actual addition when things get more complicated. Thus, mathematicans have invented new symbols for logical connectives. Here are the most important for our current purposes:</p>
+<pre><code class="language-lean">#check ¬p               -- not p
+#check p ∨ q            -- p or q
+#check p ∧ q            -- p and q
+#check p → q            -- p implies q
+#check p ↔ q            -- p if and only if q
+#check True
+#check False
+</code></pre>
+<p>We also have the propositional <code>False</code> which denotes <strong>absurdity</strong>. In intuitionistic logic, <code>¬p</code> is just shorthand for</p>
+<pre><code>p → False
+</code></pre>
+<pre><code class="language-lean">#check False
+#check p → False
+</code></pre>
+<p>Also note that ↔ is just shorthand for → in both directions</p>
+<pre><code>p ↔ q  ≡  p → q ∧ q → p
+</code></pre>
+<h2 id="constructive-proofs"><a class="header" href="#constructive-proofs">Constructive Proofs</a></h2>
+<p>The goal is this chapter is to define a mathematical framework in which we prove statements by constructing proofs. In particular,</p>
+<ul>
+<li>To prove p ∧ q we construct a proof of p and another proof of q.</li>
+<li>To prove p ∨ q we construct a proof of p or we construct a proof of q.</li>
+<li>To prove p → q we supply a method for converting a proof of p into a proof of q</li>
+<li>To prove ¬p (which is p → ⊥) we supply a method to convert a proof of p to ⊥</li>
+</ul>
+<h3 id="example-a-constructive-proof-in-lean"><a class="header" href="#example-a-constructive-proof-in-lean">Example: A Constructive Proof in Lean</a></h3>
+<pre><code class="language-lean">example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
+  Iff.intro
+    (λ h : p ∧ (q ∨ r) =&gt;
+      have hp : p := h.left
+      have hqr : q ∨ r := h.right
+      Or.elim hqr
+        (λ hq : q =&gt; Or.inl (And.intro hp hq))
+        (λ hr : r =&gt; Or.inr (And.intro hp hr))
+    )
+    (λ h : (p ∧ q) ∨ (p ∧ r) =&gt;
+      Or.elim h
+        (λ hpq : p ∧ q =&gt; And.intro hpq.left (Or.inl hpq.right))
+        (λ hpr : p ∧ r =&gt; And.intro hpr.left (Or.inr hpr.right))
+    )
+</code></pre>
+<p>Don't worry if this doesn't make sense right now. It will soon.</p>
+<h2 id="comparison-to-classical-logic"><a class="header" href="#comparison-to-classical-logic">Comparison to Classical Logic</a></h2>
+<p>We have defined <strong>intuitionistic</strong> logic or <strong>constructive logic</strong>, different from <strong>classical logic</strong>. In classical logic, the truth of a statement like</p>
+<pre><code>p ∨ ¬p
+</code></pre>
+<p>is guaranteed by the <strong>law of the exluded middle</strong>. You know one of them must be true. In constructive mathematics, you have to either construct a proof of <code>p</code> or construct a proof of <code>¬p</code>. As an example, consider the proposition:</p>
+<blockquote>
+<p>The universe is infinite or the universe is finite.</p>
+</blockquote>
+<p>Neither part of this compound proposition currently has a proof. Classically, we would still conclude it is true, but constructively we are just stuck. Similar issues arise with famous mathematical conjectures such as</p>
+<blockquote>
+<p>P = NP or P ≠ NP</p>
+</blockquote>
+<p>and</p>
+<blockquote>
+<p>There are either a finite number of twin primes, or an infinite number of twin primes.</p>
+</blockquote>
+<p>These statements may be proved some day, but for now, we cannot conclude they are true using constructive mathematics.</p>
+<h3 id="double-negation"><a class="header" href="#double-negation">Double Negation</a></h3>
+<p>Similar to the law of the excluded middle is double negation:</p>
+<pre><code>¬¬p ↔ p
+</code></pre>
+<p>Classically, this is a tautology (a proposition that is always true). But constructively, from a proof of "it is not the case that p is not true" one cannot necessarily construct a proof that <code>p</code> is true.</p>
+<p>As a result, <code>proof by contradiction</code> is not valid constructively, because in proof by contradition one follows the procedure:</p>
+<pre><code>To prove `p`, assume `¬p` and derive `False`.
+</code></pre>
+<p>Just because we have a way to transform a proof of <code>¬p</code> into <code>False</code> does not mean we can have a construction of a proof of <code>p</code>.</p>
+<h3 id="classical-logic"><a class="header" href="#classical-logic">Classical Logic</a></h3>
+<p>TODO</p>
+<h2 id="contexts"><a class="header" href="#contexts">Contexts</a></h2>
+<p>We now begin to build a framework for proving theorems in propositional logic. The first thing we need is a way to keep track of what propositions we currently know in the course of proving something.</p>
+<p>To this end we define a <strong>context</strong> to be a finite set of propositions. Given two contexts <code>Γ</code> and <code>Δ</code> we can take their union <code>Γ ∪ Δ</code> to make a new context. The notation is a bit cumbersome, so we write <code>Γ,Δ</code> instead. In particular, if <code>φ ∈ Φ</code> then <code>Γ,φ</code> is shorthand for <code>Γ ∪ {φ}</code>.</p>
+<p>If we can show that a proposition <code>φ</code> is true whenever all the propositions in a context <code>Γ</code> are true, we write</p>
+<pre><code>Γ ⊢ φ
+</code></pre>
+<p>which reads gamma <code>entails</code> <code>φ</code>. Furthermore, if a proposition <code>φ</code> is tautology (meaning it is always true like <code>p ↔ p</code>) then it is true independent of any context. That is, the empty context entials any tautology. Thus, we write</p>
+<pre><code>⊢ φ
+</code></pre>
+<p>to mean <code>∅ ⊢ φ</code>. We will define precisely what the entails relationship means next.</p>
+<h2 id="rules-of-inference"><a class="header" href="#rules-of-inference">Rules of Inference</a></h2>
+<p>A <strong>rule of inference</strong> is set of <strong>premises</strong> and a <strong>conclusion</strong> that can be drawn from those premises. The propositional logic we define has only a handful of rules of inference from which all proofs can be constructed. They are presented with a name followed by what looks like a fraction with the premises listed on top and the conslusion on the bottom.</p>
+<pre><code>                Γ₁ ⊢ A    Γ₂ ⊢ B    Γ₃ ⊢ C
+  RULE NAME    ————————————————————————————
+                          Γ ⊢ D
+</code></pre>
+<p>In this schemantic, the rule has three premises, each of which describe an assumption that a particular context entails a particular proposition. And the rule has one conclusion, stating the entailment you are allowed to conclude. Usually, the contexts listed and the propositions are related in some way. - #</p>
+<h3 id="axioms"><a class="header" href="#axioms">Axioms</a></h3>
+<p>The first rule has no premises and simply states that <code>φ</code> can be concluded from any context containing φ. Said constructively, if we have a proof of <code>φ</code>, then obviously we can construct a proof of <code>φ</code>.</p>
+<pre><code>  AX  ——————————
+       Γ,φ ⊢ φ
+</code></pre>
+<p>Here is a simple proof that <code>{hp:p} ⊢ p</code> in Lean using the Axiom rule:</p>
+<pre><code class="language-lean">example (hp : p) : p :=
+  hp
+</code></pre>
+<p>If you look at this proof in the infoview, putting your cursor at the beginning of the second like, you will see</p>
+<pre><code>hp : p
+⊢ p
+</code></pre>
+<p>Which says, give we have a proof <code>hp</code> of <code>p</code>, we need show <code>p</code>. This is easy, we jsut use <code>hp</code> itself.</p>
+<h2 id="and-rules"><a class="header" href="#and-rules">And Rules</a></h2>
+<p>Next we have three rules for the ∧ connective:</p>
+<pre><code>              Γ ⊢ φ   Γ ⊢ ψ
+  ∧-Intro  ———————————————————
+               Γ ⊢ φ ∧ ψ
+
+                  Γ ⊢ φ ∧ ψ
+  ∧-Elim-Left   ——————————————
+                    Γ ⊢ φ
+
+                  Γ ⊢ φ ∧ ψ
+  ∧-Elim-Right  —————————————
+                    Γ ⊢ ψ
+</code></pre>
+<p>Whenever we see "Intro" that means we are introducing a connective (in this case <code>∧</code>) into our conclusion. Whenever we see "Elim" that means we are eliminating part of a compound statement in our conclusion. Here, the <strong>And Introduction</strong> rule shows that we can construct a proof of <code>φ ∧ ψ</code> whenever the context contains a proof of <code>φ</code> and a proof of <code>ψ</code>. The <strong>And Elimination</strong> rules allow us to "eliminate" half of the proposition <code>φ ∧ ψ</code> to conclude the weaker statement <code>φ</code> or to conclude the weaker statement <code>ψ</code>. Said differently, if we have a proof of <code>φ∧ψ</code> then we can construct a proof of <code>φ</code> by just eliminating the part of the proof of <code>φ∧ψ</code> that shows <code>ψ</code>.</p>
+<p>Here are examples of all of these rules in Lean</p>
+<pre><code class="language-lean">example (hp : p) (hq : q) : p ∧ q :=
+  And.intro hp hq
+
+example (hpq : p ∧ q) : p :=
+  And.left hpq
+
+example (hpq : p ∧ q) : q :=
+  And.right hpq
+</code></pre>
+<h2 id="or-rules"><a class="header" href="#or-rules">Or Rules</a></h2>
+<p>Then we have three rules for the ∨ connective:</p>
+<pre><code>                   Γ ⊢ φ
+ ∨-Intro-Left   ———————————
+                 Γ ⊢ φ ∨ ψ
+
+                    Γ ⊢ ψ
+ ∨-Intro-Right   ————————————
+                  Γ ⊢ φ ∨ ψ
+
+            Γ,φ ⊢ ρ    Γ,ψ ⊢ ρ    Γ ⊢ φ ∨ ψ
+ ∨-Elim   ————————————————————————————————————
+                      Γ ⊢ ρ
+</code></pre>
+<p>The <strong>Or Introduction</strong> rules allow us to conclude <code>φ ∨ ψ</code> from one of its parts. The <strong>Or Elimination</strong> rule looks complicated, but it is straightforward. It says that if we know <code>Γ ⊢ φ ∨ ψ</code> then we know that <code>Γ</code> must entail either <code>φ</code> or <code>ψ</code>. If we also know that both <code>φ</code> and <code>ψ</code> separately entail <code>ρ</code>, then we know that <code>Γ</code> must entail <code>ρ</code>.</p>
+<h2 id="implies-rules"><a class="header" href="#implies-rules">Implies Rules</a></h2>
+<p>Next we have two rules for the → connective:</p>
+<pre><code>              Γ,φ ⊢ ψ
+  →-Intro   ————————————
+             Γ ⊢ φ → ψ
+
+            Γ ⊢ φ → ψ    Γ ⊢ φ
+  →-Elim   —————————————————————
+                 Γ ⊢ ψ
+</code></pre>
+<p>The <strong>Implies Introduction</strong> rule allows us to introduce <code>φ → ψ</code> whenever we have <code>Γ</code> and <code>φ</code> together entailing <code>ψ</code>. The <strong>Implies Elimination</strong> rule is also know as <strong>Modus Ponens</strong>. It states that if we know <code>φ</code> implies <code>ψ</code> and we know <code>φ</code>, then we know <code>ψ</code>.</p>
+<p>Looking ahead, notice that implies is written with an arrow <code>→</code> just like function abstraction in the λ-calculus. This is because one way to think about a proof of <code>φ→ψ</code> is to require it to have the form of a function that converts proofs of <code>φ</code> into proofs of <code>ψ</code>.</p>
+<h1 id="ex-falso"><a class="header" href="#ex-falso">EX FALSO</a></h1>
+<p>Finally, we have the a rule for the ¬ connective:</p>
+<pre><code>          Γ ⊢ ⊥
+</code></pre>
+<p><code>⊥-Elim</code> ————————————
+Γ ⊢ φ</p>
+<p>which states that you can conclude anything if you have a proof of ⊥. This rule is also know as <code>ex falso sequitur quodlibet</code> or just <code>ex falso</code> or the <code>principle of explosion</code>!</p>
+<h1 id="proofs-1"><a class="header" href="#proofs-1">PROOFS</a></h1>
+<p>A <code>proof</code> that Γ ⊢ φ is sequence of statements of the form Γ' ⊢ φ' each of which is either (a) an axiom or (b) obtained from previous statements in the sequence by one of the inference rules.</p>
+<h1 id="example-1"><a class="header" href="#example-1">EXAMPLE 1</a></h1>
+<p>As an example, we will prove the statement</p>
+<p>∅ ⊢ (p∧q)→p</p>
+<p>Working backwards from this goal, we see that →-Intro can be applied to produce this statement where φ is p∧q and ψ is p. Thus, we get an instance of →-Intro of the form</p>
+<pre><code>p∧q ⊢ p
+</code></pre>
+<p>———————————          (Instantiation of →-Intro)
+⊢ (p∧q)→p</p>
+<p>We have now a simpler problem, which is to show p∧q ⊢ p. The ∧-Elim-Left rule applies here with φ=p∧q, ψ=p, and Γ={p∧q} giving us the instance</p>
+<pre><code>p∧q ⊢ p∧q
+</code></pre>
+<p>——————————————       (Instantiation of ∧-Elim-Left)
+p∧q ⊢ p</p>
+<h1 id="example-1-proof-presenation"><a class="header" href="#example-1-proof-presenation">EXAMPLE 1 PROOF PRESENATION</a></h1>
+<p>And now we have an even simpler problem, which is to show that p∧q ⊢ p∧q. But this matches the axiom rule with Γ={p∧q} and φ = p∧q. Putting all this together into a proof gives us the following:</p>
+<ol>
+<li>p∧q ⊢ p∧q          axiomatically</li>
+<li>p∧q ⊢ p            from (1) via ∧-Elim-Left</li>
+<li>⊢ (p∧q)→p          from (2) via →-Intro</li>
+</ol>
+<p>And that's it. Our first proof!</p>
+<p>What you should take away from this is constructing this proof is a purely syntactic endeavor. One can easily imagine an algorithm that does this automatically by pattern matching a given sub-goal against the Γ, φ and ψ in the description of a inference rule. The challenge is, of course, as we introduce more expressibility into our logic, and more inference rules, finding the right rules to apply at the right time amounts to a brute force search of all possible inference rules and all possible ways of instantiating those inference rools.</p>
+<p>The other thing to notice is that the proof itself looks a lot like a program. In Lean and similar construction-based theorem provers, this observation is made precise. And it will turn out that writing proofs and writing programs amount to the same thing!</p>
+<h1 id="example-2"><a class="header" href="#example-2">EXAMPLE 2</a></h1>
+<p>Here is a slightly more complicated example. Let's prove</p>
+<p>⊢ ¬p→(p→q)</p>
+<p>Recall ¬p is just shorthand for p→⊥. So we're actually trying to prove</p>
+<p>⊢ (p→⊥)→(p→q)</p>
+<p>Once again, working backwards, we can apply →-Intro to get</p>
+<p>p→⊥ ⊢ p→q</p>
+<p>and then apply →-Intro again to get</p>
+<p>p→⊥,p ⊢ q</p>
+<p>Our context now contains both ¬p and p. Using ⊥-elim we get</p>
+<p>p→⊥,p ⊢ ⊥</p>
+<p>This subgoal matches the form of →-Elim with φ=p and ψ=⊥. Using this rule, we get two further subgoals that are just axioms:</p>
+<p>p→⊥,p ⊢ p→⊥      and      p→⊥,p ⊢ p</p>
+<h1 id="proof-2-presentation"><a class="header" href="#proof-2-presentation">PROOF 2 PRESENTATION</a></h1>
+<p>Putting this all together, we get the following proof:</p>
+<ol>
+<li>p→⊥,p ⊢ p→⊥        axiomatically</li>
+<li>p→⊥,p ⊢ p          axiomatically</li>
+<li>p→⊥,p ⊢ ⊥          from (1) and (2) via →-Elim</li>
+<li>p→⊥,p ⊢ q          from (3) via ⊥-elim</li>
+<li>p→⊥ ⊢ p→q          from (4) via →-Intro</li>
+<li>⊢ (p→⊥)→(p→q)      from (5) via →-Intro</li>
+</ol>
+<p>And we're done! This is complicated though. Clearly we need a proof assistant to help us! We'll show how we can use the Simply Typed Lambda Calculus to do these proofs in Lean soon.</p>
+<h1 id="in-class-exercises"><a class="header" href="#in-class-exercises">IN CLASS EXERCISES</a></h1>
+<ul>
+<li>Prove ∅ ⊢ p → (p ∨ q)</li>
+<li>Prove ∅ ⊢ (p ∨ q) → (q ∨ p)</li>
+</ul>
+<h1 id="the-law-of-the-excluded-middle"><a class="header" href="#the-law-of-the-excluded-middle">THE LAW OF THE EXCLUDED MIDDLE</a></h1>
+<p>As we said, the law of the excluded middle states that</p>
+<p>⊢ φ ∨ ¬φ</p>
+<p>for all propositions φ. However, this statement is not provable using the inference rules above. To prove this meta-mathematical observation is beyond the scope of this lecture and requires an argument about the formal <code>semantics</code> of intuitionist propositional logic. For now, accept the fact that φ ∨ ¬φ cannot be proved rom the inference rules given, despite its seeming obviousness.</p>
+<p>For this reason, intutionistic logic is weaker than classical logic. However, we can obtain classical logic by adding the above as a new axiom. When we get to proving statements in Lean, we'll see that we can add this axiom into our proofs if we would like to, so it is not big problem. However, it is also remarkable how much of mathematics we can prove without this axiom.</p>
+<h1 id="references-1"><a class="header" href="#references-1">REFERENCES</a></h1>
+<p>Morten Heine Sørensen, Pawel Urzyczyn
+"Lectures on the Curry-Howard Isomorphism"
+Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>
+<ul>
+<li>Chapter 2 describes Intuitionistic Propositional Logic</li>
+</ul>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><p><strong>THE CURRY-HOWARD ISOMORPHISM</strong></p>
+<h1 id="statements-contexts-judgement"><a class="header" href="#statements-contexts-judgement">STATEMENTS, CONTEXTS, JUDGEMENT</a></h1>
+<p>When we introduced the Simply Typed Lambda Calculus, we informally defined the type rules VAR, ABST and APPL. Here we define the typing system formally.</p>
+<p>A <strong>type statement</strong> is a pair x : σ where x is a type variable and σ is a type. We say "x is of type σ".</p>
+<p>A <strong>typing context</strong> Γ is a finite set of type state statements.</p>
+<p>A <strong>judgement</strong> is an expression of the form Γ ⊢ M : σ where Γ is a typing context, M is a simply typed λ-calculus statement, and σ is a type.</p>
+<p>For example, here is a judgment that states: "When f is a function from α to β and x is of type α, then f x is of type β. "</p>
+<pre><code class="language-hs">  { f : α → β, x : α }  ⊢ f x : β
+</code></pre>
+<h1 id="formal-typing-rules"><a class="header" href="#formal-typing-rules">FORMAL TYPING RULES</a></h1>
+<p>Typing rules are written the same way as the inference rules in propositional logic.</p>
+<pre><code class="language-hs">
+  VAR   ————————————————
+          Γ,x:τ ⊢ x:τ
+
+               Γ,x:σ ⊢ M : τ
+  ABST  ——————————————————————————
+           Γ ⊢ (λ x:σ =&gt; M) : σ→τ
+
+           Γ ⊢ M : σ→τ    Γ ⊢ N : σ
+  APPL  ——————————————————————————————
+                   M N : τ
+</code></pre>
+<p>The first rule says that if a context defines x to have type τ then (somewhat obviously) we can conclude x has type τ.</p>
+<p>The second rule says that if our context defines x : σ and entails that M : τ, then we can form an abstraction from x and M that has type σ to τ.</p>
+<p>The third rule says that if Γ entails both that M : σ→τ and N : σ, then the application of M to N has type τ.</p>
+<h1 id="example"><a class="header" href="#example">EXAMPLE</a></h1>
+<p>Q: Find the type of</p>
+<p>λ x : A =&gt; x</p>
+<p>A: Working backwards from this goal we use ABST with τ=A and M=x to get</p>
+<p>x:A ⊢ x:A</p>
+<p>Then we use VAR. So the expression has type A→A and a proof of this is:</p>
+<ol>
+<li>x:A ⊢ x:A                  axiomatically</li>
+<li>(λ x : A =&gt; x) : A→A       by ABST</li>
+</ol>
+<p>As we have seen, Lean figures this out automatically.</p>
+<pre><code class="language-lean">#check λ x : _ =&gt; x
+</code></pre>
+<h1 id="example-1"><a class="header" href="#example-1">EXAMPLE</a></h1>
+<p>Q: Find the types of x and y in</p>
+<p>λ x =&gt; λ y =&gt; x y</p>
+<p>A: Using the ABST rule gives</p>
+<p>x : B   ⊢  λ y =&gt; x y : A</p>
+<p>for some types A and B. Using ABST again gives</p>
+<p>x : B, y : C   ⊢  x y : A</p>
+<p>for some type C. Next we use the APPL rule with M = x, N = y, σ = C, τ = A</p>
+<p>x : B, y : C  ⊢  x : C → A
+x : B, y : C  ⊢  y : C</p>
+<p>These judgements would hold if B we equal to C→A. So we make that substitution so the above axioms hold to get:</p>
+<p>λ x : C → A =&gt; λ y : C =&gt; x y</p>
+<p>for some types C and A. Generally speaking, type inference involves applying typing rules, accumulating type equations, and then solving the equations, all of which is done very efficiently in Lean's kernel.</p>
+<h1 id="example-2"><a class="header" href="#example-2">EXAMPLE</a></h1>
+<p>Q: Find the overall type of the previous expression.</p>
+<p>A: Following the derivation above in reverse gives the following type inference proof tree:</p>
+<pre><code>————————————————————————————— VAR    ————————————————————————————— VAR
+ x : C → A, y : C  ⊢  x : C → A       x : C → A, y : C  ⊢  y : C
+———————————————————————————————————————————————————————————————————— APPL
+                  x : C → A, y : C   ⊢  x y : A
+             ————————————————————————————————————————— ABST
+                x : C → A  ⊢  λ y : C =&gt; x y : C → A
+        ————————————————————————————————————————————————————— ABST
+         ⊢  λ x : C → A =&gt; λ y : C =&gt; x y : (C → A) → C → A
+</code></pre>
+<p>Thus, the type of λ x =&gt; λ y =&gt; x y is (C → A) → C → A. Note that with a little help, Lean can figure this out for us, but we do need to tell it that x is a function type of some kind.</p>
+<pre><code class="language-lean">#check λ x : _ → _ =&gt; λ y : _ =&gt; x y
+</code></pre>
+<h1 id="curry-howard-isomorphism-intuition"><a class="header" href="#curry-howard-isomorphism-intuition">CURRY-HOWARD ISOMORPHISM INTUITION</a></h1>
+<p>Consider the two types we just found:</p>
+<p>A → A
+(C → A) → C → A</p>
+<p>The first one is the type of a function on. The second one is the type of a function that takes a function on C → A.</p>
+<p>Wwe can also read these as propositional formulas which state</p>
+<p>A implies A
+(C implies A) implies C implies A</p>
+<p>It is not a coincidence that these are both tautologies.</p>
+<p>The Curry-Howard Isomorphism emerges from the observation that the λ expressions that have the above types look a lot like the proofs that the above implications are tautologies!</p>
+<p>With this observation, the statement x : A reads "x is a proof of A".</p>
+<p>λ x : A =&gt; x</p>
+<p>is a method that takes a proof of A and returns a proof of A, proving the implication A → A.</p>
+<h1 id="curry-howard-types--propositions"><a class="header" href="#curry-howard-types--propositions">CURRY-HOWARD: TYPES → PROPOSITIONS</a></h1>
+<p>To state the CHI exacly, we will restrict ourselves to showing that Propositional Logic with only implication (→) is isomorphic to the simply typed λ-calculus. We will ned once definition.</p>
+<p><code>DEF</code> Given a context Γ = { x₁: φ₁, x₂ : φ₂, ..., xₙ : φₙ }, the <em>range</em> of Γ, denoted |Γ|, is { φ₁, φ₂, ..., φₙ }.</p>
+<p><code>THEOREM</code> If Γ ⊢ M : φ then |Γ| ⊢ φ.</p>
+<p><code>PROOF</code> We convert any type derivation tree into a propositional proof by replacing VAR with AX, ABST with →-Intro, and APPL with →-Elim. This is done by induction on the proof tree. Here we just show an example which should be easily generalized. The type proof tree in the previous section can be re-written be removing all "x : "</p>
+<pre><code>————————————————————— AX       ———————————————————— AX
+ C → A, C  ⊢  C → A               C → A, C  ⊢  C
+</code></pre>
+<p>——————————————————————————————————————————————————————————— →Elim
+C → A, C   ⊢  A
+——————————————————— →-Intro
+C → A  ⊢  C → A
+—————————————————————— →-Intro
+⊢  (C → A) → C → A</p>
+<h1 id="curry-howard-propositions--types"><a class="header" href="#curry-howard-propositions--types">CURRY-HOWARD: PROPOSITIONS → TYPES</a></h1>
+<p>The opposite direction of the CHI is more technical. We have to show how to produce a λ-calculus term M from a proof of φ so that M : φ. For example, suppose we started with the propositional proof tree in the previous section. How would we produce the type derivation from it? Here we will outline how this is done in general.</p>
+<p>First we need a way to produce a type context from a propositional context. Suppose that</p>
+<p>Γ = { φ₁, φ₂, ..., φₙ }</p>
+<p>and define</p>
+<p>Δ = { x₁ : φ₁, x₂ : φ₂, ..., xₙ : φₙ }</p>
+<p>where the xᵢ are introduced as new type variables. The object Δ is a function of Γ of course, but we just don't write it this way.</p>
+<p><code>THEOREM</code> If Γ ⊢ φ then there exists a λ-calculus term M such that ∆ ⊢ M:φ.</p>
+<p>The proof of this theorem uses induction on the proof tree that shows Γ ⊢ φ. Since there are three rules (AX, →Intro, and →-Elim), we have three cases, which we handle one by one.</p>
+<h1 id="case-the-proof-ends-with-Γφ--φ-by-the-var-rule"><a class="header" href="#case-the-proof-ends-with-Γφ--φ-by-the-var-rule">CASE: The proof ends with Γ,φ ⊢ φ by the VAR rule</a></h1>
+<p>Subcase 1: If φ ∈ Γ then there is some type variable x such that x : φ ∈ Δ. By the VAR rule we can conclude</p>
+<p>Δ  ⊢  x : φ</p>
+<p>Subcase 2: If φ ∉ Γ then we introduce a new variable x such that x : φ. Once again by the VAR rule</p>
+<p>Δ, x : φ  ⊢  x : φ</p>
+<p>(Why do we need two sub-cases? It's because of how we defined Δ on the previous as related to Γ and not to Γ ∪ { x : φ }).</p>
+<h1 id="case-the-proof-ends-with-elim"><a class="header" href="#case-the-proof-ends-with-elim">CASE: The proof ends with →Elim</a></h1>
+<p>Suppose the proof that Γ ⊢ φ ends with</p>
+<pre><code>Γ ⊢ ρ → φ      Γ ⊢ ρ
+</code></pre>
+<p>——————————————————————————
+Γ ⊢ φ</p>
+<p>We need to find a λ-term that has type φ. Here the premises of the above rule instance allow us to assume the induction hypothesis that there exists M and N such that</p>
+<p>Δ ⊢ M : ρ → φ
+Δ ⊢ N : ρ</p>
+<p>By the ABST rule, we can conclude</p>
+<p>Δ ⊢ M N : φ</p>
+<h1 id="case-the-proof-ends-with-intro"><a class="header" href="#case-the-proof-ends-with-intro">CASE: The proof ends with →Intro</a></h1>
+<p>Suppose the proposition φ has the form the ρ → ψ and the proof Γ ⊢ ρ → ψ ends with</p>
+<pre><code> Γ, ρ ⊢ ψ
+</code></pre>
+<p>——————————————
+Γ ⊢ ρ → ψ</p>
+<p>Subcase 1: ψ ∈ Γ. By the induction hypothesis, there is a term M such that Δ ⊢ M : ψ. Introduce a variable x (not used in Δ) such that x : ρ. Then we can conclude</p>
+<p>Δ, x : ρ  ⊢  M : ψ</p>
+<p>and by the ABST rule</p>
+<p>Δ ⊢ λ x : ρ =&gt; M : ρ →  ψ</p>
+<p>Subcase 2: ψ ∉ Γ. Then by the induction hypothesis, there is a term M such that</p>
+<p>Δ, x : ρ ⊢ M : ψ</p>
+<p>from which we may also conclude</p>
+<p>Δ ⊢ λ x : ρ =&gt; M : ρ →  ψ</p>
+<h1 id="propositions-theorems-and-proofs-in-lean"><a class="header" href="#propositions-theorems-and-proofs-in-lean">PROPOSITIONS, THEOREMS, AND PROOFS IN LEAN</a></h1>
+<p>The Curry-Howard approach is exactly how proofs of theorems are done in Lean. We show that the proposition to be proved is inhabited. In the examples below, we use the type Prop, from Lean's standard library.
+We will start by declaring two variables of type Prop. We use curly braces here instead of parentheses for reasons we will explain later.</p>
+<pre><code class="language-lean">variable { A C : Prop }
+</code></pre>
+<p>To prove a proposition like A → A, we define the identity function from A into A, showing the proposition considered as a type is occupied. We have called the bound variable in the lambda expression <em>proof</em>, but you could call the bound variable anything you like.</p>
+<pre><code class="language-lean">def my_theorem : A → A :=
+  λ proof : A =&gt; proof
+</code></pre>
+<p>Lean provides the keyword <em>theorem</em> for definitions intended to be results, which is like def but does requires the type of the theorem being defined to be Prop. The theorem keyword also gives Lean and the user an indication of the intended use of the definition.</p>
+<pre><code class="language-lean">theorem my_lean_theorem : A → A :=
+  λ proof : A =&gt; proof
+</code></pre>
+<h1 id="applying-theorems-to-prove-other-theorems"><a class="header" href="#applying-theorems-to-prove-other-theorems">APPLYING THEOREMS TO PROVE OTHER THEOREMS</a></h1>
+<p>As another example, we prove the other proposition we encountered above. Here we call the bound variables pca for "proof of c → a" and pc for "proof of c".</p>
+<pre><code class="language-lean">theorem another_theorem : (C → A) → C → A :=
+  λ pca : C → A =&gt;
+  λ pc : C =&gt;
+  pca pc
+</code></pre>
+<p>Or even better, we can use our first theorem to prove the second theorem:</p>
+<pre><code class="language-lean">theorem another_theorem_v2 : (C → A) → C → A :=
+  λ h : C → A =&gt; my_lean_theorem h
+</code></pre>
+<h1 id="more-examples"><a class="header" href="#more-examples">MORE EXAMPLES</a></h1>
+<pre><code class="language-lean">theorem t1 : A → C → A :=
+  λ pa : A =&gt;
+  λ pc : C =&gt;                                -- Notice that pc is not used
+  pa
+
+theorem t2 : A → C → A :=
+  λ pa pc  =&gt; pa                             -- We can use λ with two arguments
+
+theorem t3 : A → C → A :=
+  λ pa _ =&gt; pa                               -- We can tell Lean we know pc is not used
+
+example : A → C → A :=                       -- We can state and prove an unnamed theorem
+  λ pa _ =&gt; pa                               -- using the `example` keyword
+</code></pre>
+<h1 id="negation"><a class="header" href="#negation">NEGATION</a></h1>
+<p>There are, of course, only so many theorems we can state using only implication. In the next chapter we will show how the λ-calculus can be extended to include ∧, ∨, and ⊥. To give a sense of how this looks, here is an example using ¬p, which as you will recall is the same as p → ⊥.</p>
+<pre><code class="language-lean">example : p → ¬p → q :=
+  λ pa pna =&gt; absurd pa pna
+
+example : (p → q) → (¬q → ¬p) :=
+  fun hpq nq hp =&gt; absurd (hpq hp) nq
+</code></pre>
+<p>Here, absurd is a theorem from the Lean standard library that we will discuss when we get to Lean's <code>inductive type</code> system.</p>
+<h1 id="sidenote-about-variable-declarations"><a class="header" href="#sidenote-about-variable-declarations">SIDENOTE ABOUT VARIABLE DECLARATIONS</a></h1>
+<p>If we had used</p>
+<p>variable (A C : Prop)</p>
+<p>above, then my_lean_theorem would have (A : Prop) as a non-implicit argument, so it would have to be applied as</p>
+<p>my_lean_theorem (C→A) h</p>
+<p>which is ugly.</p>
+<p>The way Lean uses variables is by putting them silently into all definitions and theorems that use them. So my_theorem internally looks like:</p>
+<p>theorem my_lean_theorem (A : Prop) : A → A :=
+λ proof : A =&gt; proof</p>
+<p>On the other hand, if we use curly braces in the variable declaration, as we did in the previous examples, then we get</p>
+<p>theorem my_lean_theorem {A : Prop} : A → A :=
+λ proof : A =&gt; proof</p>
+<p>so that the type of A is an implicit argument to my_lean_theorem.</p>
+<h1 id="in-class-exercises-1"><a class="header" href="#in-class-exercises-1">IN CLASS EXERCISES</a></h1>
+<ul>
+<li>TODO</li>
+</ul>
+<h1 id="references-2"><a class="header" href="#references-2">REFERENCES</a></h1>
+<p>Morten Heine Sørensen, Pawel Urzyczyn
+"Lectures on the Curry-Howard Isomorphism"
+Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>
+<ul>
+<li>Chapter 4 describes Intuitionistic Propositional Logic</li>
+</ul>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><h1 id="inductive-types"><a class="header" href="#inductive-types">Inductive Types</a></h1>
+<p>As we saw in the chapter on the <a href="LambdaCalculus.html">λ-Calculus</a>, we can encode fairly sophisticated objects like the natural numbers using just abstractions and applications. However, such encodings are a best clunky and hard to read. Additionally, encoding complex data types as λ-Calculus expressions has other problems:</p>
+<p><strong>Noncanonical terms:</strong> The types of such encodings are not guaranteed to result in <em>canonical</em> terms. For example, Church numerals were defined to have type</p>
+<pre><code class="language-lean">def α := Type
+def N := (α → α) → α → α
+</code></pre>
+<p>But we can define expressions that have this type but that do not correspond to natural numbers. For example,</p>
+<pre><code class="language-lean">def nc : N := λ (f : α  → α) (x : α) =&gt; x
+</code></pre>
+<p>It would be vastly preferable if (a) every object of a given type was a legitimate representative of that type and every object also had exactly one representative.</p>
+<p><strong>Pattern Matching and Induction:</strong> To prove properties above objects of a given type, it is useful to apply induction on the structure of the object. For example, a natural number is either zero, or it is the successor of some other natural number. To prove a statement about natural numbers one would like support for pattern matching on the way the number was constructed.</p>
+<p><strong>Termination:</strong> As we have seem, operations on terms of a given type in the pure lambda calculus are not guaranteed to terminate. However, we will see that all terms of a given inductive type support <em>structural recursion</em>: We can define functions on that break the term into smaller pieces which eventual lead to indivisible elements, at which point the function terminates.</p>
+<p>Thus, Lean and other type theoretic languages include a way to define types inductively. One lists all the ways to construct objects of a given type. Lean then provides a powerful pattern matching capability that can be used in definitions and theorems when operating or reasoning on an object defined inductively.</p>
+<h3 id="namespaces"><a class="header" href="#namespaces">Namespaces</a></h3>
+<p>In this chapter we will be redefining several fundamental types in Lean, such as the natural numbers <code>ℕ</code> and the propositional connectives <code>And</code> and <code>Or</code>. Since these are part of Lean's standard library (included by default), if we do not take appropriate measures, we will get naming collisions. The easiest way to avoid this is to open a temporary namespace.</p>
+<pre><code class="language-lean">namespace Temp
+</code></pre>
+<p>Now, when we define a new symbol, such as</p>
+<pre><code class="language-lean">def Thing := Type
+</code></pre>
+<p>we are actually defining Temp.Thing. If Thing is defined in some inluded library, our new definition will not collide with it.</p>
+<h2 id="leans-inductive-types"><a class="header" href="#leans-inductive-types">Lean's Inductive Types</a></h2>
+<p>So far we have introduced only simple <strong>arrow types</strong> composed Lean's basic type (called Type) and functions from those types into types. We now introduce a powerful way to make new types, which covers almost all of mathematics, called <strong>inductive types</strong>.</p>
+<p>An inductive type is <strong>generated</strong> by <strong>constructors</strong> that may refer to the type itself. They say how to make objects of the given type.</p>
+<p><strong>Example:</strong> A type with only two elements is defined by:</p>
+<pre><code class="language-lean">inductive Two where
+  | a : Two
+  | b : Two
+
+#check Two.a
+#check Two.b
+
+def t := Two.a
+#eval t
+</code></pre>
+<p><strong>Example:</strong> The simplest inductive yype has <em>no</em> constructors, meaning it specifies the empty type.</p>
+<pre><code class="language-lean">inductive Empty
+</code></pre>
+<h2 id="constructors-with-arguments"><a class="header" href="#constructors-with-arguments">Constructors With Arguments</a></h2>
+<p>You can also have constructors that take arguments and transform them into objects of the given type.</p>
+<p><strong>Example:</strong> The type Nat of <strong>Natural Numbers</strong> is defined by two constructors:</p>
+<pre><code class="language-lean">inductive Nat where
+  | zero : Nat
+  | succ : Nat → Nat           -- succ stand for `successor`
+
+open Nat
+#check succ (succ (succ zero)) -- 3
+</code></pre>
+<p>All the constructors in an inductively defined type live in a namespace with the same name as the type. The open command allows us to write succ instead of Nat.succ. We can also write</p>
+<pre><code class="language-lean">#check zero.succ.succ.succ
+</code></pre>
+<p>using so-called dot-notation.</p>
+<p>Objects of type <code>Nat</code> thus either have the form <code>zero</code> or they consist of some finite number of applications of <code>succ</code> to the element <code>zero</code>. With more types, we can define even more complicated objects.</p>
+<p><strong>Example:</strong> A simple model of arithmetic expressions can be defined by the type:</p>
+<pre><code class="language-lean">inductive Expr where
+  | var : String → Expr
+  | add : Expr → Expr → Expr
+  | mul : Expr → Expr → Expr
+  | neg : Expr → Expr
+
+open Expr
+</code></pre>
+<p>Some example terms include</p>
+<pre><code class="language-lean">#check add (var "x") (var "y")                          -- x+y
+#check add (var "x") (mul (neg (var "y")) (var "z"))    -- x-yz
+</code></pre>
+<h2 id="functions-of-inductive-types"><a class="header" href="#functions-of-inductive-types">Functions of Inductive Types</a></h2>
+<p>To work with objects of inductive types, we usually need to know how the object was constructed. Lean uses the keyword <code>match</code> for that.</p>
+<p><strong>Example:</strong> Toggling a Two</p>
+<pre><code class="language-lean">def Two.toggle ( x : Two ) := match x with
+  | a =&gt; b
+  | b =&gt; a
+</code></pre>
+<p>Lean also knows how to reduce expressions involving match.</p>
+<pre><code class="language-lean">open Two
+
+#reduce toggle (toggle a)
+#reduce a.toggle.toggle
+</code></pre>
+<p><strong>Example:</strong> 1+1 = 2</p>
+<pre><code class="language-lean">def Nat.plus (n m : Nat) := match n with
+  | zero =&gt; m
+  | succ x =&gt; succ (plus x m)
+
+open Nat
+
+#reduce plus (succ zero) (succ zero)
+</code></pre>
+<p><strong>Example:</strong> Swap Adds and Muls</p>
+<pre><code class="language-lean">def Expr.swap (e : Expr) := match e with
+  | var s =&gt; var s
+  | add x y =&gt; add y x
+  | mul x y =&gt; mul y x
+  | neg x =&gt; neg x
+
+
+def e := add (var "x") (mul (neg (var "y")) (var "z"))
+
+#reduce e.swap -- -zy+x
+</code></pre>
+<h1 id="inductive-types-may-depend-on-other-types"><a class="header" href="#inductive-types-may-depend-on-other-types">INDUCTIVE TYPES MAY DEPEND ON OTHER TYPES</a></h1>
+<p>The types we have defined so far do not interact with other types. Here's an example that does: Lists of Nats.</p>
+<pre><code class="language-lean">inductive NatList where
+  | empty : NatList
+  | cons : Nat → NatList → NatList
+
+namespace NatList
+
+#check cons zero (cons zero empty)              -- [0, 0]
+#check (empty.cons zero).cons zero              -- [0, 0]
+
+end NatList
+
+#check [1,2]
+</code></pre>
+<p>Or we can define a List of elements of any type. In the the next bit of code, we implicitly state (using curly braced instead of parens) that List depends on an arbitrary type α.</p>
+<pre><code class="language-lean">inductive List {α : Type} where
+  | empty : List
+  | cons : α → List → List
+
+namespace List
+#check cons "lean" (cons "is cool" empty)       -- ["lean", "is cool"]
+#check cons 3.4 (cons 1.21 empty)       -- ["lean", "is cool"]
+
+end List
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><h1 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type">AND IS AN INDUCTIVE TYPE</a></h1>
+<p>Recall the inference rule</p>
+<pre><code>             Γ ⊢ φ   Γ ⊢ ψ
+`∧-Intro` ———————————————————
+              Γ ⊢ φ ∧ ψ
+</code></pre>
+<p>It states that whenever we know propositions φ and ψ, then we know φ ∧ ψ. From the point of view of types, it says that if φ and ψ are of type Prop, then so is φ ∧ ψ. In Lean we can write this as an inductive type definition as follows.</p>
+<pre><code class="language-lean">inductive And (φ ψ : Prop) : Prop where
+  | intro : φ → ψ → And φ ψ
+</code></pre>
+<p>You can think of <code>h : And p q</code> as</p>
+<ul>
+<li>h has type And p q</li>
+<li>h is evidence that the type And p q is not empty</li>
+<li>h is a proof of the proposition And p q.</li>
+</ul>
+<pre><code class="language-lean">-- p ∧ q
+</code></pre>
+<h1 id="a-proof-of-a-simple-proposition"><a class="header" href="#a-proof-of-a-simple-proposition">A PROOF OF A SIMPLE PROPOSITION</a></h1>
+<p>Consider the proposition</p>
+<p>p → q → And p q</p>
+<p>As a type, this proposition is a function from p to q to And p q. Thus, we know that an element of this type has the form</p>
+<p>λ hp =&gt; λ hq =&gt; sorry</p>
+<p>For the body of this lambda abstraction, we need to <code>introduce</code> an And type, which requires proofs of p and q respectively. Using the inductive definition of And we get</p>
+<p>λ hp hq =&gt; And.intro hp hq</p>
+<pre><code class="language-lean">def g (p q : Prop) : p → q → And p q :=
+  λ hp =&gt; λ hq =&gt; And.intro hp hq
+
+
+
+--  λ hp : p =&gt; λ hq : q =&gt; And.intro hp hq
+</code></pre>
+<h1 id="and-eliminiation"><a class="header" href="#and-eliminiation">AND ELIMINIATION</a></h1>
+<p>The elimination rules for And are</p>
+<pre><code>              Γ ⊢ φ ∧ ψ                            Γ ⊢ φ ∧ ψ
+</code></pre>
+<p><code>∧-Elim-Left</code> ——————————————         <code>∧-Elim-Right</code> —————————————
+Γ ⊢ φ                                Γ ⊢ ψ</p>
+<p>which we can write in Lean as</p>
+<pre><code class="language-lean">def And.left {p q : Prop} (hpq : And p q) :=
+  match hpq with
+  | And.intro hp _ =&gt; hp
+
+def And.right {p q : Prop} (hpq : And p q) :=
+  match hpq with
+  | And.intro _ hq =&gt; hq
+</code></pre>
+<h1 id="proofs-with-and-elimination"><a class="header" href="#proofs-with-and-elimination">PROOFS WITH AND ELIMINATION</a></h1>
+<p>With these inference rules, we can do even more proofs:</p>
+<pre><code class="language-lean">example (p q : Prop) : (And p q) → p :=
+  λ hpq =&gt; And.left hpq
+
+--  λ hpq =&gt; And.left hpq
+
+example (p q : Prop) : (And p q) → (And q p) :=
+  λ hpq =&gt; And.intro hpq.right hpq.left
+</code></pre>
+<h1 id="match-is-enough"><a class="header" href="#match-is-enough">MATCH IS ENOUGH</a></h1>
+<p>Note that the elimination rules above are a <code>convenience</code> we defined to make the proof look more like propositional logic. We could also just write:</p>
+<pre><code class="language-lean">theorem nels (p q : Prop) : (And p q) → p :=
+  λ hpq =&gt; match hpq with
+    | And.intro hp _ =&gt; hp
+</code></pre>
+<p>This pattern suggests that with inductive types, we can think of match as a generic elimination rule.</p>
+<h1 id="or-is-also-inductive"><a class="header" href="#or-is-also-inductive">OR IS ALSO INDUCTIVE</a></h1>
+<p>To introduce new OR propositions, we use the two introduction rules</p>
+<pre><code>               Γ ⊢ φ                                Γ ⊢ ψ
+</code></pre>
+<p><code>∨-Intro-Left</code> ———————————          <code>∨-Intro-Right</code> ————————————
+Γ ⊢ φ ∨ ψ                            Γ ⊢ φ ∨ ψ</p>
+<p>In Lean, we have</p>
+<pre><code class="language-lean">inductive Or (φ ψ : Prop) : Prop where
+  | inl (h : φ) : Or φ ψ
+  | inr (h : ψ) : Or φ ψ
+</code></pre>
+<p>And use this inference rule in proofs as well.</p>
+<pre><code class="language-lean">example (p q : Prop) : And p q → Or p q :=
+  λ hpq =&gt; Or.inr hpq.right
+</code></pre>
+<h1 id="or-elimination"><a class="header" href="#or-elimination">OR ELIMINATION</a></h1>
+<p>Recall the inference rule</p>
+<pre><code>         Γ,p ⊢ r    Γ,q ⊢ r    Γ ⊢ p ∨ q
+</code></pre>
+<p><code>∨-Elim</code> ————————————————————————————————————
+Γ ⊢ r</p>
+<p>It allows us to prove r given proofs that p → r, q → r and p ∨ q. We can define this rule in Lean with:</p>
+<pre><code class="language-lean">def Or.elim {p q r : Prop} (hpq : Or p q) (hpr : p → r) (hqr : q → r) :=
+  match hpq with
+  | Or.inl hp =&gt; hpr hp
+  | Or.inr hq =&gt; hqr hq
+</code></pre>
+<h1 id="example-or-elim-proof"><a class="header" href="#example-or-elim-proof">EXAMPLE OR ELIM PROOF</a></h1>
+<p>Here is an example proof using introduction and elimination.</p>
+<pre><code class="language-lean">example (p q : Prop): Or p q → Or q p :=
+  λ hpq =&gt; Or.elim
+    hpq                               -- p ∨ q
+    (λ hp =&gt; Or.inr hp)               -- p → (q ∨ p)
+    (λ hq =&gt; Or.inl hq)               -- q → (q ∨ p)
+</code></pre>
+<p>Once again, the elimination rule is just a convenience and the proof could be written with match.</p>
+<h1 id="false-is-inductive"><a class="header" href="#false-is-inductive">FALSE IS INDUCTIVE</a></h1>
+<p>Finally, we have False. Which has no introduction rule, kind of like Empty, except we add the requirement that False is also type of Prop.</p>
+<pre><code class="language-lean">inductive False : Prop
+</code></pre>
+<p>From False we get the Not connective, which is just "syntactic sugar".</p>
+<pre><code class="language-lean">def Not (p : Prop) : Prop := p → False
+</code></pre>
+<p>Here is an example proof:</p>
+<pre><code class="language-lean">example (p q : Prop): (p → q) → (Not q → Not p) :=
+  λ hpq hq =&gt; λ hp =&gt; hq (hpq hp)
+
+example (p q : Prop): (p → q) → (Not q → Not p) :=
+  λ hpq hq =&gt; λ hp =&gt; sorry
+
+example (p q : Prop): (p → q) → (Not q → Not p) :=
+  λ hpq hq =&gt; λ hp =&gt; hq sorry
+
+example (p q : Prop): (p → q) → (Not q → Not p) :=
+  λ hpq hq =&gt; λ hp =&gt; hq (hpq sorry)
+
+example (p q : Prop): (p → q) → (Not q → Not p) :=
+  λ hpq hq =&gt; λ hp =&gt; hq (hpq hp)
+</code></pre>
+<h1 id="false-elimination"><a class="header" href="#false-elimination">FALSE ELIMINATION</a></h1>
+<p>To define the elimination rule for false</p>
+<pre><code>         Γ ⊢ ⊥
+</code></pre>
+<p><code>⊥-Elim</code> ——————————
+Γ ⊢ p</p>
+<p>we take advantage of the fact that False was defined inductively.</p>
+<pre><code class="language-lean">def False.elim { p : Prop } (h : False) : p :=
+  nomatch h
+</code></pre>
+<p>Here is an example proof that from False you can conclude anything:</p>
+<pre><code class="language-lean">example (p q : Prop): And p (Not p) → q :=
+  λ h =&gt; False.elim (h.right h.left)
+</code></pre>
+<p>By the way, this is another way to prove the HW1 example:</p>
+<pre><code class="language-lean">example : False → True :=
+  λ h =&gt; False.elim h
+</code></pre>
+<h1 id="notation"><a class="header" href="#notation">NOTATION</a></h1>
+<p>The main difference between what we have defined here and Lean is that Lean defines notation like ∨ and ∧. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.</p>
+<p>infixr:30 " ∨ "  =&gt; Temp.Or
+infixr:35 " ∧ "   =&gt; Temp.And
+notation:max "¬" p:40 =&gt; Temp.Not p</p>
+<p>The numbers define the precedence of the operations. So v has lower precedence than n, which has lower precedence than -.</p>
+<p>Now we can write</p>
+<pre><code class="language-lean">end Temp -- start using Lean's propositions
+
+example (p q : Prop): (p ∧ (¬p)) → q :=
+  λ h =&gt; False.elim (h.right h.left)
+</code></pre>
+<h1 id="examples"><a class="header" href="#examples">EXAMPLES</a></h1>
+<p>You should try to do as many of these as possible</p>
+<pre><code class="language-lean">variable (p q r : Prop)
+
+example (h : p ∨ q) : q ∨ p := sorry
+example : p ∧ q ↔ q ∧ p := sorry
+example : p ∨ q ↔ q ∨ p := sorry
+
+@[simp]
+theorem iff_and_equiv : (p ↔ q) → ((p → q) ∧ (q → p)) :=
+  λ hiff =&gt; ⟨ hiff.mp, hiff.mpr ⟩
+
+example : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) :=
+  Iff.intro
+  (λ h =&gt; And.intro h.left.left (And.intro h.left.right h.right))
+  (λ h =&gt; And.intro (And.intro h.left h.right.left) h.right.right)
+
+example : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := sorry
+example : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := sorry
+example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := sorry
+example : (p → (q → r)) ↔ (p ∧ q → r) := sorry
+example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := sorry
+example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := sorry
+example : ¬p ∨ ¬q → ¬(p ∧ q) := sorry
+example : ¬(p ∧ ¬p) := sorry
+example : p ∧ ¬q → ¬(p → q) := sorry
+example : ¬p → (p → q) := sorry
+example : (¬p ∨ q) → (p → q) := sorry
+example : p ∨ False ↔ p := sorry
+example : p ∧ False ↔ False := sorry
+example : (p → q) → (¬q → ¬p) := sorry
+example : (p → q) → (¬q → ¬p) := sorry
+</code></pre>
+<h1 id="references-3"><a class="header" href="#references-3">REFERENCES</a></h1>
+<ul>
+<li>
+<p>https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html</p>
+</li>
+<li>
+<p>Homotypy Type Theory Book
+https://homotopytypetheory.org/book/
+Chapter 5 covers inductive types</p>
+</li>
+</ul>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><h1 id="first-order-logic"><a class="header" href="#first-order-logic">First Order Logic</a></h1>
+<h2 id="limitations-of-propositional-logic"><a class="header" href="#limitations-of-propositional-logic">Limitations of Propositional Logic</a></h2>
+<p>The main thing missing from propositional logic is objects. For example, suppose we wanted reason about statements like:</p>
+<ul>
+<li>Every person who lives in Seattle lives in Washington.</li>
+<li>There exists a person who does not live in Seattle.</li>
+</ul>
+<p>These statements would be difficult in propositional logic, although given that there are only a finite number of people in the world we could say things like:</p>
+<ul>
+<li>lives_in_seattle_eric → lives_in_washington_eric</li>
+<li>lives_in_seattle_fred → lives_in_washington_fred</li>
+<li>...</li>
+</ul>
+<p>where we create new propositions for every person and every statement we would like to say about that person. However, what if we wanted to reason about an infinite domain like ℕ and say things like the following?</p>
+<ul>
+<li>every natural number is either odd or even</li>
+</ul>
+<p>Since there are an infinite number of natural numbers, we need an infinite number of propositions</p>
+<ul>
+<li>odd_0, even_0, odd_1, even_1, ...</li>
+</ul>
+<h2 id="first-order-logic-1"><a class="header" href="#first-order-logic-1">First Order Logic</a></h2>
+<p>First order logic (FOL) enriches propositional logic with the following elements:</p>
+<ul>
+<li><strong>Objects</strong>: such as numbers, names, people, places, etc.</li>
+<li><strong>Functions</strong>: that transform objects into other objects -- See next set of notes</li>
+<li><strong>Predicates</strong>: that relate objects to objects</li>
+<li><strong>Quantifiers</strong>: ∀ and ∃ that allow us to say:
+<ul>
+<li>∀: For all objects ___</li>
+<li>∃: There exists an object such that ___</li>
+</ul>
+</li>
+<li>All the connectives we have encountered so far: ∨, ∧, →, ¬, ...</li>
+<li><strong>Types</strong>: Traditional FOL does not have types, but we will use them anyway)</li>
+</ul>
+<p>For example, in the following proposition built from these elements:</p>
+<pre><code>∀ x ∃ y , f x &gt; y
+</code></pre>
+<p>is read "For all x, there exists a y such that f(x) is greater than y". In this example,</p>
+<ul>
+<li>The objects x and y are presumbly numbers</li>
+<li>The symbol f is a function that maps numbers to numbers</li>
+<li>The symbol &gt; is predicate taking two arguments and return true or false</li>
+</ul>
+<p>All of this can be done easily in Lean.</p>
+<pre><code class="language-lean">variable (f : Nat → Nat)
+#check ∀ x : Nat , ∃ y : Nat , f x &gt; y
+</code></pre>
+<h3 id="objects"><a class="header" href="#objects">Objects</a></h3>
+<p><strong>Objects</strong> in FOL can come from any agreed upon universe. Since we will be using Lean to work with first order logic, you can just assume that objects are any basic terms: numbers, strings, lists, and so on. FOL does not allow us to quantify over functions and types, only basic objects.</p>
+<h4 id="example-people"><a class="header" href="#example-people">Example: People</a></h4>
+<p>For example, suppose we wanted to reason about a finite number of people. In Lean we can enumerate them with a new type:</p>
+<pre><code class="language-lean">inductive Person where | mary | steve | ed | jolin
+
+open Person
+
+#check ed
+</code></pre>
+<h4 id="example--natural-numbers-strings-booleans-etc"><a class="header" href="#example--natural-numbers-strings-booleans-etc">Example : Natural Numbers, Strings, Booleans, etc</a></h4>
+<p>Lean has a number of built inn types we can use, such as numbers, strings, and Booleans.</p>
+<pre><code class="language-lean">#check 1234
+#check "uwece"
+#check true
+</code></pre>
+<h1 id="predicates"><a class="header" href="#predicates">PREDICATES</a></h1>
+<p>A <strong>predicate</strong> is a <code>Prop</code> valued function.</p>
+<h4 id="example-a-predicate-on-people"><a class="header" href="#example-a-predicate-on-people">Example: A Predicate on People</a></h4>
+<p>A predicate on Person is a function from Person into Prop, such as one which might specify whether the person lives in Seattle:</p>
+<pre><code class="language-lean">def InSeattle (x : Person) : Prop := match x with
+  | mary  | ed    =&gt; True
+  | steve | jolin =&gt; False
+
+#check InSeattle
+
+example : InSeattle steve ∨ ¬InSeattle steve :=
+  Or.inr (λ h =&gt; h)
+</code></pre>
+<h4 id="example-a-predicate-on-ℕ"><a class="header" href="#example-a-predicate-on-ℕ">Example: A Predicate on ℕ</a></h4>
+<p>Or we might define a predicate inductively on the natural numbers.</p>
+<pre><code class="language-lean">def is_zero(n : Nat) : Prop := match n with
+  | Nat.zero =&gt; True
+  | Nat.succ _ =&gt; False
+
+#check is_zero
+
+example : ¬is_zero 91 :=  -- is_zero 91 → False
+  λ h =&gt; h
+
+theorem t : is_zero 0 := True.intro
+
+theorem t1 : True := True.intro
+</code></pre>
+<h1 id="predicates-with-multiple-arguments"><a class="header" href="#predicates-with-multiple-arguments">PREDICATES WITH MULTIPLE ARGUMENTS</a></h1>
+<p>We may define predicates to take any number or arguments, including no arguments at all.</p>
+<pre><code class="language-lean">-- No argument predicates are just normal propositions
+variable (P : Prop)
+#check P
+
+-- A one-argument predicate
+variable (InWashington : Person → Prop)
+#check InWashington steve
+
+-- A two-argument predicate
+variable (Age : Person → Nat → Prop)
+#check Age jolin 27
+
+-- etc.
+</code></pre>
+<h1 id="relations"><a class="header" href="#relations">RELATIONS</a></h1>
+<p>A two-argument predicate is called a relation.</p>
+<p><code>EXAMPLE</code> We might define a predicate on pairs of people such as</p>
+<pre><code class="language-lean">def on_right (p q : Person) : Prop := match p with
+  | mary =&gt; q = steve
+  | steve =&gt; q = ed
+  | ed =&gt; q = jolin
+  | jolin =&gt; q = mary
+</code></pre>
+<p><code>EXAMPLE</code> We can define other predicates in terms of existing predicates.</p>
+<pre><code class="language-lean">def next_to (p q : Person) := on_right p q ∨ on_right q p
+
+example : next_to mary steve :=
+  Or.inl (Eq.refl steve)
+
+
+-- rfl == Eq.refl _
+</code></pre>
+<h1 id="greater-than-is-a-relation"><a class="header" href="#greater-than-is-a-relation">GREATER THAN IS A RELATION</a></h1>
+<p><code>EXAMPLE</code>: "greater than" is a relation. Relations are usually represented with infix notation, but they are still just predicates. For example, in Lean, the greater-than relation on natural numbers is:</p>
+<pre><code class="language-lean">#check @GT.gt Nat
+#eval GT.gt 2 3
+</code></pre>
+<p>This doesn't look very nice, so Lean defines notation:</p>
+<p>infix:50 " &gt; "  =&gt; GT.gt</p>
+<p>and we can write:</p>
+<pre><code class="language-lean">#eval 2 &gt; 3
+</code></pre>
+<p>Similarly, &gt;=, &lt;, &lt;=, != are all relations available in Lean.</p>
+<h1 id="universal-quantification"><a class="header" href="#universal-quantification">UNIVERSAL QUANTIFICATION</a></h1>
+<p>In FOL, we use the symbol ∀ to denote universal quantification. You can think of univeral quantifiaction like a potentially infinte AND:</p>
+<p>∀ x P(x)   ≡    P(x₁) ∧ P(x₂) ∧ P(x₃) ∧ ...</p>
+<p>EXAMPLE: Here's how you say "All people who live in Seattle also live in Washington":</p>
+<p>∀ x : Person , InSeattle(x) → InWashington(x)</p>
+<p>EXAMPLE: In Lean, let's say we wanted to prove that every person either lives in Seattle or does not live in Seattle. A proof of this fact has the form of a function that takes an arbtrary person x and returns a proof that that person either lives in Seattle or does not. Thus, we can say:</p>
+<pre><code class="language-lean">example : ∀ (x : Person) , (InSeattle x) ∨ ¬(InSeattle x) :=
+  λ x =&gt; match x with
+  | steve =&gt; Or.inr (λ h =&gt; h)
+  | mary =&gt; sorry
+  | ed =&gt; sorry
+  | jolin =&gt; sorry
+</code></pre>
+<p>∀ is just syntactic sugar for polymorphism. The above FOL statement can be equally well written as:</p>
+<pre><code class="language-lean">#check (x : Person) → (InSeattle x) ∨ ¬(InSeattle x)
+</code></pre>
+<p>Which highlights why we can just use a lambda to dispatch a forall.</p>
+<h1 id="forall-introduction-and-elimination"><a class="header" href="#forall-introduction-and-elimination">FORALL INTRODUCTION AND ELIMINATION</a></h1>
+<p>The universal quantifer has the introduction rule:</p>
+<pre><code>                Γ ⊢ P
+</code></pre>
+<p><code>∀-intro</code> ————————————————————————
+Γ ⊢ ∀ x : α, P</p>
+<p>Where x is not in the free variables of Γ. The rule states that if we can prove P in context Γ assuming x not mentioned elsewhere in Γ, then we can prove ∀ x : α, P.</p>
+<p>We also have the elimination rule:</p>
+<pre><code>           Γ ⊢ ∀ x , P x
+</code></pre>
+<p><code>∃-elim</code> ————————————————————————
+P t</p>
+<p>where t is any term. This rule states that if we know P x holds for every x, then it must hold for any particular t.</p>
+<h1 id="proving-statements-with-"><a class="header" href="#proving-statements-with-">PROVING STATEMENTS WITH ∀</a></h1>
+<p>The Curry-Howard Isomorphism works for universal quantification too. We could do as we did with proposotional logic and rewrite the FOL rules as type inference. However, here we just say what it means in Lean (which amounts to the same thing).</p>
+<p><code>∀-intro</code> To prove ∀ x , P x we construction a function that takes any x and returns proof of P x. This is an extension of the λ-abstraction rule.</p>
+<p><code>∀-elim</code> Given a proof h of ∀ x , P x (which we recall is a λ-abstractionn) and a particular y of type α, we can prove P y by simply applying h to y. This is an extension of the λ-application rule.</p>
+<p>For example, here is a proof that uses both of these rules:</p>
+<pre><code class="language-lean">variable (α : Type) (P Q : α → Prop)
+
+example : (∀ x : α, P x ∧ Q x) → ∀ y : α, P y :=
+  λ h q =&gt; (h q).left
+</code></pre>
+<h1 id="exists"><a class="header" href="#exists">EXISTS</a></h1>
+<p>The ∃ quantifer is like an OR over a lot of propositions:</p>
+<p>∃ x , P(x)   ≃   P(x₁) ∨ P(x₂) ∨ ....</p>
+<p>and it has similar introduction and elimination rules:</p>
+<pre><code>         Γ ⊢ φ[x:=t]                Γ ⊢ ∃ x , φ     Γ, φ ⊢ ψ
+</code></pre>
+<p>∃-intro: ———————————————     ∃-elim: ———————————————————————————
+Γ ⊢ ∃ x, φ                        Γ ⊢ ψ</p>
+<p>Constructively, the first rule says that if we have a proof of φ with x some term t substituted in for x, then we have a proof of ∃ x, φ.</p>
+<p>The second says that if we have a proof of ∃ x, φ and also a proof of ψ assuming φ, then we have a proof of ψ.</p>
+<h1 id="lean-implementation-of-exists"><a class="header" href="#lean-implementation-of-exists">LEAN IMPLEMENTATION OF EXISTS</a></h1>
+<p>In FOL, ∃ is usally just an abbreviation for as ¬∀¬. However, from a constructive point of view:</p>
+<p>"knowing that it is not the case that every x satisfies ¬ p is not the same as having a particular x that satisfies p." (Lean manual)</p>
+<p>So in Lean, ∃ is defined inductively and constructively:</p>
+<pre><code class="language-lean">namespace temp
+
+inductive Exists {α : Type} (p : α → Prop) : Prop where
+  | intro (x : α) (h : p x) : Exists p
+
+end temp
+</code></pre>
+<p>All we need to introduce an existentially quantified statement with predicate P is an element and a proof that P holds for that element.</p>
+<p>An example use of the introduction rule is the following. Note the assumption that <code>α has at least one element q</code> is necessary.</p>
+<pre><code class="language-lean">example (q : α) : (∀ x , P x) → (∃ x , P x) :=
+  λ hp =&gt; Exists.intro q (hp q)
+</code></pre>
+<h1 id="exists-elimination"><a class="header" href="#exists-elimination">EXISTS ELIMINATION</a></h1>
+<p>The ∃-elim rule is defined in Lean as follows:</p>
+<pre><code class="language-lean">namespace temp
+
+theorem Exists.elim {α : Type} {P : α → Prop} {b : Prop}
+   (h₁ : Exists (λ x =&gt; P x)) (h₂ : ∀ (a : α), P a → b) : b :=
+  match h₁ with
+  | intro a h =&gt; h₂ a h
+
+end temp
+</code></pre>
+<p>In this rule</p>
+<p>b is an arbitrary proposition
+h₁ is a proof of ∃ x , p x
+h₂ is a proof that ∀ a , p a → b</p>
+<p>which allow us to conclude b</p>
+<h1 id="exists-elimination-example"><a class="header" href="#exists-elimination-example">EXISTS ELIMINATION EXAMPLE</a></h1>
+<p>For example, in</p>
+<pre><code class="language-lean">example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
+  Exists.elim h₁
+  (λ c h =&gt; Exists.intro c (And.intro h.right h.left))
+</code></pre>
+<h1 id="example-proofs"><a class="header" href="#example-proofs">EXAMPLE PROOFS</a></h1>
+<pre><code class="language-lean">variable (p: Type → Prop)
+variable (r : Prop)
+
+example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=
+  Iff.intro
+  (λ h =&gt; Exists.elim h (λ c h =&gt; And.intro (Exists.intro c h.left) h.right))
+  (λ h =&gt; Exists.elim h.left (λ c h1 =&gt; Exists.intro c (And.intro h1 h.right)))
+
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
+  sorry
+</code></pre>
+<h1 id="solutions"><a class="header" href="#solutions">SOLUTIONS</a></h1>
+<pre><code class="language-lean">example : ∀ (x : Person) , (S x) ∨ ¬(S x) :=
+  λ x =&gt; match x with
+    | mary  | ed    =&gt; Or.inl trivial
+    | steve | jolin =&gt; Or.inr (λ h =&gt; False.elim h)
+
+example : (∀ x : α, P x ∧ Q x) → ∀ y : α, P y :=
+  λ h : ∀ x : α, P x ∧ Q x =&gt;     -- →-elim
+  λ y : α =&gt;                      -- ∀-intro
+  (h y).left                      -- ∃-elim with h and y (and ∧-elim-left)
+
+example (q : α) : (∀ x , P x) → (∃ x , P x) :=
+  λ h =&gt; Exists.intro q (h q)
+
+example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
+  have h₂ := λ w : α =&gt;                                            -- proof of ∀
+             λ hpq : P w ∧ Q w  =&gt;                                 -- proof of →
+             (Exists.intro w (And.intro hpq.right hpq.left))
+  Exists.elim h₁ h₂
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><p><strong>OBJECTS, FUNCTIONS AND EQUALITY</strong></p>
+<h1 id="equality-is-a-binary-relation-defined-inductively"><a class="header" href="#equality-is-a-binary-relation-defined-inductively">EQUALITY IS A BINARY RELATION DEFINED INDUCTIVELY</a></h1>
+<pre><code class="language-lean">universe u
+
+inductive MyEq {α : Sort u} : α → α → Prop where
+  | refl a : MyEq a a
+
+#check MyEq 1 2
+
+example : MyEq 1 1 :=
+  MyEq.refl 1
+</code></pre>
+<p>We can define some notation</p>
+<pre><code class="language-lean">infix:50 " ~ "  =&gt; MyEq
+
+#check 1 ~ 1
+</code></pre>
+<h1 id="refl-does-a-lot"><a class="header" href="#refl-does-a-lot">REFL DOES A LOT</a></h1>
+<p>In Lean, terms that are beta-reducable to each other are considered definitionally equal. You can show a lot of equalities automatically</p>
+<pre><code class="language-lean">example : 1 ~ 1 :=
+  MyEq.refl 1
+
+example : 2 ~ (1+1) := by
+  apply MyEq.refl
+
+example : 9 ~ (3*(2+1)) := by
+  apply MyEq.refl
+</code></pre>
+<h1 id="substitution"><a class="header" href="#substitution">SUBSTITUTION</a></h1>
+<p>If x = y then p x is equal to p y.</p>
+<pre><code class="language-lean">theorem MyEq.subst {α : Sort u} {P : α → Prop} {a b : α}
+                   (h₁ : a ~ b) (h₂ : P a) : P b := by
+  cases h₁ with
+  | refl =&gt; exact h₂
+</code></pre>
+<p>You can use this theorem to show basic properties.</p>
+<pre><code class="language-lean">theorem my_symmetry (a b : Type): a ~ b → b ~ a := by
+  intro h
+  apply MyEq.subst h
+  exact MyEq.refl a
+
+theorem my_transitivity (a b c : Type) : a ~ b → b ~ c → a ~ c := by
+  intro hab hbc
+  exact MyEq.subst hbc hab
+
+theorem my_congr_arg (a b : Type) (f : Type → Type) : a ~ b → f a ~ f b := by
+  intro hab
+  apply MyEq.subst hab
+  exact MyEq.refl (f a)
+</code></pre>
+<h1 id="leans-equality"><a class="header" href="#leans-equality">LEAN'S EQUALITY</a></h1>
+<p>Lean's equality relation is called Eq and its notation is =, as we have been using.</p>
+<p>Lean also defines rfl to be Eq.refl _</p>
+<pre><code class="language-lean">#print rfl
+
+example : 9 = 3*(2+1) := Eq.refl 9
+example : 9 = 3*(2+1) := rfl
+</code></pre>
+<p>Lean provides lots of theorems about equality.</p>
+<pre><code class="language-lean">#check Eq.symm
+#check Eq.subst
+#check Eq.substr
+#check Eq.trans
+#check Eq.to_iff
+#check Eq.mp
+#check Eq.mpr
+
+#check congrArg
+#check congrFun
+#check congr
+</code></pre>
+<h1 id="tactics-for-equality"><a class="header" href="#tactics-for-equality">TACTICS FOR EQUALITY</a></h1>
+<p>rw[h]: Rewrites the current goal using the equality h.</p>
+<pre><code class="language-lean">theorem t1 (a b : Nat) : a = b → a + 1 = b + 1 := by
+  intro hab
+  rw[hab]
+
+#print t1
+</code></pre>
+<p>To use an equality backwards, use ← (written \left)</p>
+<pre><code class="language-lean">theorem t2 (a b c : Nat) : a = b ∧ a = c → b + 1 = c + 1 := by
+  intro ⟨ h1, h2 ⟩
+  rw[←h1, ←h2]
+
+#print t2
+</code></pre>
+<p>You can also rewrite assumptions using <code>at</code>.</p>
+<pre><code class="language-lean">example (a b c : Nat) : a = b ∧ a = c → b + 1 = c + 1 := by
+  intro ⟨ h1, h2 ⟩
+  rw[h1] at h2
+  rw[h2]
+</code></pre>
+<h1 id="the-simplifier"><a class="header" href="#the-simplifier">THE SIMPLIFIER</a></h1>
+<p>The simplifier uses equations and lemmas to simplify expressions</p>
+<pre><code class="language-lean">theorem t3 (a b : Nat) : a = b → a + 1 = b + 1 := by
+  simp
+
+#print t3
+</code></pre>
+<p>Sometimes you have to tell the simplifer what equations to use.</p>
+<pre><code class="language-lean">theorem t4 (a b c d e : Nat)
+ (h1 : a = b)
+ (h2 : b = c + 1)
+ (h3 : c = d)
+ (h4 : e = 1 + d)
+ : a = e := by
+   simp only[h1,h2,h3,h4,Nat.add_comm]
+
+
+#check Nat.add_comm
+
+#print t4
+</code></pre>
+<h1 id="linarith"><a class="header" href="#linarith">LINARITH</a></h1>
+<p>By importing Mathlib.Tactic.Linarith (see top of this file), you get an even more powerful simplifier.</p>
+<pre><code class="language-lean">example (a b c d e : Nat)
+ (h1 : a = b)
+ (h2 : b = c + 1)
+ (h3 : c = d)
+ (h4 : e = 1 + d)
+ : a = e := by linarith
+
+example (x y z : ℚ)
+ (h1 : 2*x - y + 3*z = 9)
+ (h2 : x - 3*y - 2*z = 0)
+ (h3 : 3*x + 2*y -z = -1)
+ : x = 1 ∧ y = -1 ∧ z = 2 := by
+ apply And.intro
+ . linarith
+ . apply And.intro
+   . linarith
+   . linarith
+</code></pre>
+<h1 id="example--induction-on-nat"><a class="header" href="#example--induction-on-nat">EXAMPLE : INDUCTION ON NAT</a></h1>
+<p>For example, consider the sum of the first n natural numbers, which is n(n+1)/2. A proof by induction would be:</p>
+<pre><code>`BASE CASE`: 0 = 0*1/2
+`INDUCTIVE STEP`: ∀ k, Sum k = k(k+1)/2 → Sum (k+1) = (k+1)(k+2)/2
+</code></pre>
+<pre><code class="language-lean">def S (n : Nat) : Nat := match n with
+  | Nat.zero =&gt; 0
+  | Nat.succ x =&gt; n + S x
+
+#eval S 3
+
+example : ∀ n, 2 * S n = n*(n+1) := by
+  intro n
+  induction n with
+  | zero =&gt; simp[S]
+  | succ k ih =&gt;
+    simp[S,ih]
+    linarith
+</code></pre>
+<h1 id="inequality"><a class="header" href="#inequality">INEQUALITY</a></h1>
+<p>Every inductive type comes with a theorem called noConfusion that states that different constructors give different objects.</p>
+<pre><code class="language-lean">inductive Person where | mary | steve | ed | jolin
+open Person
+
+example : mary ≠ steve := by
+  intro h
+  exact noConfusion h
+
+inductive MyNat where
+  | zero : MyNat
+  | succ : MyNat → MyNat
+
+example : MyNat.zero ≠ MyNat.zero.succ := by
+  intro h
+  exact MyNat.noConfusion h
+</code></pre>
+<h1 id="example-3"><a class="header" href="#example-3">EXAMPLE</a></h1>
+<p>Suppose we want to specify who is on who's right side.</p>
+<pre><code class="language-lean">def on_right (p : Person) := match p with
+  | mary =&gt; steve
+  | steve =&gt; ed
+  | ed =&gt; jolin
+  | jolin =&gt; mary
+
+def next_to (p q : Person) := on_right p = q ∨ on_right q = p
+
+example : ¬next_to mary ed := by
+  intro h
+  cases h with
+  | inl hme =&gt; exact noConfusion hme
+  | inr hem =&gt; exact noConfusion hem
+
+example : ∀ p , p ≠ on_right p := by
+  sorry
+</code></pre>
+<h1 id="note"><a class="header" href="#note">NOTE</a></h1>
+<p>The <code>trivial</code> tactic actually figures out when to apply noConfusion</p>
+<pre><code class="language-lean">theorem t10 : ed ≠ steve := by
+  intro h
+  trivial
+
+#print t10
+
+#help tactic trivial
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><p><strong>TACTICS</strong></p>
+<pre><code class="language-lean">import Mathlib.Tactic.Linarith
+</code></pre>
+<h1 id="tactic-mode"><a class="header" href="#tactic-mode">TACTIC MODE</a></h1>
+<p>Tactic mode is entered in a proof using the keyword <code>by</code></p>
+<pre><code class="language-lean">variable (p : Type → Prop)
+
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  sorry
+</code></pre>
+<h1 id="apply-and-exact"><a class="header" href="#apply-and-exact">APPLY AND EXACT</a></h1>
+<p>The <code>apply</code> tactic applies a function, forall statement, or another theorem. It looks for arguments that match its type signature in the context and automatically uses them if possible.</p>
+<pre><code class="language-lean">example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  apply Iff.intro
+  . sorry
+  . sorry
+
+example (p : Nat → Prop) (h : ∀ (x : Nat) , p x) : p 14 := by
+  apply h
+
+theorem my_thm (q : Prop) : q → q := id
+
+example (q : Nat → Prop) : (∀ x, q x) → ∀ x, q x := by
+  apply my_thm
+</code></pre>
+<p><code>exact</code> is a variant of apply that requires you to fill in the arguments you are using. It essentially pops you out of tactic mode. It is used at the end of proofs to make things more clear and robust to changes in how other tactics in the proof are applied.</p>
+<pre><code class="language-lean">example (p : Nat → Prop) (h : ∀ (x : Nat) , p x) : p 14 := by
+  exact h 14
+</code></pre>
+<h1 id="assumption"><a class="header" href="#assumption">ASSUMPTION</a></h1>
+<p>This tactic looks through the context to find an assumption that applies, and applies it. It is like apply but where you don't even say what to apply.</p>
+<pre><code class="language-lean">example (c : Type) (h : p c) : ∃ x, p x := by
+  apply Exists.intro c
+  assumption
+</code></pre>
+<h1 id="intro"><a class="header" href="#intro">INTRO</a></h1>
+<p>Introducion applies to implications and forall statements, introducing either a new hypothesis or a new object. It takes the place of λ h₁ h₂ ... =&gt; ...</p>
+<p>Note also that by using <code>.</code> and indentation, you can visually break up your proof to it is more readable.</p>
+<pre><code class="language-lean">example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  apply Iff.intro
+  . intro hnep x
+    sorry
+  . intro hanp
+    sorry
+</code></pre>
+<h1 id="structures"><a class="header" href="#structures">STRUCTURES</a></h1>
+<p>Structures in Lean are a way to package data. They are a kind of inductive type, but presented differently. For example,</p>
+<pre><code class="language-lean">structure Point where
+  x : Int
+  y : Int
+</code></pre>
+<p>You can make new points in a variety of ways</p>
+<pre><code class="language-lean">def p₁ := Point.mk 1 2
+def p₂ : Point := { x := 1, y := 2 }
+def p₃ : Point := ⟨ 1,2 ⟩
+</code></pre>
+<h1 id="packaging-and-and-exists"><a class="header" href="#packaging-and-and-exists">PACKAGING AND AND EXISTS</a></h1>
+<p>In Lean, And is a structure (not a simple inductive type, like I originally described).</p>
+<pre><code class="language-lean">#print And
+
+example (p : Prop): p → (p ∧ p) :=
+  λ hp =&gt; ⟨ hp, hp ⟩
+</code></pre>
+<p>This notation also works with inductive types though, as with Exists.</p>
+<pre><code class="language-lean">#print Exists
+
+example (p : Type → Prop) (c : Type) : (∀ x, p x) → ∃ x, p x :=
+  λ h =&gt; ⟨ c, h c ⟩
+
+example : ∃ (p : Point) , p.x = 0 :=  by
+  exact ⟨ ⟨ 0, 0 ⟩, rfl ⟩
+</code></pre>
+<h1 id="tactics-produce-low-level-proofs-that-can-be-checked"><a class="header" href="#tactics-produce-low-level-proofs-that-can-be-checked">TACTICS PRODUCE LOW LEVEL PROOFS THAT CAN BE CHECKED</a></h1>
+<pre><code class="language-lean">theorem t (p : Type → Prop) (c : Type) : (∀ x, p x) → ∃ x, p x := by
+  intro h
+  exact ⟨ c, h c ⟩
+
+#print t
+</code></pre>
+<h1 id="pattern-matching"><a class="header" href="#pattern-matching">PATTERN MATCHING</a></h1>
+<p>You can match constructors with intro to more easily break up expressions.</p>
+<pre><code class="language-lean">example (p q : Prop) : p ∧ q → q := by
+  intro ⟨ _, hq ⟩
+  exact hq
+
+example : (∃ x , ¬p x) → ¬ ∀ x, p x := by
+  intro ⟨ x, hnp ⟩ hnap
+  sorry
+
+example (P Q : Type → Prop): (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x := by
+  intro ⟨ x, ⟨ hp, hq ⟩ ⟩
+  exact ⟨ x, ⟨ hq, hp ⟩ ⟩
+</code></pre>
+<h1 id="getting-help-with-apply"><a class="header" href="#getting-help-with-apply">GETTING HELP WITH APPLY?</a></h1>
+<p>You can ask Lean to try to find someting to apply with <code>apply?</code></p>
+<pre><code class="language-lean">example : (∃ x , ¬p x) → ¬ ∀ x, p x := by
+  intro ⟨ x, hnp ⟩ hnap
+  exact hnp (hnap x)
+</code></pre>
+<p>It doesn't always work though.</p>
+<pre><code class="language-lean">variable (α : Type) (P Q : α → Prop)
+example : (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x :=
+  by apply?
+</code></pre>
+<h1 id="fol-examples-revisited"><a class="header" href="#fol-examples-revisited">FOL EXAMPLES REVISITED</a></h1>
+<pre><code class="language-lean">variable (p: Type → Prop)
+variable (r : Prop)
+
+theorem asd : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  exact not_exists
+
+  -- apply Iff.intro
+  -- . intro h x
+  --   exact forall_not_of_not_exists h x
+  -- . intro h
+  --   exact not_exists.mpr h
+
+#print forall_exists_index
+
+#check forall_not_of_not_exists
+
+example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := by
+  sorry
+
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
+  sorry
+</code></pre>
+<h1 id="have-and-let"><a class="header" href="#have-and-let">HAVE AND LET</a></h1>
+<p>You can use have to record intermediate results</p>
+<pre><code class="language-lean">example (p q : Prop) : p ∧ q → p ∨ q := by
+  intro ⟨ h1, h2 ⟩
+  have hp : p := h1
+  exact Or.inl hp
+</code></pre>
+<p>If you need an intermediate value, you should use let.</p>
+<pre><code class="language-lean">example : ∃ n , n &gt; 0 := by
+  let m := 1
+  sorry
+</code></pre>
+<h1 id="cases"><a class="header" href="#cases">CASES</a></h1>
+<p>The cases tactic wraps around Or.elim to make proofs easier to read.</p>
+<pre><code class="language-lean">example (p q : Prop) : (p ∨ q) → q ∨ p  := by
+  intro h
+  cases h with
+  | inl hp =&gt; apply Or.inr hp
+  | inr hq =&gt; sorry
+
+example (p q : Prop) : (p ∨ q) → q ∨ p  := by
+  intro h
+  cases h
+  . apply Or.inr
+    assumption
+  . sorry
+
+-- Cases doesn't always buy you much. You can just apply Or.elim.
+example (p q : Prop) : (p ∨ q) → q ∨ p  := by
+  intro h
+  apply Or.elim h
+  . intro hp
+    sorry
+  . sorry
+</code></pre>
+<h1 id="cases-works-with-any-inductive-type"><a class="header" href="#cases-works-with-any-inductive-type">CASES WORKS WITH ANY INDUCTIVE TYPE</a></h1>
+<p>Here's are some somewhat longwinded ways to prove some simple results</p>
+<pre><code class="language-lean">example : (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x := by
+  intro h
+  cases h with
+  | intro x h =&gt; sorry
+
+example (p q : Prop) : (p ∧ q) → (p ∨ q) :=  by
+  intro h
+  cases h with
+  | intro hp hq =&gt; exact Or.inl hp
+</code></pre>
+<h1 id="by_cases"><a class="header" href="#by_cases">BY_CASES</a></h1>
+<p>The cases tactic is not to be confused with the by_cases tactic, which uses <code>classical reasoning</code>.</p>
+<pre><code class="language-lean">example (p : Prop): p ∨ ¬p := by
+  by_cases h : p
+  . exact Classical.em p -- assuming h : p
+  . exact Classical.em p -- assuming h : ¬p
+</code></pre>
+<p>Another example:</p>
+<pre><code class="language-lean">example (n : Nat) : n = 0 ∨ ∃ x , n = Nat.succ x := by
+  sorry
+</code></pre>
+<h1 id="another-example"><a class="header" href="#another-example">ANOTHER EXAMPLE</a></h1>
+<p>The following examples requires Classical reasoning. In the reverse direction, just because you have a proof that r implies ∃ x, p x doesn't mean that assume there exists an x such that r → p x, because that would require a proof of r itself. So we expect to use by_cases on r to show the reverse direction when r is true and when r is false.</p>
+<pre><code class="language-lean">example (r : Prop) (a : Type) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
+  sorry
+</code></pre>
+<h1 id="induction"><a class="header" href="#induction">INDUCTION</a></h1>
+<p>Proof by induction works for all inductive types. It is similar to using cases, but it adds an <code>inductive hypothesis</code> where needed.</p>
+<p>As an example, consider the natural numbers and suppose P : Nat → Prop is a property. To prove P with induction, you do :</p>
+<pre><code>`BASE CASE`: P(0)
+`INDUCTIVE STEP`: ∀ n, P(n) → P(n+1)
+</code></pre>
+<pre><code class="language-lean">def E (n : Nat) : Prop := match n with
+  | Nat.zero =&gt; True
+  | Nat.succ x =&gt; ¬E x
+
+example : ∀ n : Nat, E n ∨ E n.succ := by
+  intro n
+  induction n with
+  | zero =&gt; exact Or.inl trivial
+  | succ k ih =&gt;
+    apply Or.elim ih
+    . intro h1
+      exact Or.inr (by exact fun a ↦ a h1)
+    . intro h3
+      exact Or.inl h3
+</code></pre>
+<h1 id="tactic-documentation"><a class="header" href="#tactic-documentation">TACTIC DOCUMENTATION</a></h1>
+<p>There are a lot of tactics:</p>
+<p>https://github.com/haruhisa-enomoto/mathlib4-all-tactics/blob/main/all-tactics.md</p>
+<h1 id="solutions-1"><a class="header" href="#solutions-1">SOLUTIONS</a></h1>
+<pre><code class="language-lean">example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  apply Iff.intro
+  . intro h x hp
+    exact h (Exists.intro x hp)
+  . intro h hepx
+    apply Exists.elim hepx
+    intro x hpa
+    exact (h x) hpa
+
+example (n : Nat) : n = 0 ∨ ∃ x , n = Nat.succ x := by
+  by_cases h : n = 0
+  . exact Or.inl h
+  . apply Or.inr
+    apply Exists.intro (n-1)
+    exact Eq.symm (Nat.succ_pred_eq_of_ne_zero h)
+
+example (r : Prop) (a : Type) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
+  apply Iff.intro
+  . intro ⟨ x, hrp ⟩ hr
+    exact ⟨ x, hrp hr ⟩
+  . intro hrp
+    by_cases h : r
+    . apply Exists.elim (hrp h)
+      intro c hpc
+      apply Exists.intro c
+      intro _
+      exact hpc
+    . apply Exists.intro a
+      intro hr
+      exact False.elim (h hr)
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><h1 id="todo"><a class="header" href="#todo">TODO</a></h1>
+<p>Lorum ipsum.</p>
+<pre><code class="language-lean">#check true
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><h1 id="todo-1"><a class="header" href="#todo-1">TODO</a></h1>
+<p>Lorum ipsum.</p>
+<pre><code class="language-lean">#check true
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><p>** NUMBERS IN LEAN**</p>
+<pre><code class="language-lean">import Mathlib
+</code></pre>
+<h1 id="some-of-the-numebrs-provided-by-lean"><a class="header" href="#some-of-the-numebrs-provided-by-lean">SOME OF THE NUMEBRS PROVIDED BY LEAN</a></h1>
+<h1 id="standard"><a class="header" href="#standard">Standard</a></h1>
+<ul>
+<li>Natural Numbers: Nat or ℕ</li>
+<li>Integers: Int or ℤ</li>
+<li>Floating Point Numbers: Float, Float32</li>
+</ul>
+<h1 id="mathlib"><a class="header" href="#mathlib">Mathlib</a></h1>
+<ul>
+<li>Rationals: Rat or ℚ</li>
+<li>Reals: Real or ℝ</li>
+<li>Complex: Complex or ℂ</li>
+</ul>
+<pre><code class="language-lean">import Mathlib.Data.Real.Basic -- includes ℚ and ℝ
+import Mathlib.Data.Complex.Basic
+
+variable (n : Nat) (i : Int) (f : Float)
+
+variable (q : ℚ)
+#check q.num           -- ℤ
+#check q.den           -- ℕ
+
+variable (r : ℝ) (c : ℂ)
+#check c.im            -- ℝ
+#check c.re            -- ℝ
+</code></pre>
+<h1 id="natural-numbers"><a class="header" href="#natural-numbers">NATURAL NUMBERS</a></h1>
+<p>As we've seen, the Natural Numbers are defined inductively.</p>
+<pre><code class="language-lean">namespace TempNat
+
+-- Definition
+inductive Nat where
+  | zero : Nat
+  | succ : Nat → Nat
+
+open Nat
+</code></pre>
+<h1 id="example-natural-number-relations"><a class="header" href="#example-natural-number-relations">EXAMPLE NATURAL NUMBER RELATIONS</a></h1>
+<p>We have already seen a number of definitions of things like addition and multiplication. Relations on the natural numbers are also definitions. For example, less-than is defined inductively.</p>
+<pre><code class="language-lean">-- # Less-than is defined by two introduction rules
+inductive le (x : Nat) : Nat → Prop
+  | refl : le x x
+  | step : ∀ y, le x y → le x y.succ
+
+#check le zero zero.succ
+#check le.refl            --&gt; returns a proof that x ≤ x for any x
+#check le.step            --&gt; takes an x and a proof that x ≤ y
+                          --  and returns a proof that x ≤ y.succ
+
+example : le zero zero.succ :=
+  le.step zero le.refl
+
+-- # Less than or equal
+def lt (x y : Nat) := le x y ∧ x ≠ y
+
+example : lt zero zero.succ :=
+  And.intro (le.step zero le.refl) Nat.noConfusion
+</code></pre>
+<h1 id="example-natural-number-theorems"><a class="header" href="#example-natural-number-theorems">EXAMPLE NATURAL NUMBER THEOREMS</a></h1>
+<pre><code class="language-lean">theorem succ_eq_succ {n m : Nat} : n.succ = m.succ → n = m := by
+  intro h
+  apply Nat.noConfusion h id
+
+theorem succ_le_succ {n m: Nat} : le n m  → le n.succ m.succ := by
+  intro h
+  induction h with
+  | refl =&gt; exact le.refl
+  | step y h ih =&gt; exact le.step y.succ ih
+
+theorem succ_lt_succ {n m : Nat} : lt n m  → lt n.succ m.succ := by
+  intro ⟨ h1, h2 ⟩
+  apply And.intro
+  . exact succ_le_succ h1
+  . intro h3
+    have h4 := succ_eq_succ h3
+    exact h2 h4
+
+end TempNat
+</code></pre>
+<h1 id="lns-natural-numbers"><a class="header" href="#lns-natural-numbers">L∃∀N'S NATURAL NUMBERS</a></h1>
+<p>Lean defines all the standard <code>operators</code> and notation: +, -, *, ^, /, &lt;, &gt;, ...</p>
+<p>The standard library and Mathlib provide lots and lots of <code>theorems</code>.</p>
+<p>For example:</p>
+<p>https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/Nat/Defs.html</p>
+<p>Most of the equalities and iffs are known to the simlifier.</p>
+<p>The <code>calc</code> tactic also allows you to do extended calculuations using these theorems.</p>
+<pre><code class="language-lean">example (n m : Nat) : n+m+1 = 1+m+n := by
+  calc n+m+1
+  _  = n+(m+1) := by rw[Nat.add_assoc]
+  _  = n+(1+m) := by simp[Nat.add_comm]
+  _  = n+1+m   := by rw[Nat.add_assoc]
+  _  = 1+n+m   := by simp[Nat.add_comm]
+  _  = 1+(n+m) := by rw[Nat.add_assoc]
+  _  = 1+(m+n) := by simp[Nat.add_comm]
+  _  = 1+m+n   := by rw[Nat.add_assoc]
+</code></pre>
+<h1 id="the-integers"><a class="header" href="#the-integers">THE INTEGERS</a></h1>
+<p>The integers are defined from the natural numbers by two introduction rules. The first, ofNat, says that a natural number can be <code>lifted</code> to an integer. The second says that the negation of a successor of a natural number can be introduced as a negative number.</p>
+<pre><code class="language-lean">namespace TempInt
+
+inductive Int where
+  | ofNat : Nat → Int         --&gt; A natural number is an int
+  | ns : Nat → Int            --&gt; The negation of a successor is an int
+                              --&gt; avoiding two representations of zero
+open Int
+open Nat
+
+#eval ofNat zero.succ    --&gt; 1
+#eval ns zero.succ       --&gt; -2
+</code></pre>
+<h1 id="addition-on-the-integers"><a class="header" href="#addition-on-the-integers">ADDITION ON THE INTEGERS</a></h1>
+<pre><code class="language-lean">def sub_nats (x y : Nat) : Int := match y - x with
+  | zero =&gt; ofNat (x-y)  -- x ≤ y
+  | succ z =&gt; ns z
+
+#eval sub_nats 3 2  --&gt; 1
+#eval sub_nats 2 3  --&gt; -1
+
+def add (x y : Int) : Int := match x, y with
+  | ofNat a, ofNat b =&gt; ofNat (a+b)
+  | ofNat a, ns b    =&gt; sub_nats a b.succ
+  | ns a, ofNat b    =&gt; sub_nats b a.succ
+  | ns a, ns b       =&gt; ns (a+b).succ
+
+#eval add (ofNat zero.succ) (ofNat zero.succ.succ)    --&gt; 1+2=3
+#eval add (ns zero.succ.succ) (ofNat zero.succ)       --&gt; -3 + 1 = -2
+#eval add (ns zero.succ.succ) (ns zero.succ)          --&gt; -3 + -2 = -5
+</code></pre>
+<h1 id="example-property-of-integer-addition"><a class="header" href="#example-property-of-integer-addition">EXAMPLE PROPERTY OF INTEGER ADDITION</a></h1>
+<p>You can't do much with addition without a huge number of properties. One of the most fundamental is the commutative property.</p>
+<pre><code class="language-lean">theorem add_comm (x y: Int): add x y = add y x := by
+  match x, y with
+    | ofNat a, ofNat b =&gt; simp[add]; exact Nat.add_comm a b
+    | ofNat a, ns b    =&gt; simp[add]
+    | ns a, ofNat b    =&gt; simp[add]
+    | ns a, ns b       =&gt; simp[add]; exact Nat.add_comm a b
+</code></pre>
+<h1 id="subtraction-on-the-integers"><a class="header" href="#subtraction-on-the-integers">SUBTRACTION ON THE INTEGERS</a></h1>
+<p>To define subtraction, we first define the negation operator. Then subtraction is just addition of a negation.</p>
+<pre><code class="language-lean">def negate_nat (n : Nat) : Int := match n with
+  | zero =&gt; ofNat zero
+  | succ k =&gt; ns k
+
+def negate (x : Int) := match x with
+  | ofNat n =&gt; negate_nat n
+  | ns n =&gt; ofNat n.succ
+
+def sub (x y : Int) := add x (negate y)
+
+#eval sub (ofNat zero.succ) (ofNat zero.succ.succ.succ) --&gt; 1-3 = -2
+</code></pre>
+<h1 id="example-theorems-about-subtraction"><a class="header" href="#example-theorems-about-subtraction">EXAMPLE THEOREMS ABOUT SUBTRACTION</a></h1>
+<pre><code class="language-lean">theorem neg_neg (x : Int) : negate (negate x) = x := by
+  match x with
+  | ofNat n =&gt; match n with
+    | zero =&gt; simp[negate,negate_nat]
+    | succ k =&gt; simp[negate,negate_nat]
+  | ns n =&gt; match n with
+    | zero =&gt; simp[negate,negate_nat]
+    | succ k =&gt; simp[negate,negate_nat]
+</code></pre>
+<p>This next theorm can be done calculationally, using the previous theorem.</p>
+<pre><code class="language-lean">theorem sub_to_add (x y: Int) : sub x (negate y) = add x y := by
+  calc sub x (negate y)
+  _  = add x (negate (negate y)) := by rw[sub]
+  _  = add x y := by rw[neg_neg]
+</code></pre>
+<h1 id="ordering-of-the-integers"><a class="header" href="#ordering-of-the-integers">ORDERING OF THE INTEGERS</a></h1>
+<pre><code class="language-lean">-- Only Ints made directly from Nats are non-negative
+inductive non_neg : Int → Prop where
+  | intro (n: Nat) : non_neg (ofNat n)
+
+def le (x y : Int) : Prop := non_neg (sub y x)
+
+--  -2 &lt; 1
+example : le (ns zero.succ) (ofNat zero.succ) := by
+  exact non_neg.intro 3
+
+end TempInt
+</code></pre>
+<h1 id="lns-intgegers"><a class="header" href="#lns-intgegers">L∃∀N's INTGEGERS</a></h1>
+<p>Lean provides all the standard operations, relations, and notation.</p>
+<p>Lean has copious theorems about the integers:</p>
+<p>https://leanprover-community.github.io/mathlib4_docs/Init/Data/Int/Lemmas.html</p>
+<pre><code class="language-lean">example (x y z : Int) : 2*(x+y) - z = 2*x -z + 2*y := by
+  calc 2*(x+y) - z
+  _  = (2*x + 2*y) - z    := by rw[Int.mul_add]
+  _  = (2*x + 2*y) + (-z) := by rw[Int.sub_eq_add_neg]
+  _  = 2*x + (2*y + (-z)) := by rw[Int.add_assoc]
+  _  = 2*x + ((-z) + 2*y) := by conv =&gt; rhs; rhs; rw[Int.add_comm]
+                             -- or simp[Int.add_comm]
+  _  = 2*x + (-z) + 2*y   := by rw[Int.add_assoc]
+  _  = 2*x -z + 2*y       := by rw[Int.sub_eq_add_neg]
+
+example (x y z : Int) : 2*(x+y) - z = 2*x -z + 2*y :=
+  by linarith
+</code></pre>
+<h1 id="rationals"><a class="header" href="#rationals">RATIONALS</a></h1>
+<p>The (pre) rational numbers are just pairs of an Int and a Nat. But we also have to keep track of whether the denomenator is non-zero. We do that be including in the structure definion the rationals a proof of that property. Thus, every rational number in Lean "knows" it is well-formed.</p>
+<pre><code class="language-lean">namespace TempRat
+
+structure PreRat where
+  intro ::
+  num : Int
+  den : Nat
+  dnz : den ≠ 0 := by decide -- works with constants
+
+@[simp]
+def eq (x y :PreRat) :=
+  x.num * y.den = y.num * x.den
+</code></pre>
+<p>Pre-rational admits many representations of the same number.</p>
+<pre><code class="language-lean">def p12 : PreRat := PreRat.intro 1 2
+def p48 : PreRat := PreRat.intro 4 8
+
+example : eq p12 p48 := rfl
+</code></pre>
+<p>Of course, Lean would define notation for all of this.</p>
+<h1 id="defining-the-rationals"><a class="header" href="#defining-the-rationals">DEFINING THE RATIONALS</a></h1>
+<p>One way to define the Rationals from the Pre-Rationals is to form the set of all elements equivalent to a given Pre-Rational. Then that set <code>is</code> the rational.</p>
+<p>For this to work, we have to show that the equality relation is an <code>equivalence relation</code>. This means it needs to be:</p>
+<ul>
+<li>reflexive: eq x x</li>
+<li>symmetric: eq x y → eq y x</li>
+<li>transitive: eq x y ∧ eq y z → eq x z</li>
+</ul>
+<p>We define the equivalence class of x to be</p>
+<p>[x] = { y | x = y }</p>
+<p>In this case, it is the set of all rationals that reduce to the same number.</p>
+<p>The following are equivalent statements</p>
+<p>eq x y
+[x] = [y]
+[x] ∩ [y] = ∅</p>
+<h1 id="equality-is-reflexive-and-symmetric"><a class="header" href="#equality-is-reflexive-and-symmetric">EQUALITY IS REFLEXIVE AND SYMMETRIC</a></h1>
+<pre><code class="language-lean">theorem eq_refl {x : PreRat} : eq x x := by
+  rfl
+
+theorem eq_symm {x y : PreRat} : eq x y → eq y x := by
+  intro h
+  simp[eq]
+  rw[eq] at h
+  apply Eq.symm
+  exact h
+</code></pre>
+<h1 id="transitivity-is-more-challenging"><a class="header" href="#transitivity-is-more-challenging">TRANSITIVITY IS MORE CHALLENGING.</a></h1>
+<p>We want to show</p>
+<p>x  =  y   and   y  =  z  →  x  =  z</p>
+<p>Or</p>
+<p>p     m         m     a      p     a
+——— = ———  and  ——— = ——— →  ——— = ———
+q     n         q     n      q     b</p>
+<p>But we can't use fractions.</p>
+<p>To show that x = z, which is equivalent to pb = aq.</p>
+<p>We have</p>
+<p>pbn = pnb = mqb = qmb = qan = aqn</p>
+<p>Thus pb = aq since n ≠ 0</p>
+<p>Source: https://math.stackexchange.com/questions/1316069/how-do-i-show-that-the-equivalence-relation-defining-the-rational-numbers-is-tra</p>
+<h1 id="proof-of-transitivity"><a class="header" href="#proof-of-transitivity">PROOF OF TRANSITIVITY</a></h1>
+<pre><code class="language-lean">theorem eq_trans {x y z : PreRat}
+  : eq x y → eq y z → eq x z := by
+
+  intro h1 h2
+  let ⟨ p, q, _ ⟩   := x
+  let ⟨ m, n, nnz ⟩ := y
+  let ⟨ a, b, _ ⟩   := z
+
+  have h : p * b * n = a * q * n := by
+    calc p * b * n
+    _  = p * ( b * n ) := by rw[Int.mul_assoc]
+    _  = p * ( n * b ) := by simp[Int.mul_comm]
+    _  = p * n * b     := by rw[Int.mul_assoc]
+    _  = m * q * b     := by rw[h1]
+    _  = q * m * b     := by simp[Int.mul_comm]
+    _  = q * (m * b)   := by simp[Int.mul_assoc]
+    _  = q * (a * n)   := by rw[h2]
+    _  = q * a * n     := by simp[Int.mul_assoc]
+    _  = a * q * n     := by simp[Int.mul_comm]
+
+  simp at h
+  apply Or.elim h
+  . exact id
+  . intro h
+    exact False.elim (nnz h)
+</code></pre>
+<h1 id="one-way-to-build-the-rationals"><a class="header" href="#one-way-to-build-the-rationals">ONE WAY TO BUILD THE RATIONALS</a></h1>
+<pre><code class="language-lean">inductive Rat where
+  | of_pre_rat : PreRat → Rat
+
+open Rat
+
+def P12 := of_pre_rat p12
+def P48 := of_pre_rat p48
+</code></pre>
+<h1 id="lifting-equality-to-the-rationals"><a class="header" href="#lifting-equality-to-the-rationals">LIFTING EQUALITY TO THE RATIONALS</a></h1>
+<pre><code class="language-lean">@[simp]
+def LiftRel (r : PreRat → PreRat → Prop) (x y : Rat) : Prop :=
+  match x, y with
+  | of_pre_rat a, of_pre_rat b =&gt; r a b
+
+@[simp]
+def req := LiftRel eq
+
+example : req P12 P48 := by
+  simp[P12,P48,p12,p48]
+</code></pre>
+<h1 id="lifting-funtions"><a class="header" href="#lifting-funtions">LIFTING FUNTIONS</a></h1>
+<pre><code class="language-lean">@[simp]
+def pre_negate (x : PreRat) : PreRat := ⟨ -x.num, x.den, x.dnz ⟩
+
+def Respects (f : PreRat → PreRat) := ∀ x y : PreRat, eq x y → eq (f x) (f y)
+
+theorem negate_respects : Respects pre_negate := by
+  intro h
+  simp_all[pre_negate,eq]
+
+@[simp]
+def LiftFun (f : PreRat → PreRat) (x : Rat) : Rat := match x with
+  | of_pre_rat a =&gt; of_pre_rat (f a)
+
+@[simp]
+def negate := LiftFun pre_negate
+
+example : negate (negate P12) = P12 := by
+  simp[P12]
+</code></pre>
+<h1 id="lns-rationals"><a class="header" href="#lns-rationals">L∃∀N'S RATIONALS</a></h1>
+<p>Instead of defining the rationals as equivalence classes, however, Lean defines them by adding that they all have to be reduced.</p>
+<pre><code class="language-lean">structure LeanRat where
+  num : Int
+  den : Nat
+  den_nz : den ≠ 0
+  reduced : Nat.gcd den num.natAbs = 1
+
+end TempRat
+
+def q12 : ℚ := 1/2
+def q48 : ℚ := 4/8
+</code></pre>
+<p>Rats get reduced as soon as you define them.</p>
+<pre><code class="language-lean">#eval q48.num
+#eval q48.den
+#eval q48
+</code></pre>
+<h1 id="there-are-a-huge-number-of-defs-and-theorems-for-ℚ"><a class="header" href="#there-are-a-huge-number-of-defs-and-theorems-for-ℚ">THERE ARE A HUGE NUMBER OF DEFS AND THEOREMS FOR ℚ</a></h1>
+<pre><code class="language-lean">example (x y z : ℚ) : (x+y)/z = y/z + x/z := by
+  calc (x+y)/z
+  _  = x/z + y/z := by rw[add_div]
+  _  = y/z + x/z := by rw[add_comm]
+</code></pre>
+<p>Note: These theorems are not about ℚ specifically</p>
+<pre><code class="language-lean">#check add_comm  --&gt; Works for any `AddCommMagma`
+#check add_div   --&gt; Works for any `DivisionSemiring`
+</code></pre>
+<h1 id="theorems-about-inequality"><a class="header" href="#theorems-about-inequality">THEOREMS ABOUT INEQUALITY</a></h1>
+<p>Many results using rational numbers and real numbers require inequalties. So it is good to get some practice in with these. This is all from MIL 2.</p>
+<pre><code class="language-lean">variable (a b c d e: ℚ)
+
+#check (le_refl : ∀ a : ℚ, a ≤ a)
+#check (le_trans : a ≤ b → b ≤ c → a ≤ c)
+
+#check (le_refl : ∀ a : Real, a ≤ a)
+#check (le_refl a : a ≤ a)
+#check (le_trans : a ≤ b → b ≤ c → a ≤ c)
+
+#check (le_refl : ∀ a, a ≤ a)
+#check (le_trans : a ≤ b → b ≤ c → a ≤ c)
+#check (lt_of_le_of_lt : a ≤ b → b &lt; c → a &lt; c)
+#check (lt_of_lt_of_le : a &lt; b → b ≤ c → a &lt; c)
+#check (lt_trans : a &lt; b → b &lt; c → a &lt; c)
+</code></pre>
+<h1 id="examples-1"><a class="header" href="#examples-1">EXAMPLES</a></h1>
+<p>A transitivity proof.</p>
+<pre><code class="language-lean">example (x y z :ℚ) (h0 : x ≤ y) (h1 : y ≤ z) : x ≤ z := by
+  apply le_trans
+  apply h0
+  apply h1
+</code></pre>
+<p>A system of inequalites.</p>
+<pre><code class="language-lean">example (h₀ : a ≤ b) (h₁ : b &lt; c) (h₂ : c ≤ d) (h₃ : d &lt; e) : a &lt; e := by
+  apply lt_trans
+  apply lt_of_le_of_lt h₀ h₁
+  apply lt_of_le_of_lt h₂ h₃
+</code></pre>
+<p>You can use calc with inequalities.</p>
+<pre><code class="language-lean">example : 2*a*b ≤ a^2 + b^2 := by
+
+  have h : 0 ≤ a^2 - 2*a*b + b^2
+  calc a^2 - 2*a*b + b^2
+     _ = (a - b)^2 := by ring
+     _ ≥ 0 := by exact sq_nonneg (a - b)
+
+  calc 2* a*b = 2*a*b + 0 := by linarith
+     _ ≤ 2*a*b + (a^2 - 2*a*b + b^2) := add_le_add (le_refl _) h
+     _ = a^2 + b^2 := by linarith
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+<div style="break-before: page; page-break-before: always;"></div><p><strong>REAL NUMBERS IN LEAN</strong></p>
+<pre><code class="language-lean">import Mathlib.Data.Real.Basic
+import Mathlib.Tactic
+--import Mathlib.Topology.Instances.Real
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
+</code></pre>
+<h1 id="what-is-a-real-number"><a class="header" href="#what-is-a-real-number">WHAT IS A REAL NUMBER?</a></h1>
+<p>One way to characterize the reals is that they are numbers with infinite decimal expansions. For example,</p>
+<p>1.0000000 ...        --&gt; Also an integer
+3.5                  --&gt; Also a fracton
+3.3333333 ...        --&gt; Also a fracton
+1.4142135 ...        --&gt; √2, an algebraic number, not rational
+3.1415927 ...        --&gt; π, a trancendental number, not alegbreic or rational</p>
+<p>We might be tempted to define the reals as all sequences of integers, and in fact at least one Real Analysis textbook does this.</p>
+<p>But the usual method, and the one taken by Lean, is to define <code>Cauchy Sequences</code> over ℚ that converge to irrational values. For example, the sequence</p>
+<p>4/1
+4/1 - 4/3
+4/1 - 4/3 + 4/5
+4/1 - 4/3 + 4/5 - 4/7
+4/1 - 4/3 + 4/5 - 4/7 + 4/9</p>
+<p>Converges to pi.</p>
+<h1 id="issues"><a class="header" href="#issues">ISSUES</a></h1>
+<p>Two issues arise.</p>
+<ol>
+<li>What does it mean for a sequence over ℚ to converge? The normal notion of convergence over ℝ doesn't work here, because it requires knowledge about the existence of a real number being converged to. But we haven't defined ℝ yet.</li>
+</ol>
+<pre><code>To address this, we'll define `Cauchy Convergence`, which states that as you go out in the sequence, the values become arbitrarily close to each other. This means it converges to something, but that something might not be rational. So we'll call it real.
+</code></pre>
+<ol start="2">
+<li>Multiple sequences can converge in this sense to the same value. That is, the values of two sequences become arbitrarily close to each other.</li>
+</ol>
+<pre><code>To address this issue, we'll define a notion of equality on Cauchy Sequences and correspond to each `equivalence class` of sequences a real number.
+</code></pre>
+<h1 id="sequences"><a class="header" href="#sequences">SEQUENCES</a></h1>
+<p>Sequences over the rational numbers are just functions from ℕ to ℚ.
+Example: (1/n)</p>
+<pre><code class="language-lean">def σ₁ (n : ℕ) : ℚ := (1:ℚ) / (n+1)
+
+#eval [σ₁ 0, σ₁ 1, σ₁ 2, σ₁ 3]
+</code></pre>
+<p>Example: Another name for 1 ...</p>
+<pre><code class="language-lean">def one (n : Nat) : ℚ := match n with
+  | Nat.zero =&gt; 9/10
+  | Nat.succ k =&gt; one k + 9/(10^(n+1))
+
+#eval [one 0, one 1, one 2, one 3]
+</code></pre>
+<p>Example: √2</p>
+<pre><code class="language-lean">def sqrt2 (n : Nat) : ℚ := match n with
+  | Nat.zero =&gt; 1
+  | Nat.succ k =&gt; (sqrt2 k + 2 / (sqrt2 k))/2
+
+#eval [sqrt2 0, sqrt2 1, sqrt2 2, sqrt2 3, sqrt2 4]
+#eval (665857.0/470832)^2
+</code></pre>
+<h1 id="operations-on-sequences"><a class="header" href="#operations-on-sequences">OPERATIONS ON SEQUENCES</a></h1>
+<p>You can perform many of the same operations on sequences as you can on numbers. This allows you to make new sequences out of old ones.</p>
+<pre><code class="language-lean">def add (a b : ℕ → ℚ) := λ n =&gt; a n + b n
+def mul (a b : ℕ → ℚ) := λ n =&gt; (a n)*(b n)
+def scale (c : ℚ) (a : ℕ → ℚ) := λ n =&gt; c * (a n)
+-- and more
+
+-- Example
+def σ₂ := scale 3 (add σ₁ (mul σ₁ σ₁))
+
+#eval [σ₂ 0, σ₂ 1, σ₂ 2, σ₂ 3]
+
+def two := (mul sqrt2 sqrt2)
+#eval [two 0, two 1, two 2, two 3]
+#eval (332929 : Float)/166464
+</code></pre>
+<h1 id="the-usual-notion-of-convergence"><a class="header" href="#the-usual-notion-of-convergence">THE USUAL NOTION OF CONVERGENCE</a></h1>
+<p>One notion of convergence is to specify what the sequence converges to:</p>
+<pre><code class="language-lean">def ConvergesTo (f : ℕ → ℚ) (x:ℚ) := ∀ ε &gt; 0, ∃ n , ∀ m ≥ n, |f m - x| &lt; ε
+</code></pre>
+<p>Here's an easy example of a constant sequence.</p>
+<pre><code class="language-lean">example : ConvergesTo (λ _ =&gt; 3) 3 := by
+  intro ε hε
+  use 1
+  intro n h
+  simp[hε]
+</code></pre>
+<p>Advanced: (1/n) → 0. This method is not covered in this class, but see MIL.</p>
+<pre><code class="language-lean">example : Filter.Tendsto (λ n =&gt; (1:ℚ)/n) Filter.atTop (nhds (0:ℚ)) := by
+  intro X h
+  simp
+  exact mem_nhdsWithin_of_mem_nhds h
+</code></pre>
+<p>NOTE: This notion of convergence requires you know what the sequence is converging to and that it is rational.</p>
+<p>NOTE: The tendency in Mathlib is to prove things in the most generality possible. But this can make it hard to understand the simple examples that abound in engineering mathematics unless you know advanced topology.</p>
+<h1 id="convergence-of-the-sum-of-two-sequences"><a class="header" href="#convergence-of-the-sum-of-two-sequences">CONVERGENCE OF THE SUM OF TWO SEQUENCES</a></h1>
+<pre><code class="language-lean">#help tactic use
+theorem converge_add                 -- Adapted from MIL 3.6
+    {σ₁ σ₂ : ℕ → ℚ } {a b : ℚ}
+    (h1 : ConvergesTo σ₁ a) (h2 : ConvergesTo σ₂ b)
+    : ConvergesTo (add σ₁ σ₂) (a+b) := by
+
+  intro ε εpos
+  simp[add]
+  have ε2pos : 0 &lt; ε / 2 := by linarith
+  have ⟨Ns, hs⟩ := h1 (ε/2) ε2pos
+  have ⟨Nt, ht⟩ := h2 (ε/2) ε2pos
+
+  use max Ns Nt
+  intro m hm
+
+  have ngeNs : m ≥ Ns := le_of_max_le_left hm
+  have ngeNt : m ≥ Nt := le_of_max_le_right hm
+
+  calc |σ₁ m + σ₂ m - (a + b)|
+    _ = |σ₁ m - a + (σ₂ m - b)| := by congr; linarith
+    _ ≤ |σ₁ m - a| + |σ₂ m - b| := (abs_add _ _)
+    _ &lt; ε / 2 + ε / 2           := (add_lt_add (hs m ngeNs) (ht m ngeNt))
+    _ = ε                       := by norm_num
+</code></pre>
+<h1 id="cauchy-sequences"><a class="header" href="#cauchy-sequences">CAUCHY SEQUENCES</a></h1>
+<p>A different notion of convergence is Cauchy Convergence, stating that values become arbitrary close to each other without saying what they become close to. In fact, whatever the value is, it may not be rational.</p>
+<pre><code class="language-lean">def IsCauchy (σ : ℕ → ℚ) :=
+  ∀ ε &gt; 0 , ∃ N : ℕ , ∀ n m : ℕ,
+  n &gt; N → m &gt; N → abs (σ n - σ m) &lt; ε
+</code></pre>
+<p>Here's the same example as above.</p>
+<pre><code class="language-lean">theorem three_c : IsCauchy (λ _ =&gt; 3) := by
+  intro ε hε
+  use 1
+  intro n m hn hm
+  simp[hε]
+</code></pre>
+<p>Proving more complicated examples, even just 1/n, is tough without more machinery.</p>
+<h1 id="example-the-sum-of-cauchy-sequences-is-cauchy"><a class="header" href="#example-the-sum-of-cauchy-sequences-is-cauchy">EXAMPLE: THE SUM OF CAUCHY SEQUENCES IS CAUCHY</a></h1>
+<pre><code class="language-lean">#check abs_lt
+#check half_pos
+
+theorem cauchy_add {s1 s2 : ℕ → ℚ}
+  : IsCauchy s1 →
+    IsCauchy s2 →
+    IsCauchy (add s1 s2) := by
+
+  -- Introduce everything
+  intro h1 h2 ε hε
+  have ⟨ N1, h1' ⟩ := h1 (ε/2) (by exact half_pos hε)
+  have ⟨ N2, h2' ⟩ := h2 (ε/2) (by exact half_pos hε)
+  use N1 + N2
+  intro m n gm gn
+
+  -- Dispatch assumptions in the hypotheses
+  have h1'' := h1' n m (by linarith) (by linarith)
+  have h2'' := h2' n m (by linarith) (by linarith)
+
+  -- Break the add up and the absolute values
+  simp_all[add,abs_lt]
+
+  -- The rest is arithmetic
+  exact ⟨ by linarith, by linarith ⟩
+</code></pre>
+<h1 id="example-the-product-of-two-cauchy-sequences-is-cauchy"><a class="header" href="#example-the-product-of-two-cauchy-sequences-is-cauchy">EXAMPLE THE PRODUCT OF TWO CAUCHY SEQUENCES IS CAUCHY</a></h1>
+<pre><code class="language-lean">theorem cauchy_mul (s1 s2 : ℕ → ℚ) :
+  IsCauchy s1 →
+  IsCauchy s2 →
+  IsCauchy (mul s1 s2) := by
+    sorry
+</code></pre>
+<h1 id="equality-of-sequences"><a class="header" href="#equality-of-sequences">EQUALITY OF SEQUENCES</a></h1>
+<p>Different sequences may converge to the same value. For example, here is a list of ways to approximate π:</p>
+<p>https://mathworld.wolfram.com/PiFormulas.html</p>
+<p>Thus, every real number corresponds to a whole equivalence class of sequences. Here is the notion of equality we can use.</p>
+<pre><code class="language-lean">def eq (σ₁ σ₂ : ℕ → ℚ) :=
+  ∀ ε &gt; 0, ∃ N, ∀ m n,
+  m &gt; N → n &gt; N → |σ₁ n - σ₂ m| &lt; ε
+</code></pre>
+<p>Here's an example that ought to be true</p>
+<pre><code class="language-lean">example : eq (mul sqrt2 sqrt2) (λ _ =&gt; 2) := by
+
+  intro ε hε
+  let N := ε.den^2
+  use N
+  intro m n hm hn
+  simp[mul]
+
+  induction n with
+  | zero =&gt;
+    simp at hn
+  | succ k ih =&gt;
+    unfold sqrt2
+    by_cases h1: k ≤ N
+    . sorry
+    . have h2 : k &gt; N := by linarith
+      have ih' := ih h2
+      -- |a^2-2|&lt;ε → |(a^2 + 2 + 4/(a^2))/4 -2| &lt; ε
+      sorry
+</code></pre>
+<h1 id="ordering"><a class="header" href="#ordering">ORDERING</a></h1>
+<pre><code class="language-lean">def leq (σ τ : ℕ → ℚ) := eq σ τ ∨ ∃ N, ∀ n &gt; N, σ n ≤ τ n
+</code></pre>
+<h1 id="example--1--2"><a class="header" href="#example--1--2">EXAMPLE : 1 ≤ √2</a></h1>
+<p>The arithmetic mean is greater than or equal to the geometric mean</p>
+<pre><code class="language-lean">theorem am_gm (a b : ℚ) : ((a+b)/2)^2 ≥ a*b := by
+
+  have : ((a+b)/2)^2 - a*b ≥ 0 := by
+    calc ((a+b)/2)^2 - a*b
+    _ = (a^2 + 2*a*b + b^2)/4 - a*b := by linarith
+    _ = (a^2 - 2*a*b + b^2)/4 := by linarith
+    _ = ((a-b)/2)^2 := by linarith
+    _ ≥ 0 := sq_nonneg ((a - b) / 2)
+
+  linarith
+
+#help tactic simp!
+
+example : leq (λ _ =&gt; 1) sqrt2 := by
+
+  apply Or.inr
+  use 0
+  intro n hn
+
+  induction n with
+  | zero =&gt; rfl
+  | succ k ih =&gt;
+
+    -- k = 0
+    by_cases h0: k = 0
+    . simp![h0]
+      linarith
+
+    -- k &gt; 0
+    . have : k &gt; 0 := by exact Nat.zero_lt_of_ne_zero h0
+      have ih' : 1 ≤ sqrt2 k := ih this
+      unfold sqrt2
+
+      have h4 : sqrt2 k * (2 / sqrt2 k) = 2 := by
+        calc sqrt2 k * (2 / sqrt2 k)
+        _ = (sqrt2 k * 2) / sqrt2 k := by rw[mul_div]
+        _ = (2 * sqrt2 k) / sqrt2 k := by rw[mul_comm]
+        _ = 2 * (sqrt2 k / sqrt2 k) := by rw[mul_div]
+        _ = 2 * 1 := by rw[div_self]; linarith
+        _ = 2 := Rat.mul_one 2
+
+      have h5 := am_gm (sqrt2 k) (2/(sqrt2 k))
+      simp[h4] at h5
+
+      have h6 : 1 ≤ ((sqrt2 k + 2 / sqrt2 k) / 2) ^ 2 := by
+        calc (1:ℚ)
+        _ ≤ 2 := rfl
+        _ ≤ ((sqrt2 k + 2 / sqrt2 k) / 2) ^ 2 := h5
+
+      have h1 : 0 ≤ sqrt2 k := by linarith
+      have h2 : 0 ≤ 2/(sqrt2 k) := Rat.div_nonneg rfl h1
+      have h3 : 0 ≤ (sqrt2 k + 2 / sqrt2 k)/2 := Rat.div_nonneg (Rat.add_nonneg h1 h2) rfl
+      exact (one_le_sq_iff₀ h3).mp h6
+</code></pre>
+<h1 id="example--commutativity-of-sequence-addition"><a class="header" href="#example--commutativity-of-sequence-addition">EXAMPLE : COMMUTATIVITY OF SEQUENCE ADDITION</a></h1>
+<pre><code class="language-lean">theorem sadd_comm {σ τ : ℕ → ℚ}
+  : IsCauchy σ → IsCauchy τ → eq (add σ τ) (add τ σ) := by
+  intro h1 h2 ε hε
+  have ⟨ N1, h1' ⟩ := h1 ε hε
+  have ⟨ N2, h2' ⟩ := h2 ε hε
+  use N1 + N2
+  intro m n hm hn
+  have h1'' := h1' m n (by linarith) (by linarith)
+  have h2'' := h2' m n (by linarith) (by linarith)
+  simp_all[add]
+  sorry
+</code></pre>
+<h1 id="eq-is-reflexive-symmetric-and-transitive"><a class="header" href="#eq-is-reflexive-symmetric-and-transitive">EQ IS REFLEXIVE, SYMMETRIC, AND TRANSITIVE</a></h1>
+<pre><code class="language-lean">theorem eq_refl {σ : ℕ → ℚ}
+  : IsCauchy σ → eq σ σ := by
+  intro hc ε hε
+  have ⟨ N, h ⟩ := hc ε hε
+  use N
+  intro m n hm hn
+  have h' := h n m hn hm
+  exact h'
+
+theorem eq_sym {σ₁ σ₂ : ℕ → ℚ}
+  : IsCauchy σ₁ → IsCauchy σ₂ → eq σ₁ σ₂ → eq σ₂ σ₁ := by
+  intro h1 h2 h12 ε hε
+  have ⟨ N1, h1' ⟩ := h1 ε hε
+  have ⟨ N2, h2' ⟩ := h2 ε hε
+  use N1 + N2
+  intro m n hm hn
+  have h1'' := h1' n m (by linarith) (by linarith)
+  have h2'' := h2' n m (by linarith) (by linarith)
+  sorry
+
+theorem eq_trans {σ₁ σ₂ σ₃: ℕ → ℚ}
+  : IsCauchy σ₁ → IsCauchy σ₂ → eq σ₁ σ₂ → eq σ₂ σ₃ → eq σ₁ σ₃ := by
+  sorry
+</code></pre>
+<h1 id="the-cauchy-completion-of-the-rationals--the-reals"><a class="header" href="#the-cauchy-completion-of-the-rationals--the-reals">THE CAUCHY COMPLETION OF THE RATIONALS = THE REALS</a></h1>
+<pre><code class="language-lean">namespace Temp
+
+inductive Real where
+  | ofCauchy (σ : ℕ → ℚ) (h : IsCauchy σ) : Real
+
+open Real
+
+def three := ofCauchy (λ _ =&gt; 3) three_c
+</code></pre>
+<h1 id="operations-relations-and-properties-lift"><a class="header" href="#operations-relations-and-properties-lift">OPERATIONS, RELATIONS, and PROPERTIES "LIFT"</a></h1>
+<p>Example operation</p>
+<pre><code class="language-lean">def radd (x y : Real) : Real := match x, y with
+  | ofCauchy σ h1, ofCauchy τ h2 =&gt; ofCauchy (add σ τ) (cauchy_add h1 h2)
+
+#check radd three three
+</code></pre>
+<p>Example relation</p>
+<pre><code class="language-lean">def req (x y : Real) : Prop := match x, y with
+  | ofCauchy σ _, ofCauchy τ _ =&gt; eq σ τ
+
+theorem req_refl (x : Real) : req x x := match x with
+  | ofCauchy _ h =&gt; eq_refl h
+
+example : req three three := by apply req_refl
+</code></pre>
+<p>Example Property</p>
+<pre><code class="language-lean">theorem radd_comm {x y : Real} : req (radd x y) (radd y x) := by
+  match x, y with
+  | ofCauchy σ h1, ofCauchy τ h2 =&gt;
+    simp[req,radd]
+    exact sadd_comm h1 h2
+
+end Temp
+</code></pre>
+<h1 id="all-the-properties-of-the-reals"><a class="header" href="#all-the-properties-of-the-reals">ALL THE PROPERTIES OF THE REALS</a></h1>
+<p>ℝ is a field (so is ℚ)</p>
+<ul>
+<li>and * are associative, commutative, distributive, inverses
+there are additive and multiplicative identities</li>
+</ul>
+<p>ℝ is totally ordered by ≤ and respected by + and * (so is ℚ)</p>
+<p>ℝ is complete with respect to ≤ (but ℚ isn't)
+Every bounded nonempty set has a least upper bound
+This is the only</p>
+<p>All these properties are available, along with many more.</p>
+<pre><code class="language-lean">#check mul_assoc
+#check add_mul
+#check mul_le_mul_left
+#check le_total
+#check le_csSup
+</code></pre>
+<h1 id="and-more-real-stuff"><a class="header" href="#and-more-real-stuff">AND MORE REAL STUFF</a></h1>
+<pre><code class="language-lean">open Real
+
+example : ∃ x : ℝ, x^2 = 2 := by
+  use sqrt 2
+  simp
+
+example (x : Real) : (cos x)^2 + (sin x)^2 = 1 := by
+  exact cos_sq_add_sin_sq x
+
+example : deriv (fun x : ℝ ↦ x^5) 6 = 5 * 6^4 := by
+  simp
+
+example : deriv sin π = -1 := by
+  simp
+</code></pre>
+<h1 id="references-4"><a class="header" href="#references-4">REFERENCES</a></h1>
+<p>A nice description of the Cauchy Completion: https://mathweb.ucsd.edu/~tkemp/140A/Construction.of.R.pdf</p>
+<p>A book that describes the Cauchy Completion:  Rudin, W.: Principles of Mathematical Analysis. Third Edition. International Series in Pure and Applied Mathematics. McGraw-Hill Book Co., New York – Aukland – Dusseldorf, 1976.ß</p>
+<p>A real analysis book in which ℝ is constructed from decimal expansions of the form f : ℕ → ℤ with f(0) being the integer part and f(n) ∈ {0, ..., 9} for n ≥ 1. https://docs.ufpr.br/%7Ehigidio/Ensino/Seminario/Davidson-Donsig-2010-Real%20Analysis%20and%20Aplications.pdf</p>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="highlight.js"></script>
+        <script src="lean-book.js"></script>
+
+        <script>
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
