@@ -161,7 +161,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="foundations-of-lean"><a class="header" href="#foundations-of-lean">Foundations of Lean</a></h1>
+                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="foundations-of-lean"><a class="header" href="#foundations-of-lean">Foundations of Lean</a></h1>
 <p>by Eric Klavins</p>
 <p>The notes presented here were initially developed for a special topics graudate course on Lean I taught in the Winter of 2025. The course was taken mainly by Electrical and Computer Engineers with standard programming experience, some engineering mathematics background, and a variety of different application areas in mind. The main reading for the course included all the standard Lean references and books. These notes are merely a supplement for those excellent resources.</p>
 <p>That said, I hope the material presented here presents a unique and useful perspective that arose over several decades of my periodically checking in on proof assistants, becoming enamored for a while, and then moving on to other projects. For me, the alure of theorem provers is the possibility of once and for all connecting the foundations of mathematics (Type Theory in the case of Lean) with the work of practicing mathematicians and engineers. Thus, my presentation focuses on foundations, whereas other resources may focus more on the use of Lean for particular applications.</p>
@@ -172,7 +173,8 @@
 <p>I would like to acknowledge the students who took my special topics course offered the Winter of 2025 at the University of Washington. We all learned Lean together. At first, I was a few weeks ahead, and by the end of the course I was a few weeks behind. Much of the material here was developed in response to their questions and ideas.</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="a-tour-of-lean-4"><a class="header" href="#a-tour-of-lean-4">A Tour of Lean 4</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="a-tour-of-lean-4"><a class="header" href="#a-tour-of-lean-4">A Tour of Lean 4</a></h1>
 <h2 id="installing-lean"><a class="header" href="#installing-lean">Installing Lean</a></h2>
 <p>The easiest way to install Lean is to follow the quickstart guide at</p>
 <ul>
@@ -349,7 +351,8 @@ example (p q r : Prop) : (p → q) ∧ (q → r) → (p → r) :=
 </ul>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="the-simply-typed-λ-lambda-calculus"><a class="header" href="#the-simply-typed-λ-lambda-calculus">The Simply Typed λ-Lambda Calculus</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="the-simply-typed-λ-lambda-calculus"><a class="header" href="#the-simply-typed-λ-lambda-calculus">The Simply Typed λ-Lambda Calculus</a></h1>
 <h2 id="background"><a class="header" href="#background">Background</a></h2>
 <p>The <strong>λ-calculus</strong> was introduced in the 1930s by Alonzo Church as a way to represent how functions on natural numbers are calculated using symbols. The goal was to determine whether every function on the natural numbers had an effective means of being calculated.</p>
 <p>Said differently, the question is: Does every function have an algorithm? Astonishingly, Church showed that the answer is "no". In fact, there are functions on the natural numbers for which there is no effective algorithm. Church's 1935 paper "An unsolvable problem in elementary number theory" proved this result.</p>
@@ -476,25 +479,26 @@ def h₂ := λ (g : A → A) =&gt; λ (y : A) =&gt; g y
 <p>about which Lean complains because q has not been declared in the present context.</p>
 <h2 id="judgements-and-contexts"><a class="header" href="#judgements-and-contexts">Judgements and Contexts</a></h2>
 <p>When you hover over a #check directive, Lean shows the results of the type derivation as what is called a <strong>judgement</strong>. It is an expression in two parts separated by a <strong>turnstile</strong> ⊢. For example: <code>#check h₁ x</code> produces</p>
-<pre><code>  x : A
-  f : A → A
-  ⊢ A
+<pre><code>x : A
+f : A → A
+⊢ A
 </code></pre>
 <p>Before the turnstile is the <strong>context</strong>, a list of all the variables introduced so far. After the turnstile is the type of (h₁ x), which in this case is A. In the literature, this written:</p>
-<pre><code>  { x : A, f : A → A }  ⊢  h₁ x : A
+<pre><code>{ x : A, f : A → A }  ⊢  h₁ x : A
 </code></pre>
 <p>which reads: "If A has type A and f has type A → A, then we can derive h₁ x has type A". In an expression such as</p>
-<pre><code>  λ (y : A) =&gt; f y
+<pre><code>λ (y : A) =&gt; f y
 </code></pre>
 <p>the variable f is not bound to an enclosing lambda. In this case it is called <strong>free</strong>. The variable y on the other hand is <code>bound</code>. Free variables have to be declared in Lean for expressions to use them. And they have to have types consistent to how they are used. When this is done properly, you will see the free variable declarations in the context part of Lean's results.</p>
 <h2 id="beta-reduction"><a class="header" href="#beta-reduction">Beta Reduction</a></h2>
 <p>An abstraction can be <code>applied</code> to another term to produce a new term. This is called β-reduction. It is defined like this:</p>
-<pre><code>  (λ (x:α) =&gt; M) N   —β—&gt;   M[x:=N]
+<pre><code>(λ (x:α) =&gt; M) N   —β→   M[x:=N]
 </code></pre>
-<p>The notation M[x:=N] means: take all <strong>free</strong> occurances of x in M and replace them with the expression N. We have to be careful that N does not use the variable x freely. Lean does this internally for us The bound version of x above is, internally, a completely unique variable that is just displayed as x for our convenience.</p>
+<p>The notation <code>M[x:=N]</code> means: take all <strong>free</strong> occurances of <code>x</code> in <code>M</code> and replace them with the expression N. We have to be careful that <code>N</code> does not use the variable <code>x</code> freely. Lean does this internally for us The bound version of <code>x</code> above is, internally, a completely unique variable that is just displayed as <code>x</code> for our convenience.</p>
 <p>To apply β-reduction in Lean, you can use the #reduce directive. For example, we can see that</p>
-<p>(λ (g : α → α) =&gt; λ (y : α) =&gt; g y) f   —β—&gt;   λ (y : α) =&gt; f y</p>
-<p>This is obtained by replacing g in g y with f, as the rule describes. You can have Lean do this for you using the #reduce directive. The #reduce directive needs permission to be aggressive, which we can do using the (types := true) option.</p>
+<pre><code>(λ (g : α → α) =&gt; λ (y : α) =&gt; g y) f   —β→   λ (y : α) =&gt; f y
+</code></pre>
+<p>This is obtained by replacing <code>g</code> in <code>g y</code> with <code>f</code>, as the rule describes. You can have Lean do this for you using the #reduce directive. The <code>#reduce</code> directive needs permission to be aggressive, which we can do using the <code>(types := true)</code> option.</p>
 <pre><code class="language-lean">#reduce (types:=true) (λ (y : A) =&gt; y) x
 #reduce (types:=true) (λ (g : A → A) =&gt; λ (y : A) =&gt; g y) (λ (y : A) =&gt; y)
 #reduce (types:=true) (λ (g : A → A) =&gt; λ (y : A) =&gt; g y) (λ (y : A) =&gt; y) x
@@ -502,39 +506,11 @@ def h₂ := λ (g : A → A) =&gt; λ (y : A) =&gt; g y
 <h2 id="properties-of-the-simply-typed-λ-calculus"><a class="header" href="#properties-of-the-simply-typed-λ-calculus">Properties of the Simply Typed λ-calculus</a></h2>
 <p>Some interesting observations are in order. We won't prove these here, but they are good to know:</p>
 <p><strong>Uniqueness of Types</strong>: Every term has exacly one type.</p>
-<p><strong>Subject Reduction Lemma</strong>: If M₁ : α and M₁ —β—&gt; M₂ then M₂ : α. That is, beta reduction does't change the type of expressions. It just simplifies them.</p>
-<p><strong>Church-Rosser Theorem</strong>: If M —β—&gt; N₁ and M —β—&gt; N₂ then there is some N₃ such that N₁ —β—&gt; N₃ and N₂ —β—&gt; N₃. That is, it doesn't matter what order you β-reduce an expression's sub-expressions in, you always end up with the same term.</p>
-<p><strong>Strong Normalization</strong>: β-reduction eventually stops at an irreducible term. This is a very strong statement. In most programming languages, you can write infinite loops. But not in the simply typed lambda calculus!</p>
-<h2 id="why-is-it-called-simply-typed"><a class="header" href="#why-is-it-called-simply-typed">Why is it Called "Simply Typed"?</a></h2>
-<p>You might be asking yourself, is there a non-simply typed λ-calculus? The answer is yes! We will get there eventually. Here's a preview:</p>
-<p><strong>Simple types</strong> Terms depend on terms.</p>
-<blockquote>
-<p>Example: In (λ x : A =&gt; M) the term M depends on the term x.</p>
-</blockquote>
-<p><strong>Polymorphism</strong> Terms can depend on types.</p>
-<blockquote>
-<p>Example: (λ α : Type =&gt; λ x : α =&gt; x) is a polymorphic identity function.</p>
-</blockquote>
-<p><strong>Parameterized Types</strong> Types can depend on types.</p>
-<blockquote>
-<p>Example: Pair X Y is a type for any types X and Y.</p>
-</blockquote>
-<p><strong>Dependent types</strong> Types can depend on terms.</p>
-<blockquote>
-<p>Example: Vector n X, the vector of n objects of type X.</p>
-</blockquote>
-<p><strong>Calculus of Constructions</strong> All of the above.</p>
-<p><strong>Inductive Types</strong>: Types can be defined inductively.</p>
-<blockquote>
-<p>Example: The natural numbers are defined by a base case (zero) and a successor function (succ), from which all other natural numbers can be constructed.</p>
-</blockquote>
-<p><strong>Quotients</strong>: Quotients of types via equivalence relations.</p>
-<blockquote>
-<p>Example: A real number is defined to be the set of all Cauchy sequences of rational numbers that converge to it. That is, the reals are the quotient of the set of Cauchy Sequences by Cauchy equivalence.</p>
-</blockquote>
-<p>With all of these types of types, you can define an most of logic and mathematics!</p>
+<p><strong>Subject Reduction Lemma</strong>: If <code>M₁ : α and M₁ —β→ M₂</code> then <code>M₂ : α</code>. That is, beta reduction does't change the type of expressions. It just simplifies them.</p>
+<p><strong>Church-Rosser Theorem</strong>: If <code>M —β→ N₁</code> and <code>M —β→ N₂</code> then there is some <code>N₃</code> such that <code>N₁ —β→ N₃</code> and <code>N₂ —β→ N₃</code>. That is, it doesn't matter what order you β-reduce an expression's sub-expressions in, you always end up with the same term.</p>
+<p><strong>Strong Normalization</strong>: β-reduction eventually stops at an irreducible term. This is a very strong statement. In most programming languages, you can write infinite loops. But not in the simply typed λ-calculus!</p>
 <h2 id="extended-example-church-numerals"><a class="header" href="#extended-example-church-numerals">Extended Example: Church Numerals</a></h2>
-<p>Even though the λ-calculus looks simple, you can encode quite a bit of math with it. The goal of this next section is to show you how do do arithmetic with only what we have so far. We do this not because it is efficient -- it isn't! Instead, we want to show that the essence of arithmetic is captured by the λ-calculus.</p>
+<p>Even though the simply typed λ-calculus looks simple, you can encode quite a bit of math with it. The goal of this next section is to show you how do do arithmetic with only what we have so far (simple arrow types and terms depending only on terms). We do this not because it is efficient -- it isn't! Instead, we want to show that the essence of arithmetic is captured by the simply typed λ-calculus.</p>
 <p>First, we need a way to represent numbers. Church devised the following scheme, where c₀ is the <strong>Church Numeral</strong> for 0 and so on.</p>
 <pre><code class="language-lean">def α := Type
 
@@ -626,19 +602,19 @@ def c₃ := λ ( f : α → α ) =&gt; λ ( x : α ) =&gt; f (f (f x))
 <p>Dropping types for the moment, define the term</p>
 <pre><code>Ω := λ x =&gt; x x
 </code></pre>
-<p>and consider Ω applied to itself Ω:</p>
+<p>and consider <code>Ω</code> applied to itself <code>Ω</code>:</p>
 <pre><code>(λ x =&gt; x x) (λ x =&gt; x x)       —β—&gt;       (λ x =&gt; x x) (λ x =&gt; x x)
 </code></pre>
-<p>producing an infinite loop. Suppose you could give M M a type:</p>
+<p>producing an infinite loop. Suppose you could give <code>M M</code> a type:</p>
 <pre><code>M M : σ
 </code></pre>
-<p>For this to work, M has to be a function:</p>
+<p>For this to work, <code>M</code> has to be a function:</p>
 <pre><code>M : τ → σ
 </code></pre>
-<p>But since M is operating on itself, M has to be of type τ:</p>
+<p>But since <code>M</code> is operating on itself, <code>M</code> has to be of type <code>τ</code>:</p>
 <pre><code>M : τ
 </code></pre>
-<p>So M has two different types, which is not possible. Lean is not able to find a type for x. The placeholder symbol _ is used by Lean as a way to ask the type checker to infer a type.</p>
+<p>So <code>M</code> has two different types, which is not possible. Lean is not able to find a type for <code>x</code>. The placeholder symbol <code>_</code> is used by Lean as a way to ask the type checker to infer a type.</p>
 <pre><code class="language-lean">#check_failure (λ (M:_) =&gt; M M)
 </code></pre>
 <h2 id="propositions"><a class="header" href="#propositions">Propositions</a></h2>
@@ -658,6 +634,38 @@ def c₃ := λ ( f : α → α ) =&gt; λ ( x : α ) =&gt; f (f (f x))
 example (p q : Prop) : p → (p → q) → q :=
   λ hp =&gt; λ hpq =&gt; hpq hp
 </code></pre>
+<h2 id="why-is-it-called-simply-typed"><a class="header" href="#why-is-it-called-simply-typed">Why is it Called "Simply Typed"?</a></h2>
+<p>You might be asking yourself, is there a non-simply typed λ-calculus? The answer is yes! We will get there eventually. Here's a preview:</p>
+<p><strong>Simple types:</strong> Terms depend on other tems. This is what we've covered so far. For example, the body of a lambda abstraction (a term) depends on the bound variable (also a term).</p>
+<pre><code class="language-lean">#check (λ x : Nat =&gt; x+1) --- the term x+1 depends on the term x.
+</code></pre>
+<p><strong>Polymorphism:</strong> Terms can depend on types. Polymorphism allows us to write functions that operate on a variety of types, instead of just a single type, by taking the type to be operated on as an argument. For example, the identity function <code>λ x : A =&gt; x</code> only operates on elements of type x. What if we wanted to define an arbitrary identity function for any type. Here is one way:</p>
+<pre><code class="language-lean">#check (λ α : Type =&gt; λ x : α =&gt; x) -- a polymorphic identity function.
+</code></pre>
+<p>A better way would be:</p>
+<pre><code class="language-lean">universe u
+def my_id {α : Type u} (x : α) := x
+
+#check my_id 1
+#check my_id "one"
+#check my_id my_id
+</code></pre>
+<p>Note the curly braces around <code>α : Type u</code> specify that the argument <code>α</code> is <em>implicit</em>. That is, that Lean should try to infer what it is. In the the examples <code>#check</code> statements above, Lean figures out which type the argument is, and therefor which type the overall expression is, by inspection.</p>
+<p><strong>Parameterized Types:</strong> Types can depend on types. The idea here is to build a type from other types. For example, a List type is fine, but it would nice to avoid having two make a separate data type for lists of different types of objects. In fact, Lean's standard library defines <code>List</code> as a parameterized type. You can see in the first <code>#check</code> below that making a list requires a type as an argument</p>
+<pre><code class="language-lean">#check List            -- Requires a type as an argument
+#check List Nat        -- The type of a list of natural numbers
+#check List (List Nat) -- The type of a a list of list of natural numbers
+</code></pre>
+<p>Lean is also good at figuring out what kind of list you are talking about in most contexts, as the following examples show.</p>
+<pre><code class="language-lean">#check [1,2,3]
+#check ["one","two","three"]
+</code></pre>
+<p><strong>Dependent types:</strong> Types can depend on terms. Finally, we can have types that depend on terms. For example, the type of vectors (from Lean's standard library) of natural numbers of length 10 depends on the term 10.</p>
+<pre><code class="language-lean">#check Vector Nat 10 -- Vectors of 10 Nats
+</code></pre>
+<p><strong>Calculus of Constructions:</strong> If we allow all of the above in type theory, we get what is called the Calculus of Constructions, or CoC. This theory was first described by Thierry Coqrand and emboded in the Coq proof assistant, now called Rocq. Lean and other proof assistants are also based on CoC.</p>
+<p><strong>Inductive Types</strong>: Types can be defined inductively. For example, the natural numbers are defined by a base case (zero) and a successor function (succ), from which all other natural numbers can be constructed. This is discussed in more detail in the chapter on <a href="./InductiveTypes.html">Inductive Types</a>.</p>
+<p><strong>Quotients</strong>: Quotients of types via equivalence relations. For example, a real number is defined to be the set of all Cauchy sequences of rational numbers that converge to it. That is, the reals are the quotient of the set of Cauchy Sequences by Cauchy equivalence. This is discussed in more detail in the chapter on <a href="./Quotients.html">Quotients</a>.</p>
 <h2 id="looking-ahead-the-curry-howard-correspondence"><a class="header" href="#looking-ahead-the-curry-howard-correspondence">Looking ahead: the Curry-Howard Correspondence</a></h2>
 <p>The most important problem in using type theory for proofs is INHABITATION, followed by TYPE CHECKING. To motivate why, we will see later the following remarkable fact, called the Curry-Howard corresponence, which says that in the judgement Γ ⊢ M : σ,</p>
 <ul>
@@ -676,26 +684,23 @@ example (p q : Prop) : p → (p → q) → q :=
 <p>is the general form of a proof of the statement σ → τ where → means "implies". It can be thought of as a transformation taking a proof of σ, which one assumes is available, and returning a proof of τ, which is thought of as a goal to be proved. Writing the details of what q is amounts to programming.</p>
 <p>As a computer scientist myself it is very satisfying to know that programming functions with given type specifications is <em>the same thing as</em> proving theorems!</p>
 <p>This idea is not merely cute. By building on it, as Lean and similar tools do, one can enocde an astonishingly large set of all of mathematics, and presumably knowledge in general. We'll learn how to take advantage of the Curry-Howard corresponence soon.</p>
-<h1 id="references"><a class="header" href="#references">REFERENCES</a></h1>
+<h2 id="references"><a class="header" href="#references">REFERENCES</a></h2>
 <p>Alonzo Church
-"An Unsolvable Problem of Elementary Number Theory"
-American Journal of Mathematics, 1936.
-https://www.jstor.org/stable/2371045</p>
+<a href="https://www.jstor.org/stable/2371045">An Unsolvable Problem of Elementary Number Theory</a>.
+American Journal of Mathematics, 1936.</p>
 <p>Haskell B Curry
-"The Inconsistency of Certain Formal Logics"
-The Journal of Symbolic Logic, 1942.
-https://www.cambridge.org/core/journals/journal-of-symbolic-logic/article/abs/inconsistency-of-certain-formal-logics/FF38B653569E479408EC4DDD26DD7918</p>
+<a href="https://www.cambridge.org/core/journals/journal-of-symbolic-logic/article/abs/inconsistency-of-certain-formal-logics/FF38B653569E479408EC4DDD26DD7918">The Inconsistency of Certain Formal Logics</a>.
+The Journal of Symbolic Logic, 1942.</p>
 <p>Alonzo Church
-"A formulation of the simple theory of types"
-Journal of Symbolic Logic, 1940
-http://www.classes.cs.uchicago.edu/archive/2007/spring/32001-1/papers/church-1940.pdf</p>
+<a href="http://www.classes.cs.uchicago.edu/archive/2007/spring/32001-1/papers/church-1940.pdf">A formulation of the simple theory of types</a>.
+Journal of Symbolic Logic, 1940</p>
 <p>Uwe Nestmann and Students
-"The Lambda Cube Unboxed"
-YouTube, 2020
-https://www.youtube.com/playlist?list=PLNwzBl6BGLwOKBFVbvp-GFjAA_ESZ--q4</p>
+<a href="https://www.youtube.com/playlist?list=PLNwzBl6BGLwOKBFVbvp-GFjAA_ESZ--q4">The Lambda Cube Unboxed</a>.
+YouTube, 2020</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="propositional-logic"><a class="header" href="#propositional-logic">Propositional Logic</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="propositional-logic"><a class="header" href="#propositional-logic">Propositional Logic</a></h1>
 <h1 id="propositions-1"><a class="header" href="#propositions-1">Propositions</a></h1>
 <p>A <strong>proposition</strong> is a statement that is either true or false. The following are examples:</p>
 <ul>
@@ -953,7 +958,8 @@ Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>
 </ul>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p><strong>THE CURRY-HOWARD ISOMORPHISM</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+<strong>THE CURRY-HOWARD ISOMORPHISM</strong></p>
 <h1 id="statements-contexts-judgement"><a class="header" href="#statements-contexts-judgement">STATEMENTS, CONTEXTS, JUDGEMENT</a></h1>
 <p>When we introduced the Simply Typed Lambda Calculus, we informally defined the type rules VAR, ABST and APPL. Here we define the typing system formally.</p>
 <p>A <strong>type statement</strong> is a pair x : σ where x is a type variable and σ is a type. We say "x is of type σ".</p>
@@ -1161,7 +1167,8 @@ Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>
 </ul>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="inductive-types"><a class="header" href="#inductive-types">Inductive Types</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="inductive-types"><a class="header" href="#inductive-types">Inductive Types</a></h1>
 <p>As we saw in the chapter on the <a href="LambdaCalculus.html">λ-Calculus</a>, we can encode fairly sophisticated objects like the natural numbers using just abstractions and applications. However, such encodings are a best clunky and hard to read. Additionally, encoding complex data types as λ-Calculus expressions has other problems:</p>
 <p><strong>Noncanonical terms:</strong> The types of such encodings are not guaranteed to result in <em>canonical</em> terms. For example, Church numerals were defined to have type</p>
 <pre><code class="language-lean">def α := Type
@@ -1289,7 +1296,8 @@ end List
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type">AND IS AN INDUCTIVE TYPE</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type">AND IS AN INDUCTIVE TYPE</a></h1>
 <p>Recall the inference rule</p>
 <pre><code>             Γ ⊢ φ   Γ ⊢ ψ
 `∧-Intro` ———————————————————
@@ -1488,7 +1496,8 @@ Chapter 5 covers inductive types</p>
 </ul>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="first-order-logic"><a class="header" href="#first-order-logic">First Order Logic</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="first-order-logic"><a class="header" href="#first-order-logic">First Order Logic</a></h1>
 <h2 id="limitations-of-propositional-logic"><a class="header" href="#limitations-of-propositional-logic">Limitations of Propositional Logic</a></h2>
 <p>The main thing missing from propositional logic is objects. For example, suppose we wanted reason about statements like:</p>
 <ul>
@@ -1748,7 +1757,8 @@ example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p><strong>OBJECTS, FUNCTIONS AND EQUALITY</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+<strong>OBJECTS, FUNCTIONS AND EQUALITY</strong></p>
 <h1 id="equality-is-a-binary-relation-defined-inductively"><a class="header" href="#equality-is-a-binary-relation-defined-inductively">EQUALITY IS A BINARY RELATION DEFINED INDUCTIVELY</a></h1>
 <pre><code class="language-lean">universe u
 
@@ -1948,7 +1958,8 @@ example : ∀ p , p ≠ on_right p := by
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p><strong>TACTICS</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+<strong>TACTICS</strong></p>
 <pre><code class="language-lean">import Mathlib.Tactic.Linarith
 </code></pre>
 <h1 id="tactic-mode"><a class="header" href="#tactic-mode">TACTIC MODE</a></h1>
@@ -2196,19 +2207,22 @@ example (r : Prop) (a : Type) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="todo"><a class="header" href="#todo">TODO</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="todo"><a class="header" href="#todo">TODO</a></h1>
 <p>Lorum ipsum.</p>
 <pre><code class="language-lean">#check true
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="todo-1"><a class="header" href="#todo-1">TODO</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="todo-1"><a class="header" href="#todo-1">TODO</a></h1>
 <p>Lorum ipsum.</p>
 <pre><code class="language-lean">#check true
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p>** NUMBERS IN LEAN**</p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+** NUMBERS IN LEAN**</p>
 <pre><code class="language-lean">import Mathlib
 </code></pre>
 <h1 id="some-of-the-numebrs-provided-by-lean"><a class="header" href="#some-of-the-numebrs-provided-by-lean">SOME OF THE NUMEBRS PROVIDED BY LEAN</a></h1>
@@ -2608,7 +2622,8 @@ def q48 : ℚ := 4/8
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p><strong>REAL NUMBERS IN LEAN</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+<strong>REAL NUMBERS IN LEAN</strong></p>
 <pre><code class="language-lean">import Mathlib.Data.Real.Basic
 import Mathlib.Tactic
 --import Mathlib.Topology.Instances.Real

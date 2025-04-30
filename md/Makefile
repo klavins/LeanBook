@@ -26,6 +26,7 @@ $(MD_DIR)/%.md: $(CHAPTER_DIR)/%.lean
 	python3 dm.py $(CHAPTER_DIR)/$*.lean > $@
 
 deploy:
+	rm -rf ../docs
 	cp -r book ../docs
 
 clean:
