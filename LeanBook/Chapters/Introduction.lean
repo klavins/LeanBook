@@ -1,7 +1,5 @@
 /-
 
-***UNDER CONSTRUCTION***
-
 # Foundations of Lean
 by Eric Klavins
 

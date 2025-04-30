@@ -161,7 +161,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><em><strong>UNDER CONSTRUCTION</strong></em></p>
+                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
 <h1 id="foundations-of-lean"><a class="header" href="#foundations-of-lean">Foundations of Lean</a></h1>
 <p>by Eric Klavins</p>
 <p>The notes presented here were initially developed for a special topics graudate course on Lean I taught in the Winter of 2025. The course was taken mainly by Electrical and Computer Engineers with standard programming experience, some engineering mathematics background, and a variety of different application areas in mind. The main reading for the course included all the standard Lean references and books. These notes are merely a supplement for those excellent resources.</p>
@@ -173,7 +173,8 @@
 <p>I would like to acknowledge the students who took my special topics course offered the Winter of 2025 at the University of Washington. We all learned Lean together. At first, I was a few weeks ahead, and by the end of the course I was a few weeks behind. Much of the material here was developed in response to their questions and ideas.</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="a-tour-of-lean-4"><a class="header" href="#a-tour-of-lean-4">A Tour of Lean 4</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="a-tour-of-lean-4"><a class="header" href="#a-tour-of-lean-4">A Tour of Lean 4</a></h1>
 <h2 id="installing-lean"><a class="header" href="#installing-lean">Installing Lean</a></h2>
 <p>The easiest way to install Lean is to follow the quickstart guide at</p>
 <ul>
@@ -350,7 +351,8 @@ example (p q r : Prop) : (p → q) ∧ (q → r) → (p → r) :=
 </ul>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="the-simply-typed-λ-lambda-calculus"><a class="header" href="#the-simply-typed-λ-lambda-calculus">The Simply Typed λ-Lambda Calculus</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="the-simply-typed-λ-lambda-calculus"><a class="header" href="#the-simply-typed-λ-lambda-calculus">The Simply Typed λ-Lambda Calculus</a></h1>
 <h2 id="background"><a class="header" href="#background">Background</a></h2>
 <p>The <strong>λ-calculus</strong> was introduced in the 1930s by Alonzo Church as a way to represent how functions on natural numbers are calculated using symbols. The goal was to determine whether every function on the natural numbers had an effective means of being calculated.</p>
 <p>Said differently, the question is: Does every function have an algorithm? Astonishingly, Church showed that the answer is "no". In fact, there are functions on the natural numbers for which there is no effective algorithm. Church's 1935 paper "An unsolvable problem in elementary number theory" proved this result.</p>
@@ -697,7 +699,8 @@ Journal of Symbolic Logic, 1940</p>
 YouTube, 2020</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="propositional-logic"><a class="header" href="#propositional-logic">Propositional Logic</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="propositional-logic"><a class="header" href="#propositional-logic">Propositional Logic</a></h1>
 <h1 id="propositions-1"><a class="header" href="#propositions-1">Propositions</a></h1>
 <p>A <strong>proposition</strong> is a statement that is either true or false. The following are examples:</p>
 <ul>
@@ -955,7 +958,8 @@ Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>
 </ul>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p><strong>THE CURRY-HOWARD ISOMORPHISM</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+<strong>THE CURRY-HOWARD ISOMORPHISM</strong></p>
 <h1 id="statements-contexts-judgement"><a class="header" href="#statements-contexts-judgement">STATEMENTS, CONTEXTS, JUDGEMENT</a></h1>
 <p>When we introduced the Simply Typed Lambda Calculus, we informally defined the type rules VAR, ABST and APPL. Here we define the typing system formally.</p>
 <p>A <strong>type statement</strong> is a pair x : σ where x is a type variable and σ is a type. We say "x is of type σ".</p>
@@ -1163,7 +1167,8 @@ Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>
 </ul>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="inductive-types"><a class="header" href="#inductive-types">Inductive Types</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="inductive-types"><a class="header" href="#inductive-types">Inductive Types</a></h1>
 <p>As we saw in the chapter on the <a href="LambdaCalculus.html">λ-Calculus</a>, we can encode fairly sophisticated objects like the natural numbers using just abstractions and applications. However, such encodings are a best clunky and hard to read. Additionally, encoding complex data types as λ-Calculus expressions has other problems:</p>
 <p><strong>Noncanonical terms:</strong> The types of such encodings are not guaranteed to result in <em>canonical</em> terms. For example, Church numerals were defined to have type</p>
 <pre><code class="language-lean">def α := Type
@@ -1291,7 +1296,8 @@ end List
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type">AND IS AN INDUCTIVE TYPE</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type">AND IS AN INDUCTIVE TYPE</a></h1>
 <p>Recall the inference rule</p>
 <pre><code>             Γ ⊢ φ   Γ ⊢ ψ
 `∧-Intro` ———————————————————
@@ -1490,7 +1496,8 @@ Chapter 5 covers inductive types</p>
 </ul>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="first-order-logic"><a class="header" href="#first-order-logic">First Order Logic</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="first-order-logic"><a class="header" href="#first-order-logic">First Order Logic</a></h1>
 <h2 id="limitations-of-propositional-logic"><a class="header" href="#limitations-of-propositional-logic">Limitations of Propositional Logic</a></h2>
 <p>The main thing missing from propositional logic is objects. For example, suppose we wanted reason about statements like:</p>
 <ul>
@@ -1750,7 +1757,8 @@ example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p><strong>OBJECTS, FUNCTIONS AND EQUALITY</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+<strong>OBJECTS, FUNCTIONS AND EQUALITY</strong></p>
 <h1 id="equality-is-a-binary-relation-defined-inductively"><a class="header" href="#equality-is-a-binary-relation-defined-inductively">EQUALITY IS A BINARY RELATION DEFINED INDUCTIVELY</a></h1>
 <pre><code class="language-lean">universe u
 
@@ -1950,7 +1958,8 @@ example : ∀ p , p ≠ on_right p := by
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p><strong>TACTICS</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+<strong>TACTICS</strong></p>
 <pre><code class="language-lean">import Mathlib.Tactic.Linarith
 </code></pre>
 <h1 id="tactic-mode"><a class="header" href="#tactic-mode">TACTIC MODE</a></h1>
@@ -2198,19 +2207,22 @@ example (r : Prop) (a : Type) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="todo"><a class="header" href="#todo">TODO</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="todo"><a class="header" href="#todo">TODO</a></h1>
 <p>Lorum ipsum.</p>
 <pre><code class="language-lean">#check true
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><h1 id="todo-1"><a class="header" href="#todo-1">TODO</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+<h1 id="todo-1"><a class="header" href="#todo-1">TODO</a></h1>
 <p>Lorum ipsum.</p>
 <pre><code class="language-lean">#check true
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p>** NUMBERS IN LEAN**</p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+** NUMBERS IN LEAN**</p>
 <pre><code class="language-lean">import Mathlib
 </code></pre>
 <h1 id="some-of-the-numebrs-provided-by-lean"><a class="header" href="#some-of-the-numebrs-provided-by-lean">SOME OF THE NUMEBRS PROVIDED BY LEAN</a></h1>
@@ -2610,7 +2622,8 @@ def q48 : ℚ := 4/8
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
-<div style="break-before: page; page-break-before: always;"></div><p><strong>REAL NUMBERS IN LEAN</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
+<strong>REAL NUMBERS IN LEAN</strong></p>
 <pre><code class="language-lean">import Mathlib.Data.Real.Basic
 import Mathlib.Tactic
 --import Mathlib.Topology.Instances.Real

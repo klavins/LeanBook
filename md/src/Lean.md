@@ -1,3 +1,4 @@
+<span style='color: orange'>***UNDER CONSTRUCTION***</span>
  # A Tour of Lean 4
 
 ## Installing Lean

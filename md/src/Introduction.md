@@ -1,6 +1,5 @@
+<span style='color: orange'>***UNDER CONSTRUCTION***</span>
 
-
-***UNDER CONSTRUCTION***
 
 # Foundations of Lean
 by Eric Klavins
