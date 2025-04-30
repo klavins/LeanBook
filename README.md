@@ -19,3 +19,4 @@ To "deploy" the book, do
 ```
 make deploy
 ```
+which copies the contents of md/book into the docs/ directory, which is where github-pages expects web pages to be. 
