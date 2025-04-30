@@ -177,21 +177,21 @@ Another example is
 When you hover over a #check directive, Lean shows the results of the type derivation as what is called a **judgement**. It is an expression in two parts separated by a **turnstile** ⊢. For example: `#check h₁ x` produces
 
 ```
-  x : A
-  f : A → A
-  ⊢ A
+x : A
+f : A → A
+⊢ A
 ```
 
 Before the turnstile is the **context**, a list of all the variables introduced so far. After the turnstile is the type of (h₁ x), which in this case is A. In the literature, this written:
 
 ```
-  { x : A, f : A → A }  ⊢  h₁ x : A
+{ x : A, f : A → A }  ⊢  h₁ x : A
 ```
 
 which reads: "If A has type A and f has type A → A, then we can derive h₁ x has type A". In an expression such as
 
 ```
-  λ (y : A) => f y
+λ (y : A) => f y
 ```
 
 the variable f is not bound to an enclosing lambda. In this case it is called **free**. The variable y on the other hand is `bound`. Free variables have to be declared in Lean for expressions to use them. And they have to have types consistent to how they are used. When this is done properly, you will see the free variable declarations in the context part of Lean's results.
@@ -201,16 +201,16 @@ the variable f is not bound to an enclosing lambda. In this case it is called **
 An abstraction can be `applied` to another term to produce a new term. This is called β-reduction. It is defined like this:
 
 ```
-  (λ (x:α) => M) N   —β—>   M[x:=N]
+(λ (x:α) => M) N   —β→   M[x:=N]
 ```
 
-The notation M[x:=N] means: take all **free** occurances of x in M and replace them with the expression N. We have to be careful that N does not use the variable x freely. Lean does this internally for us The bound version of x above is, internally, a completely unique variable that is just displayed as x for our convenience.
+The notation `M[x:=N]` means: take all **free** occurances of `x` in `M` and replace them with the expression N. We have to be careful that `N` does not use the variable `x` freely. Lean does this internally for us The bound version of `x` above is, internally, a completely unique variable that is just displayed as `x` for our convenience.
 
 To apply β-reduction in Lean, you can use the #reduce directive. For example, we can see that
-
-  (λ (g : α → α) => λ (y : α) => g y) f   —β—>   λ (y : α) => f y
-
-This is obtained by replacing g in g y with f, as the rule describes. You can have Lean do this for you using the #reduce directive. The #reduce directive needs permission to be aggressive, which we can do using the (types := true) option. 
+```
+(λ (g : α → α) => λ (y : α) => g y) f   —β→   λ (y : α) => f y
+```
+This is obtained by replacing `g` in `g y` with `f`, as the rule describes. You can have Lean do this for you using the #reduce directive. The `#reduce` directive needs permission to be aggressive, which we can do using the `(types := true)` option. 
 ```lean
 #reduce (types:=true) (λ (y : A) => y) x
 #reduce (types:=true) (λ (g : A → A) => λ (y : A) => g y) (λ (y : A) => y)
@@ -222,46 +222,17 @@ Some interesting observations are in order. We won't prove these here, but they 
 
 **Uniqueness of Types**: Every term has exacly one type.
 
-**Subject Reduction Lemma**: If M₁ : α and M₁ —β—> M₂ then M₂ : α. That is, beta reduction does't change the type of expressions. It just simplifies them.
+**Subject Reduction Lemma**: If `M₁ : α and M₁ —β→ M₂` then `M₂ : α`. That is, beta reduction does't change the type of expressions. It just simplifies them.
 
-**Church-Rosser Theorem**: If M —β—> N₁ and M —β—> N₂ then there is some N₃ such that N₁ —β—> N₃ and N₂ —β—> N₃. That is, it doesn't matter what order you β-reduce an expression's sub-expressions in, you always end up with the same term.
+**Church-Rosser Theorem**: If `M —β→ N₁` and `M —β→ N₂` then there is some `N₃` such that `N₁ —β→ N₃` and `N₂ —β→ N₃`. That is, it doesn't matter what order you β-reduce an expression's sub-expressions in, you always end up with the same term.
 
-**Strong Normalization**: β-reduction eventually stops at an irreducible term. This is a very strong statement. In most programming languages, you can write infinite loops. But not in the simply typed lambda calculus!
+**Strong Normalization**: β-reduction eventually stops at an irreducible term. This is a very strong statement. In most programming languages, you can write infinite loops. But not in the simply typed λ-calculus!
 
-## Why is it Called "Simply Typed"?
 
-You might be asking yourself, is there a non-simply typed λ-calculus? The answer is yes! We will get there eventually. Here's a preview:
 
-**Simple types** Terms depend on terms.
+## Extended Example: Church Numerals
 
-> Example: In (λ x : A => M) the term M depends on the term x.
-
-**Polymorphism** Terms can depend on types.
-
-> Example: (λ α : Type => λ x : α => x) is a polymorphic identity function.
-
-**Parameterized Types** Types can depend on types.
-
-> Example: Pair X Y is a type for any types X and Y.
-
-**Dependent types** Types can depend on terms.
-
-> Example: Vector n X, the vector of n objects of type X.
-
-**Calculus of Constructions** All of the above.
-
-**Inductive Types**: Types can be defined inductively.
-
-> Example: The natural numbers are defined by a base case (zero) and a successor function (succ), from which all other natural numbers can be constructed.
-
-**Quotients**: Quotients of types via equivalence relations.
-
-> Example: A real number is defined to be the set of all Cauchy sequences of rational numbers that converge to it. That is, the reals are the quotient of the set of Cauchy Sequences by Cauchy equivalence.
-
-With all of these types of types, you can define an most of logic and mathematics! 
- ## Extended Example: Church Numerals
-
-Even though the λ-calculus looks simple, you can encode quite a bit of math with it. The goal of this next section is to show you how do do arithmetic with only what we have so far. We do this not because it is efficient -- it isn't! Instead, we want to show that the essence of arithmetic is captured by the λ-calculus.
+Even though the simply typed λ-calculus looks simple, you can encode quite a bit of math with it. The goal of this next section is to show you how do do arithmetic with only what we have so far (simple arrow types and terms depending only on terms). We do this not because it is efficient -- it isn't! Instead, we want to show that the essence of arithmetic is captured by the simply typed λ-calculus.
 
 First, we need a way to represent numbers. Church devised the following scheme, where c₀ is the **Church Numeral** for 0 and so on. 
 ```lean
@@ -390,23 +361,23 @@ Dropping types for the moment, define the term
 ```
 Ω := λ x => x x
 ```
-and consider Ω applied to itself Ω:
+and consider `Ω` applied to itself `Ω`:
 ```
 (λ x => x x) (λ x => x x)       —β—>       (λ x => x x) (λ x => x x)
 ```
-producing an infinite loop. Suppose you could give M M a type:
+producing an infinite loop. Suppose you could give `M M` a type:
 ```
 M M : σ
-````
-For this to work, M has to be a function:
+```
+For this to work, `M` has to be a function:
 ```
 M : τ → σ
 ```
-But since M is operating on itself, M has to be of type τ:
+But since `M` is operating on itself, `M` has to be of type `τ`:
 ```
 M : τ
 ```
-So M has two different types, which is not possible. Lean is not able to find a type for x. The placeholder symbol _ is used by Lean as a way to ask the type checker to infer a type. 
+So `M` has two different types, which is not possible. Lean is not able to find a type for `x`. The placeholder symbol `_` is used by Lean as a way to ask the type checker to infer a type. 
 ```lean
 #check_failure (λ (M:_) => M M)
 ```
@@ -432,7 +403,51 @@ example (p : Prop) : p → p :=
 example (p q : Prop) : p → (p → q) → q :=
   λ hp => λ hpq => hpq hp
 ```
- ## Looking ahead: the Curry-Howard Correspondence
+ ## Why is it Called "Simply Typed"?
+
+You might be asking yourself, is there a non-simply typed λ-calculus? The answer is yes! We will get there eventually. Here's a preview:
+
+**Simple types:** Terms depend on other tems. This is what we've covered so far. For example, the body of a lambda abstraction (a term) depends on the bound variable (also a term). 
+```lean
+#check (λ x : Nat => x+1) --- the term x+1 depends on the term x.
+```
+ **Polymorphism:** Terms can depend on types. Polymorphism allows us to write functions that operate on a variety of types, instead of just a single type, by taking the type to be operated on as an argument. For example, the identity function `λ x : A => x` only operates on elements of type x. What if we wanted to define an arbitrary identity function for any type. Here is one way: 
+```lean
+#check (λ α : Type => λ x : α => x) -- a polymorphic identity function.
+```
+ A better way would be: 
+```lean
+universe u
+def my_id {α : Type u} (x : α) := x
+
+#check my_id 1
+#check my_id "one"
+#check my_id my_id
+```
+ Note the curly braces around `α : Type u` specify that the argument `α` is _implicit_. That is, that Lean should try to infer what it is. In the the examples `#check` statements above, Lean figures out which type the argument is, and therefor which type the overall expression is, by inspection.
+
+**Parameterized Types:** Types can depend on types. The idea here is to build a type from other types. For example, a List type is fine, but it would nice to avoid having two make a separate data type for lists of different types of objects. In fact, Lean's standard library defines `List` as a parameterized type. You can see in the first `#check` below that making a list requires a type as an argument 
+```lean
+#check List            -- Requires a type as an argument
+#check List Nat        -- The type of a list of natural numbers
+#check List (List Nat) -- The type of a a list of list of natural numbers
+```
+ Lean is also good at figuring out what kind of list you are talking about in most contexts, as the following examples show. 
+```lean
+#check [1,2,3]
+#check ["one","two","three"]
+```
+ **Dependent types:** Types can depend on terms. Finally, we can have types that depend on terms. For example, the type of vectors (from Lean's standard library) of natural numbers of length 10 depends on the term 10. 
+```lean
+#check Vector Nat 10 -- Vectors of 10 Nats
+```
+ **Calculus of Constructions:** If we allow all of the above in type theory, we get what is called the Calculus of Constructions, or CoC. This theory was first described by Thierry Coqrand and emboded in the Coq proof assistant, now called Rocq. Lean and other proof assistants are also based on CoC.
+
+**Inductive Types**: Types can be defined inductively. For example, the natural numbers are defined by a base case (zero) and a successor function (succ), from which all other natural numbers can be constructed. This is discussed in more detail in the chapter on [Inductive Types](./InductiveTypes.md).
+
+**Quotients**: Quotients of types via equivalence relations. For example, a real number is defined to be the set of all Cauchy sequences of rational numbers that converge to it. That is, the reals are the quotient of the set of Cauchy Sequences by Cauchy equivalence. This is discussed in more detail in the chapter on [Quotients](./Quotients.md).
+
+## Looking ahead: the Curry-Howard Correspondence
 
 The most important problem in using type theory for proofs is INHABITATION, followed by TYPE CHECKING. To motivate why, we will see later the following remarkable fact, called the Curry-Howard corresponence, which says that in the judgement Γ ⊢ M : σ,
 
@@ -456,28 +471,26 @@ is the general form of a proof of the statement σ → τ where → means "impli
 
 As a computer scientist myself it is very satisfying to know that programming functions with given type specifications is _the same thing as_ proving theorems!
 
-This idea is not merely cute. By building on it, as Lean and similar tools do, one can enocde an astonishingly large set of all of mathematics, and presumably knowledge in general. We'll learn how to take advantage of the Curry-Howard corresponence soon. 
- # REFERENCES
+This idea is not merely cute. By building on it, as Lean and similar tools do, one can enocde an astonishingly large set of all of mathematics, and presumably knowledge in general. We'll learn how to take advantage of the Curry-Howard corresponence soon.
+
+## REFERENCES
 
 Alonzo Church
-"An Unsolvable Problem of Elementary Number Theory"
+[An Unsolvable Problem of Elementary Number Theory](https://www.jstor.org/stable/2371045).
 American Journal of Mathematics, 1936.
-https://www.jstor.org/stable/2371045
 
 Haskell B Curry
-"The Inconsistency of Certain Formal Logics"
+[The Inconsistency of Certain Formal Logics](https://www.cambridge.org/core/journals/journal-of-symbolic-logic/article/abs/inconsistency-of-certain-formal-logics/FF38B653569E479408EC4DDD26DD7918).
 The Journal of Symbolic Logic, 1942.
-https://www.cambridge.org/core/journals/journal-of-symbolic-logic/article/abs/inconsistency-of-certain-formal-logics/FF38B653569E479408EC4DDD26DD7918
 
 Alonzo Church
-"A formulation of the simple theory of types"
+[A formulation of the simple theory of types](http://www.classes.cs.uchicago.edu/archive/2007/spring/32001-1/papers/church-1940.pdf).
 Journal of Symbolic Logic, 1940
-http://www.classes.cs.uchicago.edu/archive/2007/spring/32001-1/papers/church-1940.pdf
 
 Uwe Nestmann and Students
-"The Lambda Cube Unboxed"
+[The Lambda Cube Unboxed](https://www.youtube.com/playlist?list=PLNwzBl6BGLwOKBFVbvp-GFjAA_ESZ--q4).
 YouTube, 2020
-https://www.youtube.com/playlist?list=PLNwzBl6BGLwOKBFVbvp-GFjAA_ESZ--q4
+
 
 
 
