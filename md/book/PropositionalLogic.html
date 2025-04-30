@@ -278,7 +278,7 @@
                           Γ ⊢ D
 </code></pre>
 <p>In this schemantic, the rule has three premises, each of which describe an assumption that a particular context entails a particular proposition. And the rule has one conclusion, stating the entailment you are allowed to conclude. Usually, the contexts listed and the propositions are related in some way. - #</p>
-<h3 id="axioms"><a class="header" href="#axioms">Axioms</a></h3>
+<h2 id="axioms"><a class="header" href="#axioms">Axioms</a></h2>
 <p>The first rule has no premises and simply states that <code>φ</code> can be concluded from any context containing φ. Said constructively, if we have a proof of <code>φ</code>, then obviously we can construct a proof of <code>φ</code>.</p>
 <pre><code>  AX  ——————————
        Γ,φ ⊢ φ
@@ -292,6 +292,27 @@
 ⊢ p
 </code></pre>
 <p>Which says, give we have a proof <code>hp</code> of <code>p</code>, we need show <code>p</code>. This is easy, we jsut use <code>hp</code> itself.</p>
+<h2 id="implies-rules"><a class="header" href="#implies-rules">Implies Rules</a></h2>
+<p>We have two rules for the → connective:</p>
+<pre><code>              Γ,φ ⊢ ψ
+  →-Intro   ————————————
+             Γ ⊢ φ → ψ
+
+            Γ ⊢ φ → ψ    Γ ⊢ φ
+  →-Elim   —————————————————————
+                 Γ ⊢ ψ
+</code></pre>
+<p>The <strong>Implies Introduction</strong> rule allows us to introduce <code>φ → ψ</code> whenever we have <code>Γ</code> and <code>φ</code> together entailing <code>ψ</code>. The <strong>Implies Elimination</strong> rule is also know as <strong>Modus Ponens</strong>. It states that if we know <code>φ</code> implies <code>ψ</code> and we know <code>φ</code>, then we know <code>ψ</code>.</p>
+<p>Notice that implies is written with an arrow <code>→</code> just like function abstraction in the λ-calculus. This is because one way to think about a proof of <code>φ→ψ</code> is to require it to have the form of a function that converts proofs of <code>φ</code> into proofs of <code>ψ</code>. This suggests that the way to prove statements with implications is to use  λ-calculus expressions. Here are a couple of examples.</p>
+<p>First we show and example of →-Intro. The context includes a proof of <code>p</code>. Thus we can <em>introduce</em> <code>q→p</code> for any <code>q</code>. We do this with a lambda expression taking a proof of <code>q</code> (and in this case ignoring it) and returning the proof <code>hp</code> of <code>p</code> available in the context.</p>
+<pre><code class="language-lean">example {hp : p} : q → p :=
+  λ hq =&gt; hp
+</code></pre>
+<p>Next, here is an example of →-elim. We have a context with a proof of <code>p→q</code> and a proof of <code>p</code>. We know the proof <code>hp</code> of <code>p→q</code> is a lambda abstraction. So we can apply it to a proof <code>hp</code> of <code>p</code> to get a proof of <code>q</code>.</p>
+<pre><code class="language-lean">example {hpq: p → q} {hp: p} :=
+  hpq hp
+</code></pre>
+<p>A complete description of how →-introduction works works is in the chapter on the <a href="./CurryHoward.html">Curry-Howard Isomorphism</a></p>
 <h2 id="and-rules"><a class="header" href="#and-rules">And Rules</a></h2>
 <p>Next we have three rules for the ∧ connective:</p>
 <pre><code>              Γ ⊢ φ   Γ ⊢ ψ
@@ -307,8 +328,12 @@
                     Γ ⊢ ψ
 </code></pre>
 <p>Whenever we see "Intro" that means we are introducing a connective (in this case <code>∧</code>) into our conclusion. Whenever we see "Elim" that means we are eliminating part of a compound statement in our conclusion. Here, the <strong>And Introduction</strong> rule shows that we can construct a proof of <code>φ ∧ ψ</code> whenever the context contains a proof of <code>φ</code> and a proof of <code>ψ</code>. The <strong>And Elimination</strong> rules allow us to "eliminate" half of the proposition <code>φ ∧ ψ</code> to conclude the weaker statement <code>φ</code> or to conclude the weaker statement <code>ψ</code>. Said differently, if we have a proof of <code>φ∧ψ</code> then we can construct a proof of <code>φ</code> by just eliminating the part of the proof of <code>φ∧ψ</code> that shows <code>ψ</code>.</p>
-<p>Here are examples of all of these rules in Lean</p>
-<pre><code class="language-lean">example (hp : p) (hq : q) : p ∧ q :=
+<p>Unlike the somewhat cryptic rules for implies, the And rules just have functions (like <code>And.intro</code>) already defined for them. Here are examples of all of these rules in Lean.</p>
+<pre><code class="language-lean">#check And.intro
+#check And.left
+#check And.right
+
+example (hp : p) (hq : q) : p ∧ q :=
   And.intro hp hq
 
 example (hpq : p ∧ q) : p :=
@@ -327,89 +352,110 @@ example (hpq : p ∧ q) : q :=
  ∨-Intro-Right   ————————————
                   Γ ⊢ φ ∨ ψ
 
-            Γ,φ ⊢ ρ    Γ,ψ ⊢ ρ    Γ ⊢ φ ∨ ψ
- ∨-Elim   ————————————————————————————————————
-                      Γ ⊢ ρ
+            Γ ⊢ φ ∨ ψ    Γ ⊢ φ → ρ    Γ ⊢ ψ → ρ
+ ∨-Elim   ———————————————————————————————————————
+                         Γ ⊢ ρ
 </code></pre>
 <p>The <strong>Or Introduction</strong> rules allow us to conclude <code>φ ∨ ψ</code> from one of its parts. The <strong>Or Elimination</strong> rule looks complicated, but it is straightforward. It says that if we know <code>Γ ⊢ φ ∨ ψ</code> then we know that <code>Γ</code> must entail either <code>φ</code> or <code>ψ</code>. If we also know that both <code>φ</code> and <code>ψ</code> separately entail <code>ρ</code>, then we know that <code>Γ</code> must entail <code>ρ</code>.</p>
-<h2 id="implies-rules"><a class="header" href="#implies-rules">Implies Rules</a></h2>
-<p>Next we have two rules for the → connective:</p>
-<pre><code>              Γ,φ ⊢ ψ
-  →-Intro   ————————————
-             Γ ⊢ φ → ψ
+<p>Here are examples of the OR rules in Lean.</p>
+<pre><code class="language-lean">#check Or.inl
+#check Or.inr
+#check Or.elim
 
-            Γ ⊢ φ → ψ    Γ ⊢ φ
-  →-Elim   —————————————————————
-                 Γ ⊢ ψ
+example (hp : p) : p ∨ q :=
+  Or.inl hp
+
+example (hq : q) : p ∨ q :=
+  Or.inr hq
+
+example (hpq : p ∨ q) : q ∨ p :=
+  Or.elim
+    hpq
+    (λ hp =&gt; Or.inr hp)
+    (λ hq =&gt; Or.inl hq)
 </code></pre>
-<p>The <strong>Implies Introduction</strong> rule allows us to introduce <code>φ → ψ</code> whenever we have <code>Γ</code> and <code>φ</code> together entailing <code>ψ</code>. The <strong>Implies Elimination</strong> rule is also know as <strong>Modus Ponens</strong>. It states that if we know <code>φ</code> implies <code>ψ</code> and we know <code>φ</code>, then we know <code>ψ</code>.</p>
-<p>Looking ahead, notice that implies is written with an arrow <code>→</code> just like function abstraction in the λ-calculus. This is because one way to think about a proof of <code>φ→ψ</code> is to require it to have the form of a function that converts proofs of <code>φ</code> into proofs of <code>ψ</code>.</p>
-<h1 id="ex-falso"><a class="header" href="#ex-falso">EX FALSO</a></h1>
+<h2 id="ex-falso"><a class="header" href="#ex-falso">EX FALSO</a></h2>
 <p>Finally, we have the a rule for the ¬ connective:</p>
-<pre><code>          Γ ⊢ ⊥
+<pre><code>                Γ ⊢ False
+  False -Elim ————————————
+                  Γ ⊢ φ
 </code></pre>
-<p><code>⊥-Elim</code> ————————————
-Γ ⊢ φ</p>
-<p>which states that you can conclude anything if you have a proof of ⊥. This rule is also know as <code>ex falso sequitur quodlibet</code> or just <code>ex falso</code> or the <code>principle of explosion</code>!</p>
-<h1 id="proofs"><a class="header" href="#proofs">PROOFS</a></h1>
-<p>A <code>proof</code> that Γ ⊢ φ is sequence of statements of the form Γ' ⊢ φ' each of which is either (a) an axiom or (b) obtained from previous statements in the sequence by one of the inference rules.</p>
-<h1 id="example-1"><a class="header" href="#example-1">EXAMPLE 1</a></h1>
+<p>which states that you can conclude anything if you have a proof of ⊥. This rule is also know as <code>ex falso sequitur quodlibet</code> or just <code>ex falso</code> or the <code>principle of explosion</code>! Here's an example:</p>
+<pre><code class="language-lean">#check False.elim
+
+example { hf : False } : p :=
+  False.elim hf
+</code></pre>
+<h2 id="proofs"><a class="header" href="#proofs">Proofs</a></h2>
+<p>A <strong>proof</strong> that <code>Γ ⊢ φ</code> is sequence of statements of the form <code>Γ' ⊢ φ'</code> each of which is either (a) an axiom or (b) obtained from previous statements in the sequence by one of the inference rules.</p>
+<h3 id="example-1"><a class="header" href="#example-1">Example 1</a></h3>
 <p>As an example, we will prove the statement</p>
-<p>∅ ⊢ (p∧q)→p</p>
-<p>Working backwards from this goal, we see that →-Intro can be applied to produce this statement where φ is p∧q and ψ is p. Thus, we get an instance of →-Intro of the form</p>
-<pre><code>p∧q ⊢ p
+<pre><code>∅ ⊢ (p∧q)→p
 </code></pre>
-<p>———————————          (Instantiation of →-Intro)
-⊢ (p∧q)→p</p>
-<p>We have now a simpler problem, which is to show p∧q ⊢ p. The ∧-Elim-Left rule applies here with φ=p∧q, ψ=p, and Γ={p∧q} giving us the instance</p>
-<pre><code>p∧q ⊢ p∧q
+<p>Working backwards from this goal, we see that <code>→-Intro</code> can be applied to produce this statement where <code>φ</code> is <code>p∧q</code> and <code>ψ</code> is <code>p</code>. Thus, we get an instance of →-Intro of the form</p>
+<pre><code>  p∧q ⊢ p
+———————————          (Instantiation of →-Intro)
+ ⊢ (p∧q)→p
 </code></pre>
-<p>——————————————       (Instantiation of ∧-Elim-Left)
-p∧q ⊢ p</p>
-<h1 id="example-1-proof-presenation"><a class="header" href="#example-1-proof-presenation">EXAMPLE 1 PROOF PRESENATION</a></h1>
-<p>And now we have an even simpler problem, which is to show that p∧q ⊢ p∧q. But this matches the axiom rule with Γ={p∧q} and φ = p∧q. Putting all this together into a proof gives us the following:</p>
-<ol>
-<li>p∧q ⊢ p∧q          axiomatically</li>
-<li>p∧q ⊢ p            from (1) via ∧-Elim-Left</li>
-<li>⊢ (p∧q)→p          from (2) via →-Intro</li>
-</ol>
+<p>We have now a simpler problem, which is to show <code>p∧q ⊢ p</code>. The ∧-Elim-Left rule applies here with <code>φ=p∧q</code>, <code>ψ=p</code>, and <code>Γ={p∧q}</code> giving us the instance</p>
+<pre><code>  p∧q ⊢ p∧q
+——————————————       (Instantiation of ∧-Elim-Left)
+   p∧q ⊢ p
+</code></pre>
+<p>And now we have an even simpler problem, which is to show that p∧q ⊢ p∧q. But this matches the axiom rule with <code>Γ={p∧q}</code> and <code>φ = p∧q</code>. Putting all this together into a proof gives us the following:</p>
+<pre><code>  1) p∧q ⊢ p∧q          axiomatically
+  2) p∧q ⊢ p            from (1) via ∧-Elim-Left
+  3) ⊢ (p∧q)→p          from (2) via →-Intro
+</code></pre>
 <p>And that's it. Our first proof!</p>
-<p>What you should take away from this is constructing this proof is a purely syntactic endeavor. One can easily imagine an algorithm that does this automatically by pattern matching a given sub-goal against the Γ, φ and ψ in the description of a inference rule. The challenge is, of course, as we introduce more expressibility into our logic, and more inference rules, finding the right rules to apply at the right time amounts to a brute force search of all possible inference rules and all possible ways of instantiating those inference rools.</p>
+<p>Here is the same proof in Lean:</p>
+<pre><code class="language-lean">example : p∧q → p :=
+  λ hpq =&gt; And.left hpq
+</code></pre>
+<p>The lambda expression encodes →-Intro, and <code>And.left</code> encodes ∧-Left.</p>
+<p>What you can take away from this is the idea that constructing this proof is a purely syntactic endeavor. One can easily imagine an algorithm that does this automatically by pattern matching a given sub-goal against the <code>Γ</code>, <code>φ</code> and <code>ψ</code> in the description of a inference rule. The challenge is, of course, as we introduce more expressibility into our logic, and more inference rules, finding the right rules to apply at the right time amounts to a brute force search of all possible inference rules and all possible ways of instantiating those inference rools.</p>
 <p>The other thing to notice is that the proof itself looks a lot like a program. In Lean and similar construction-based theorem provers, this observation is made precise. And it will turn out that writing proofs and writing programs amount to the same thing!</p>
-<h1 id="example-2"><a class="header" href="#example-2">EXAMPLE 2</a></h1>
+<h3 id="example-2"><a class="header" href="#example-2">Example 2</a></h3>
 <p>Here is a slightly more complicated example. Let's prove</p>
-<p>⊢ ¬p→(p→q)</p>
-<p>Recall ¬p is just shorthand for p→⊥. So we're actually trying to prove</p>
-<p>⊢ (p→⊥)→(p→q)</p>
+<pre><code>⊢ ¬p→(p→q)
+</code></pre>
+<p>Recall <code>¬p</code> is just shorthand for <code>p→⊥</code>. So we're actually trying to prove</p>
+<pre><code>⊢ (p→⊥)→(p→q)
+</code></pre>
 <p>Once again, working backwards, we can apply →-Intro to get</p>
-<p>p→⊥ ⊢ p→q</p>
+<pre><code>p→⊥ ⊢ p→q
+</code></pre>
 <p>and then apply →-Intro again to get</p>
-<p>p→⊥,p ⊢ q</p>
-<p>Our context now contains both ¬p and p. Using ⊥-elim we get</p>
-<p>p→⊥,p ⊢ ⊥</p>
-<p>This subgoal matches the form of →-Elim with φ=p and ψ=⊥. Using this rule, we get two further subgoals that are just axioms:</p>
-<p>p→⊥,p ⊢ p→⊥      and      p→⊥,p ⊢ p</p>
-<h1 id="proof-2-presentation"><a class="header" href="#proof-2-presentation">PROOF 2 PRESENTATION</a></h1>
+<pre><code>p→⊥,p ⊢ q
+</code></pre>
+<p>Our context now contains both <code>¬p</code> and <code>p</code>. Using ⊥-elim we get</p>
+<pre><code>p→⊥,p ⊢ ⊥
+</code></pre>
+<p>This subgoal matches the form of →-Elim with <code>φ=p</code> and <code>ψ=⊥</code>. Using this rule, we get two further subgoals that are just axioms:</p>
+<pre><code>p→⊥,p ⊢ p→⊥      and      p→⊥,p ⊢ p
+</code></pre>
 <p>Putting this all together, we get the following proof:</p>
-<ol>
-<li>p→⊥,p ⊢ p→⊥        axiomatically</li>
-<li>p→⊥,p ⊢ p          axiomatically</li>
-<li>p→⊥,p ⊢ ⊥          from (1) and (2) via →-Elim</li>
-<li>p→⊥,p ⊢ q          from (3) via ⊥-elim</li>
-<li>p→⊥ ⊢ p→q          from (4) via →-Intro</li>
-<li>⊢ (p→⊥)→(p→q)      from (5) via →-Intro</li>
-</ol>
-<p>And we're done! This is complicated though. Clearly we need a proof assistant to help us! We'll show how we can use the Simply Typed Lambda Calculus to do these proofs in Lean soon.</p>
-<h1 id="in-class-exercises"><a class="header" href="#in-class-exercises">IN CLASS EXERCISES</a></h1>
-<ul>
-<li>Prove ∅ ⊢ p → (p ∨ q)</li>
-<li>Prove ∅ ⊢ (p ∨ q) → (q ∨ p)</li>
-</ul>
-<h1 id="the-law-of-the-excluded-middle"><a class="header" href="#the-law-of-the-excluded-middle">THE LAW OF THE EXCLUDED MIDDLE</a></h1>
+<pre><code>  1) p→⊥,p ⊢ p→⊥        axiomatically
+  2) p→⊥,p ⊢ p          axiomatically
+  3) p→⊥,p ⊢ ⊥          from (1) and (2) via →-Elim
+  4) p→⊥,p ⊢ q          from (3) via ⊥-elim
+  5) p→⊥ ⊢ p→q          from (4) via →-Intro
+  6) ⊢ (p→⊥)→(p→q)      from (5) via →-Intro
+</code></pre>
+<p>And we're done! This is complicated though. Clearly we need a proof assistant to help us! In Lean this proof looks like:</p>
+<pre><code class="language-lean">theorem t : ¬p→(p→q) :=
+  λ hnp =&gt; λ hp =&gt; False.elim (hnp hp)
+</code></pre>
+<h2 id="the-law-of-the-excluded-middle"><a class="header" href="#the-law-of-the-excluded-middle">THE LAW OF THE EXCLUDED MIDDLE</a></h2>
 <p>As we said, the law of the excluded middle states that</p>
 <p>⊢ φ ∨ ¬φ</p>
 <p>for all propositions φ. However, this statement is not provable using the inference rules above. To prove this meta-mathematical observation is beyond the scope of this lecture and requires an argument about the formal <code>semantics</code> of intuitionist propositional logic. For now, accept the fact that φ ∨ ¬φ cannot be proved rom the inference rules given, despite its seeming obviousness.</p>
-<p>For this reason, intutionistic logic is weaker than classical logic. However, we can obtain classical logic by adding the above as a new axiom. When we get to proving statements in Lean, we'll see that we can add this axiom into our proofs if we would like to, so it is not big problem. However, it is also remarkable how much of mathematics we can prove without this axiom.</p>
+<p>For this reason, intutionistic logic is weaker than classical logic. However, we can obtain classical logic by adding the above as a new axiom. When we get to proving statements in Lean, we'll see that we can add this axiom into our proofs if we would like to, so it is not big problem. However, it is also remarkable how much of mathematics we can do without this axiom.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>Prove <code>∅ ⊢ p → (p ∨ q)</code></li>
+<li>Prove <code>∅ ⊢ (p ∨ q) → (q ∨ p)</code></li>
+</ol>
 <h1 id="references"><a class="header" href="#references">REFERENCES</a></h1>
 <p>Morten Heine Sørensen, Pawel Urzyczyn
 "Lectures on the Curry-Howard Isomorphism"
