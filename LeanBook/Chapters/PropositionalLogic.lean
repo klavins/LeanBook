@@ -1,6 +1,6 @@
 /- # Propositional Logic
 
-# Propositions
+## Propositions
 
 A **proposition** is a statement that is either true or false. The following are examples:
 

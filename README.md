@@ -1,5 +1,7 @@
 # Lean Book
 
+This book is compiled into HTML at [https://klavins.github.io/LeanBook](https://klavins.github.io/LeanBook). 
+
 Chapters are in LeanBook/Chapters. To add a new chapter, make a file in that directory and then add an entry for the file to both LeanBook/Chapters/SUMMARY.lean and md/Makefile. 
 
 To make the book, do
