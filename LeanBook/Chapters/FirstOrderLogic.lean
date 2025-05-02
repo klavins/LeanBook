@@ -53,7 +53,7 @@ variable (f : Nat → Nat)
 
 **Objects** in FOL can come from any agreed upon universe. Since we will be using Lean to work with first order logic, you can just assume that objects are any basic terms: numbers, strings, lists, and so on. FOL does not allow us to quantify over functions and types, only basic objects. -/
 
-/- #### Example: People
+/- #### Example: A Finite Universe of People
 
 For example, suppose we wanted to reason about a finite number of people. In Lean we can enumerate them with a new type: -/
 
@@ -73,7 +73,7 @@ Lean has a number of built inn types we can use, such as numbers, strings, and B
 #check true
 
 
-/- # PREDICATES
+/- ## Predicates
 
 A **predicate** is a `Prop` valued function.
 
@@ -107,16 +107,7 @@ theorem t : is_zero 0 := True.intro
 
 theorem t1 : True := True.intro
 
-
-
-
-
-
-
-
-
-
-/- # PREDICATES WITH MULTIPLE ARGUMENTS
+/- ## Predicates with Multiple Arguments
 
 We may define predicates to take any number or arguments, including no arguments at all. -/
 
@@ -132,25 +123,11 @@ variable (InWashington : Person → Prop)
 variable (Age : Person → Nat → Prop)
 #check Age jolin 27
 
--- etc.
-
-
-
-
-
-
-
-
-
-
-
-
-
-/- # RELATIONS
+/- ### Relations
 
 A two-argument predicate is called a relation.
 
-`EXAMPLE` We might define a predicate on pairs of people such as -/
+Example: We might define a predicate on pairs of people such as -/
 
 def on_right (p q : Person) : Prop := match p with
   | mary => q = steve
@@ -158,34 +135,16 @@ def on_right (p q : Person) : Prop := match p with
   | ed => q = jolin
   | jolin => q = mary
 
-/- `EXAMPLE` We can define other predicates in terms of existing predicates. -/
+/- We can define other predicates in terms of existing predicates. -/
 
 def next_to (p q : Person) := on_right p q ∨ on_right q p
 
 example : next_to mary steve :=
   Or.inl (Eq.refl steve)
 
+/- #### Greater Than is a Relation -/
 
--- rfl == Eq.refl _
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/- # GREATER THAN IS A RELATION -/
-
-/- `EXAMPLE`: "greater than" is a relation. Relations are usually represented with infix notation, but they are still just predicates. For example, in Lean, the greater-than relation on natural numbers is: -/
+/- Relations are usually represented with infix notation, but they are still just predicates. For example, in Lean, the greater-than relation on natural numbers is: -/
 
 #check @GT.gt Nat
 #eval GT.gt 2 3
@@ -200,27 +159,19 @@ and we can write: -/
 
 /- Similarly, >=, <, <=, != are all relations available in Lean. -/
 
-
-
-
-
-
-
-
-
-
-
-/- # UNIVERSAL QUANTIFICATION
+/- ## Universal Quantification
 
 In FOL, we use the symbol ∀ to denote universal quantification. You can think of univeral quantifiaction like a potentially infinte AND:
+```
+∀ x P(x)   ≡    P(x₁) ∧ P(x₂) ∧ P(x₃) ∧ ...
+```
 
-  ∀ x P(x)   ≡    P(x₁) ∧ P(x₂) ∧ P(x₃) ∧ ...
+Example: Here's how you say "All people who live in Seattle also live in Washington":
+```
+∀ x : Person , InSeattle(x) → InWashington(x)
+```
 
-EXAMPLE: Here's how you say "All people who live in Seattle also live in Washington":
-
-  ∀ x : Person , InSeattle(x) → InWashington(x)
-
-EXAMPLE: In Lean, let's say we wanted to prove that every person either lives in Seattle or does not live in Seattle. A proof of this fact has the form of a function that takes an arbtrary person x and returns a proof that that person either lives in Seattle or does not. Thus, we can say: -/
+Example: In Lean, let's say we wanted to prove that every person either lives in Seattle or does not live in Seattle. A proof of this fact has the form of a function that takes an arbtrary person x and returns a proof that that person either lives in Seattle or does not. Thus, we can say: -/
 
 example : ∀ (x : Person) , (InSeattle x) ∨ ¬(InSeattle x) :=
   λ x => match x with
@@ -229,67 +180,39 @@ example : ∀ (x : Person) , (InSeattle x) ∨ ¬(InSeattle x) :=
   | ed => sorry
   | jolin => sorry
 
-
 /- ∀ is just syntactic sugar for polymorphism. The above FOL statement can be equally well written as: -/
 
 #check (x : Person) → (InSeattle x) ∨ ¬(InSeattle x)
 
-/- Which highlights why we can just use a lambda to dispatch a forall. -/
+/- Which highlights why we can just use a lambda to dispatch a forall.
 
-
-
-
-
-
-
-
-
-
-/- # FORALL INTRODUCTION AND ELIMINATION
+## Forall Introduction and Elimination
 
 The universal quantifer has the introduction rule:
+```
+                   Γ ⊢ P
+  ∀-intro ————————————————————————
+               Γ ⊢ ∀ x : α, P
+```
 
-                    Γ ⊢ P
-  `∀-intro` ————————————————————————
-                Γ ⊢ ∀ x : α, P
-
-Where x is not in the free variables of Γ. The rule states that if we can prove P in context Γ assuming x not mentioned elsewhere in Γ, then we can prove ∀ x : α, P.
+Where x is not in the free variables of `Γ`. The rule states that if we can prove `P` in context `Γ` assuming `x` not mentioned elsewhere in `Γ`, then we can prove `∀ x : α, P`.
 
 We also have the elimination rule:
+```
+             Γ ⊢ ∀ x , P x
+  ∃-elim ————————————————————————
+                  P t
+```
 
-               Γ ⊢ ∀ x , P x
-  `∃-elim` ————————————————————————
-                     P t
+where `t` is any term. This rule states that if we know `P x` holds for every `x`, then it must hold for any particular `t`.
 
-where t is any term. This rule states that if we know P x holds for every x, then it must hold for any particular t. -/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/- # PROVING STATEMENTS WITH ∀
+### Proving Statements with ∀
 
 The Curry-Howard Isomorphism works for universal quantification too. We could do as we did with proposotional logic and rewrite the FOL rules as type inference. However, here we just say what it means in Lean (which amounts to the same thing).
 
-   `∀-intro` To prove ∀ x , P x we construction a function that takes any x and returns proof of P x. This is an extension of the λ-abstraction rule.
+- **∀-intro**: To prove `∀ x , P x` we construction a function that takes any `x` and returns proof of `P x`. This is an extension of the λ-abstraction rule.
 
-   `∀-elim` Given a proof h of ∀ x , P x (which we recall is a λ-abstractionn) and a particular y of type α, we can prove P y by simply applying h to y. This is an extension of the λ-application rule.
+- **∀-elim**: Given a proof `h` of `∀ x , P x` (which we recall is a λ-abstractionn) and a particular `y` of type `α`, we can prove `P y` by simply applying `h` to `y`. This is an extension of the λ-application rule.
 
 For example, here is a proof that uses both of these rules: -/
 
@@ -298,59 +221,31 @@ variable (α : Type) (P Q : α → Prop)
 example : (∀ x : α, P x ∧ Q x) → ∀ y : α, P y :=
   λ h q => (h q).left
 
+/- ## Exists
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/- # EXISTS
-
-The ∃ quantifer is like an OR over a lot of propositions:
-
-  ∃ x , P(x)   ≃   P(x₁) ∨ P(x₂) ∨ ....
+The `∃` quantifer is like an OR over a lot of propositions:
+```
+∃ x , P(x)  ≡   P(x₁) ∨ P(x₂) ∨ ....
+```
 
 and it has similar introduction and elimination rules:
-
+```
              Γ ⊢ φ[x:=t]                Γ ⊢ ∃ x , φ     Γ, φ ⊢ ψ
   ∃-intro: ———————————————     ∃-elim: ———————————————————————————
              Γ ⊢ ∃ x, φ                        Γ ⊢ ψ
+```
 
-Constructively, the first rule says that if we have a proof of φ with x some term t substituted in for x, then we have a proof of ∃ x, φ.
+Constructively, the first rule says that if we have a proof of `φ` with `x` some term `t` substituted in for `x`, then we have a proof of `∃ x, φ`.
 
-The second says that if we have a proof of ∃ x, φ and also a proof of ψ assuming φ, then we have a proof of ψ.
+The second says that if we have a proof of `∃ x, φ` and also a proof of `ψ` assuming `φ`, then we have a proof of ψ.
 
--/
+### Lean's Implementation of Exists
 
+In FOL, ∃ is usally just an abbreviation for as `¬∀¬`. However, from a constructive point of view:
 
+> knowing that it is not the case that every `x` satisfies`¬p` is not the same as having a particular `x` that satisfies p. (Lean manual)
 
-
-
-
-
-
-
-
-
-
-
-
-/- # LEAN IMPLEMENTATION OF EXISTS
-
-In FOL, ∃ is usally just an abbreviation for as ¬∀¬. However, from a constructive point of view:
-
-  "knowing that it is not the case that every x satisfies ¬ p is not the same as having a particular x that satisfies p." (Lean manual)
-
-So in Lean, ∃ is defined inductively and constructively: -/
+So in Lean, `∃` is defined inductively and constructively: -/
 
 namespace temp
 
@@ -359,25 +254,14 @@ inductive Exists {α : Type} (p : α → Prop) : Prop where
 
 end temp
 
-/- All we need to introduce an existentially quantified statement with predicate P is an element and a proof that P holds for that element.
+/- All we need to introduce an existentially quantified statement with predicate `P` is an element and a proof that `P` holds for that element.
 
 An example use of the introduction rule is the following. Note the assumption that `α has at least one element q` is necessary.  -/
 
 example (q : α) : (∀ x , P x) → (∃ x , P x) :=
   λ hp => Exists.intro q (hp q)
 
-
-
-
-
-
-
-
-
-
-
-
-/- # EXISTS ELIMINATION
+/- ### Exists Elimination
 
 The ∃-elim rule is defined in Lean as follows: -/
 
@@ -398,15 +282,7 @@ end temp
 
 which allow us to conclude b -/
 
-
-
-
-
-
-
-
-
-/- # EXISTS ELIMINATION EXAMPLE
+/- ### Exists Elimination Example
 
 For example, in -/
 
@@ -414,30 +290,7 @@ example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
   Exists.elim h₁
   (λ c h => Exists.intro c (And.intro h.right h.left))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/- # EXAMPLE PROOFS -/
+/- ## Example Proofs -/
 
 variable (p: Type → Prop)
 variable (r : Prop)
@@ -448,53 +301,19 @@ example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=
   (λ h => Exists.elim h.left (λ c h1 => Exists.intro c (And.intro h1 h.right)))
 
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
-  sorry
+  Iff.intro
+  (λ h x hp => h (Exists.intro x hp))
+  (λ h he => Exists.elim he (λ y hy => h y hy))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/- # SOLUTIONS -/
-
-example : ∀ (x : Person) , (S x) ∨ ¬(S x) :=
+example : ∀ (x : Person) , (InSeattle x) ∨ ¬(InSeattle x) :=
   λ x => match x with
     | mary  | ed    => Or.inl trivial
     | steve | jolin => Or.inr (λ h => False.elim h)
 
 example : (∀ x : α, P x ∧ Q x) → ∀ y : α, P y :=
-  λ h : ∀ x : α, P x ∧ Q x =>     -- →-elim
-  λ y : α =>                      -- ∀-intro
-  (h y).left                      -- ∃-elim with h and y (and ∧-elim-left)
+  λ h : ∀ x : α, P x ∧ Q x =>
+  λ y : α =>
+  (h y).left
 
 example (q : α) : (∀ x , P x) → (∃ x , P x) :=
   λ h => Exists.intro q (h q)

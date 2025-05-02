@@ -213,7 +213,7 @@
 </code></pre>
 <h3 id="objects"><a class="header" href="#objects">Objects</a></h3>
 <p><strong>Objects</strong> in FOL can come from any agreed upon universe. Since we will be using Lean to work with first order logic, you can just assume that objects are any basic terms: numbers, strings, lists, and so on. FOL does not allow us to quantify over functions and types, only basic objects.</p>
-<h4 id="example-people"><a class="header" href="#example-people">Example: People</a></h4>
+<h4 id="example-a-finite-universe-of-people"><a class="header" href="#example-a-finite-universe-of-people">Example: A Finite Universe of People</a></h4>
 <p>For example, suppose we wanted to reason about a finite number of people. In Lean we can enumerate them with a new type:</p>
 <pre><code class="language-lean">inductive Person where | mary | steve | ed | jolin
 
@@ -227,7 +227,7 @@ open Person
 #check "uwece"
 #check true
 </code></pre>
-<h1 id="predicates"><a class="header" href="#predicates">PREDICATES</a></h1>
+<h2 id="predicates"><a class="header" href="#predicates">Predicates</a></h2>
 <p>A <strong>predicate</strong> is a <code>Prop</code> valued function.</p>
 <h4 id="example-a-predicate-on-people"><a class="header" href="#example-a-predicate-on-people">Example: A Predicate on People</a></h4>
 <p>A predicate on Person is a function from Person into Prop, such as one which might specify whether the person lives in Seattle:</p>
@@ -255,7 +255,7 @@ theorem t : is_zero 0 := True.intro
 
 theorem t1 : True := True.intro
 </code></pre>
-<h1 id="predicates-with-multiple-arguments"><a class="header" href="#predicates-with-multiple-arguments">PREDICATES WITH MULTIPLE ARGUMENTS</a></h1>
+<h2 id="predicates-with-multiple-arguments"><a class="header" href="#predicates-with-multiple-arguments">Predicates with Multiple Arguments</a></h2>
 <p>We may define predicates to take any number or arguments, including no arguments at all.</p>
 <pre><code class="language-lean">-- No argument predicates are just normal propositions
 variable (P : Prop)
@@ -268,29 +268,24 @@ variable (InWashington : Person → Prop)
 -- A two-argument predicate
 variable (Age : Person → Nat → Prop)
 #check Age jolin 27
-
--- etc.
 </code></pre>
-<h1 id="relations"><a class="header" href="#relations">RELATIONS</a></h1>
+<h3 id="relations"><a class="header" href="#relations">Relations</a></h3>
 <p>A two-argument predicate is called a relation.</p>
-<p><code>EXAMPLE</code> We might define a predicate on pairs of people such as</p>
+<p>Example: We might define a predicate on pairs of people such as</p>
 <pre><code class="language-lean">def on_right (p q : Person) : Prop := match p with
   | mary =&gt; q = steve
   | steve =&gt; q = ed
   | ed =&gt; q = jolin
   | jolin =&gt; q = mary
 </code></pre>
-<p><code>EXAMPLE</code> We can define other predicates in terms of existing predicates.</p>
+<p>We can define other predicates in terms of existing predicates.</p>
 <pre><code class="language-lean">def next_to (p q : Person) := on_right p q ∨ on_right q p
 
 example : next_to mary steve :=
   Or.inl (Eq.refl steve)
-
-
--- rfl == Eq.refl _
 </code></pre>
-<h1 id="greater-than-is-a-relation"><a class="header" href="#greater-than-is-a-relation">GREATER THAN IS A RELATION</a></h1>
-<p><code>EXAMPLE</code>: "greater than" is a relation. Relations are usually represented with infix notation, but they are still just predicates. For example, in Lean, the greater-than relation on natural numbers is:</p>
+<h4 id="greater-than-is-a-relation"><a class="header" href="#greater-than-is-a-relation">Greater Than is a Relation</a></h4>
+<p>Relations are usually represented with infix notation, but they are still just predicates. For example, in Lean, the greater-than relation on natural numbers is:</p>
 <pre><code class="language-lean">#check @GT.gt Nat
 #eval GT.gt 2 3
 </code></pre>
@@ -300,12 +295,14 @@ example : next_to mary steve :=
 <pre><code class="language-lean">#eval 2 &gt; 3
 </code></pre>
 <p>Similarly, &gt;=, &lt;, &lt;=, != are all relations available in Lean.</p>
-<h1 id="universal-quantification"><a class="header" href="#universal-quantification">UNIVERSAL QUANTIFICATION</a></h1>
+<h2 id="universal-quantification"><a class="header" href="#universal-quantification">Universal Quantification</a></h2>
 <p>In FOL, we use the symbol ∀ to denote universal quantification. You can think of univeral quantifiaction like a potentially infinte AND:</p>
-<p>∀ x P(x)   ≡    P(x₁) ∧ P(x₂) ∧ P(x₃) ∧ ...</p>
-<p>EXAMPLE: Here's how you say "All people who live in Seattle also live in Washington":</p>
-<p>∀ x : Person , InSeattle(x) → InWashington(x)</p>
-<p>EXAMPLE: In Lean, let's say we wanted to prove that every person either lives in Seattle or does not live in Seattle. A proof of this fact has the form of a function that takes an arbtrary person x and returns a proof that that person either lives in Seattle or does not. Thus, we can say:</p>
+<pre><code>∀ x P(x)   ≡    P(x₁) ∧ P(x₂) ∧ P(x₃) ∧ ...
+</code></pre>
+<p>Example: Here's how you say "All people who live in Seattle also live in Washington":</p>
+<pre><code>∀ x : Person , InSeattle(x) → InWashington(x)
+</code></pre>
+<p>Example: In Lean, let's say we wanted to prove that every person either lives in Seattle or does not live in Seattle. A proof of this fact has the form of a function that takes an arbtrary person x and returns a proof that that person either lives in Seattle or does not. Thus, we can say:</p>
 <pre><code class="language-lean">example : ∀ (x : Person) , (InSeattle x) ∨ ¬(InSeattle x) :=
   λ x =&gt; match x with
   | steve =&gt; Or.inr (λ h =&gt; h)
@@ -317,43 +314,52 @@ example : next_to mary steve :=
 <pre><code class="language-lean">#check (x : Person) → (InSeattle x) ∨ ¬(InSeattle x)
 </code></pre>
 <p>Which highlights why we can just use a lambda to dispatch a forall.</p>
-<h1 id="forall-introduction-and-elimination"><a class="header" href="#forall-introduction-and-elimination">FORALL INTRODUCTION AND ELIMINATION</a></h1>
+<h2 id="forall-introduction-and-elimination"><a class="header" href="#forall-introduction-and-elimination">Forall Introduction and Elimination</a></h2>
 <p>The universal quantifer has the introduction rule:</p>
-<pre><code>                Γ ⊢ P
+<pre><code>                   Γ ⊢ P
+  ∀-intro ————————————————————————
+               Γ ⊢ ∀ x : α, P
 </code></pre>
-<p><code>∀-intro</code> ————————————————————————
-Γ ⊢ ∀ x : α, P</p>
-<p>Where x is not in the free variables of Γ. The rule states that if we can prove P in context Γ assuming x not mentioned elsewhere in Γ, then we can prove ∀ x : α, P.</p>
+<p>Where x is not in the free variables of <code>Γ</code>. The rule states that if we can prove <code>P</code> in context <code>Γ</code> assuming <code>x</code> not mentioned elsewhere in <code>Γ</code>, then we can prove <code>∀ x : α, P</code>.</p>
 <p>We also have the elimination rule:</p>
-<pre><code>           Γ ⊢ ∀ x , P x
+<pre><code>             Γ ⊢ ∀ x , P x
+  ∃-elim ————————————————————————
+                  P t
 </code></pre>
-<p><code>∃-elim</code> ————————————————————————
-P t</p>
-<p>where t is any term. This rule states that if we know P x holds for every x, then it must hold for any particular t.</p>
-<h1 id="proving-statements-with-"><a class="header" href="#proving-statements-with-">PROVING STATEMENTS WITH ∀</a></h1>
+<p>where <code>t</code> is any term. This rule states that if we know <code>P x</code> holds for every <code>x</code>, then it must hold for any particular <code>t</code>.</p>
+<h3 id="proving-statements-with-"><a class="header" href="#proving-statements-with-">Proving Statements with ∀</a></h3>
 <p>The Curry-Howard Isomorphism works for universal quantification too. We could do as we did with proposotional logic and rewrite the FOL rules as type inference. However, here we just say what it means in Lean (which amounts to the same thing).</p>
-<p><code>∀-intro</code> To prove ∀ x , P x we construction a function that takes any x and returns proof of P x. This is an extension of the λ-abstraction rule.</p>
-<p><code>∀-elim</code> Given a proof h of ∀ x , P x (which we recall is a λ-abstractionn) and a particular y of type α, we can prove P y by simply applying h to y. This is an extension of the λ-application rule.</p>
+<ul>
+<li>
+<p><strong>∀-intro</strong>: To prove <code>∀ x , P x</code> we construction a function that takes any <code>x</code> and returns proof of <code>P x</code>. This is an extension of the λ-abstraction rule.</p>
+</li>
+<li>
+<p><strong>∀-elim</strong>: Given a proof <code>h</code> of <code>∀ x , P x</code> (which we recall is a λ-abstractionn) and a particular <code>y</code> of type <code>α</code>, we can prove <code>P y</code> by simply applying <code>h</code> to <code>y</code>. This is an extension of the λ-application rule.</p>
+</li>
+</ul>
 <p>For example, here is a proof that uses both of these rules:</p>
 <pre><code class="language-lean">variable (α : Type) (P Q : α → Prop)
 
 example : (∀ x : α, P x ∧ Q x) → ∀ y : α, P y :=
   λ h q =&gt; (h q).left
 </code></pre>
-<h1 id="exists"><a class="header" href="#exists">EXISTS</a></h1>
-<p>The ∃ quantifer is like an OR over a lot of propositions:</p>
-<p>∃ x , P(x)   ≃   P(x₁) ∨ P(x₂) ∨ ....</p>
-<p>and it has similar introduction and elimination rules:</p>
-<pre><code>         Γ ⊢ φ[x:=t]                Γ ⊢ ∃ x , φ     Γ, φ ⊢ ψ
+<h2 id="exists"><a class="header" href="#exists">Exists</a></h2>
+<p>The <code>∃</code> quantifer is like an OR over a lot of propositions:</p>
+<pre><code>∃ x , P(x)  ≡   P(x₁) ∨ P(x₂) ∨ ....
 </code></pre>
-<p>∃-intro: ———————————————     ∃-elim: ———————————————————————————
-Γ ⊢ ∃ x, φ                        Γ ⊢ ψ</p>
-<p>Constructively, the first rule says that if we have a proof of φ with x some term t substituted in for x, then we have a proof of ∃ x, φ.</p>
-<p>The second says that if we have a proof of ∃ x, φ and also a proof of ψ assuming φ, then we have a proof of ψ.</p>
-<h1 id="lean-implementation-of-exists"><a class="header" href="#lean-implementation-of-exists">LEAN IMPLEMENTATION OF EXISTS</a></h1>
-<p>In FOL, ∃ is usally just an abbreviation for as ¬∀¬. However, from a constructive point of view:</p>
-<p>"knowing that it is not the case that every x satisfies ¬ p is not the same as having a particular x that satisfies p." (Lean manual)</p>
-<p>So in Lean, ∃ is defined inductively and constructively:</p>
+<p>and it has similar introduction and elimination rules:</p>
+<pre><code>             Γ ⊢ φ[x:=t]                Γ ⊢ ∃ x , φ     Γ, φ ⊢ ψ
+  ∃-intro: ———————————————     ∃-elim: ———————————————————————————
+             Γ ⊢ ∃ x, φ                        Γ ⊢ ψ
+</code></pre>
+<p>Constructively, the first rule says that if we have a proof of <code>φ</code> with <code>x</code> some term <code>t</code> substituted in for <code>x</code>, then we have a proof of <code>∃ x, φ</code>.</p>
+<p>The second says that if we have a proof of <code>∃ x, φ</code> and also a proof of <code>ψ</code> assuming <code>φ</code>, then we have a proof of ψ.</p>
+<h3 id="leans-implementation-of-exists"><a class="header" href="#leans-implementation-of-exists">Lean's Implementation of Exists</a></h3>
+<p>In FOL, ∃ is usally just an abbreviation for as <code>¬∀¬</code>. However, from a constructive point of view:</p>
+<blockquote>
+<p>knowing that it is not the case that every <code>x</code> satisfies<code>¬p</code> is not the same as having a particular <code>x</code> that satisfies p. (Lean manual)</p>
+</blockquote>
+<p>So in Lean, <code>∃</code> is defined inductively and constructively:</p>
 <pre><code class="language-lean">namespace temp
 
 inductive Exists {α : Type} (p : α → Prop) : Prop where
@@ -361,12 +367,12 @@ inductive Exists {α : Type} (p : α → Prop) : Prop where
 
 end temp
 </code></pre>
-<p>All we need to introduce an existentially quantified statement with predicate P is an element and a proof that P holds for that element.</p>
+<p>All we need to introduce an existentially quantified statement with predicate <code>P</code> is an element and a proof that <code>P</code> holds for that element.</p>
 <p>An example use of the introduction rule is the following. Note the assumption that <code>α has at least one element q</code> is necessary.</p>
 <pre><code class="language-lean">example (q : α) : (∀ x , P x) → (∃ x , P x) :=
   λ hp =&gt; Exists.intro q (hp q)
 </code></pre>
-<h1 id="exists-elimination"><a class="header" href="#exists-elimination">EXISTS ELIMINATION</a></h1>
+<h3 id="exists-elimination"><a class="header" href="#exists-elimination">Exists Elimination</a></h3>
 <p>The ∃-elim rule is defined in Lean as follows:</p>
 <pre><code class="language-lean">namespace temp
 
@@ -382,13 +388,13 @@ end temp
 h₁ is a proof of ∃ x , p x
 h₂ is a proof that ∀ a , p a → b</p>
 <p>which allow us to conclude b</p>
-<h1 id="exists-elimination-example"><a class="header" href="#exists-elimination-example">EXISTS ELIMINATION EXAMPLE</a></h1>
+<h3 id="exists-elimination-example"><a class="header" href="#exists-elimination-example">Exists Elimination Example</a></h3>
 <p>For example, in</p>
 <pre><code class="language-lean">example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
   Exists.elim h₁
   (λ c h =&gt; Exists.intro c (And.intro h.right h.left))
 </code></pre>
-<h1 id="example-proofs"><a class="header" href="#example-proofs">EXAMPLE PROOFS</a></h1>
+<h2 id="example-proofs"><a class="header" href="#example-proofs">Example Proofs</a></h2>
 <pre><code class="language-lean">variable (p: Type → Prop)
 variable (r : Prop)
 
@@ -398,18 +404,19 @@ example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=
   (λ h =&gt; Exists.elim h.left (λ c h1 =&gt; Exists.intro c (And.intro h1 h.right)))
 
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
-  sorry
-</code></pre>
-<h1 id="solutions"><a class="header" href="#solutions">SOLUTIONS</a></h1>
-<pre><code class="language-lean">example : ∀ (x : Person) , (S x) ∨ ¬(S x) :=
+  Iff.intro
+  (λ h x hp =&gt; h (Exists.intro x hp))
+  (λ h he =&gt; Exists.elim he (λ y hy =&gt; h y hy))
+
+example : ∀ (x : Person) , (InSeattle x) ∨ ¬(InSeattle x) :=
   λ x =&gt; match x with
     | mary  | ed    =&gt; Or.inl trivial
     | steve | jolin =&gt; Or.inr (λ h =&gt; False.elim h)
 
 example : (∀ x : α, P x ∧ Q x) → ∀ y : α, P y :=
-  λ h : ∀ x : α, P x ∧ Q x =&gt;     -- →-elim
-  λ y : α =&gt;                      -- ∀-intro
-  (h y).left                      -- ∃-elim with h and y (and ∧-elim-left)
+  λ h : ∀ x : α, P x ∧ Q x =&gt;
+  λ y : α =&gt;
+  (h y).left
 
 example (q : α) : (∀ x , P x) → (∃ x , P x) :=
   λ h =&gt; Exists.intro q (h q)
@@ -431,7 +438,7 @@ Copyright © Eric Klavins, 2025-Present
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="Equality.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="Tactics.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -445,7 +452,7 @@ Copyright © Eric Klavins, 2025-Present
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="Equality.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="Tactics.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

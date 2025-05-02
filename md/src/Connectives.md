@@ -25,7 +25,7 @@ inductive And (φ ψ : Prop) : Prop where
 - h is evidence that the type And p q is not empty
 - h is a proof of the proposition And p q.
 
-## A PROOF OF A SIMPLE PROPOSITION
+## A Proof of a Simple Proposition
 
 Consider the proposition
 ```
@@ -64,7 +64,7 @@ def And.right {p q : Prop} (hpq : And p q) :=
   match hpq with
   | And.intro _ hq => hq
 ```
- # Proofs with And-Elimination
+ ### Proofs with And-Elimination
 
 With these inference rules, we can do even more proofs: 
 ```lean
@@ -103,7 +103,7 @@ inductive Or (φ ψ : Prop) : Prop where
 example (p q : Prop) : And p q → Or p q :=
   λ hpq => Or.inr hpq.right
 ```
- ## OR ELIMINATION
+ ### Or Elimination
 
 Recall the inference rule
 ```
@@ -119,7 +119,7 @@ def Or.elim {p q r : Prop} (hpq : Or p q) (hpr : p → r) (hqr : q → r) :=
   | Or.inl hp => hpr hp
   | Or.inr hq => hqr hq
 ```
- # Example of and Or-Elim Proof
+ ### Example of and Or-Elim Proof
 
 Here is an example proof using introduction and elimination. 
 ```lean
@@ -146,7 +146,7 @@ def Not (p : Prop) : Prop := p → False
 example (p q : Prop): (p → q) → (Not q → Not p) :=
   λ hpq hq => λ hp => hq (hpq hp)
 ```
- ## False Elimination
+ ### False Elimination
 
 To define the elimination rule for false
 ```
@@ -169,9 +169,9 @@ example (p q : Prop): And p (Not p) → q :=
 example : False → True :=
   λ h => False.elim h
 ```
- ## NOTATION
+ ## Notation
 
-The main difference between what we have defined here and Lean is that Lean defines notation like ∨ and ∧. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.
+The main difference between what we have defined here and Lean is that Lean defines notation like `∨` and `∧`. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.
 ```hs
 infixr:30 " ∨ "  => Temp.Or
 infixr:35 " ∧ "   => Temp.And
@@ -212,7 +212,7 @@ example : p ∧ False ↔ False := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 ```
- # REFERENCES
+ ## References
 
 - https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html
 

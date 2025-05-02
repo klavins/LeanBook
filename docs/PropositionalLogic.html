@@ -375,7 +375,7 @@ example (hpq : p ∨ q) : q ∨ p :=
     (λ hp =&gt; Or.inr hp)
     (λ hq =&gt; Or.inl hq)
 </code></pre>
-<h2 id="ex-falso"><a class="header" href="#ex-falso">EX FALSO</a></h2>
+<h2 id="ex-falso"><a class="header" href="#ex-falso">Ex Falso</a></h2>
 <p>Finally, we have the a rule for the ¬ connective:</p>
 <pre><code>                Γ ⊢ False
   False -Elim ————————————
@@ -447,7 +447,7 @@ example { hf : False } : p :=
 <pre><code class="language-lean">theorem t : ¬p→(p→q) :=
   λ hnp =&gt; λ hp =&gt; False.elim (hnp hp)
 </code></pre>
-<h2 id="the-law-of-the-excluded-middle"><a class="header" href="#the-law-of-the-excluded-middle">THE LAW OF THE EXCLUDED MIDDLE</a></h2>
+<h2 id="the-law-of-the-excluded-middle"><a class="header" href="#the-law-of-the-excluded-middle">The Law of the Excluded Middle</a></h2>
 <p>As we said, the law of the excluded middle states that</p>
 <p>⊢ φ ∨ ¬φ</p>
 <p>for all propositions φ. However, this statement is not provable using the inference rules above. To prove this meta-mathematical observation is beyond the scope of this lecture and requires an argument about the formal <code>semantics</code> of intuitionist propositional logic. For now, accept the fact that φ ∨ ¬φ cannot be proved rom the inference rules given, despite its seeming obviousness.</p>

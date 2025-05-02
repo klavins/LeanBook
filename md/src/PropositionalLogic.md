@@ -274,7 +274,7 @@ example (hpq : p ∨ q) : q ∨ p :=
     (λ hp => Or.inr hp)
     (λ hq => Or.inl hq)
 ```
- ## EX FALSO
+ ## Ex Falso
 
 Finally, we have the a rule for the ¬ connective:
 ```
@@ -371,7 +371,7 @@ And we're done! This is complicated though. Clearly we need a proof assistant to
 theorem t : ¬p→(p→q) :=
   λ hnp => λ hp => False.elim (hnp hp)
 ```
- ## THE LAW OF THE EXCLUDED MIDDLE
+ ## The Law of the Excluded Middle
 
 As we said, the law of the excluded middle states that
 

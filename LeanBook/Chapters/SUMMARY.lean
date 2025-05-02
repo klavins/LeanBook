@@ -17,8 +17,8 @@
 
 - [Propositional Connectives](./Connectives.md)
 - [First Order Logic](./FirstOrderLogic.md)
-- [Equality](./Equality.md)
 - [Tactics](./Tactics.md)
+- [Equality](./Equality.md)
 
 # Numbers
 

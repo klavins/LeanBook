@@ -1,8 +1,10 @@
 <span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Equality.lean'>Code</a> for this chapter</span>
- **OBJECTS, FUNCTIONS AND EQUALITY**
+ # Objects, Functions and Equality
 
-# EQUALITY IS A BINARY RELATION DEFINED INDUCTIVELY 
+In this chapter we extend the first order logic discussed in the last chapter to deal with functions of objects in our universe. On one of the critical components is a notion of equality between objects. Astonishingly, Lean's equality is not a built in type, but is defined in the standard library. Once we have equality, we can start working with statements about functions and their relationships in earnest.
+
+## Equality is a Binary Relation Defined Inductively 
 ```lean
 universe u
 
@@ -20,7 +22,7 @@ infix:50 " ~ "  => MyEq
 
 #check 1 ~ 1
 ```
- # REFL DOES A LOT
+ ### Refl is Powerful!
 
 In Lean, terms that are beta-reducable to each other are considered definitionally equal. You can show a lot of equalities automatically 
 ```lean
@@ -33,16 +35,16 @@ example : 2 ~ (1+1) := by
 example : 9 ~ (3*(2+1)) := by
   apply MyEq.refl
 ```
- # SUBSTITUTION
+ ### Substitution
 
-If x = y then p x is equal to p y. 
+Substition is the second most critical property of the equality. It allows us to conclude, for example, that if x = y then p x is equal to p y. 
 ```lean
 theorem MyEq.subst {α : Sort u} {P : α → Prop} {a b : α}
                    (h₁ : a ~ b) (h₂ : P a) : P b := by
   cases h₁ with
   | refl => exact h₂
 ```
- You can use this theorem to show basic properties. 
+ You can use this theorem to show the standard properties we know and love about equality. 
 ```lean
 theorem my_symmetry (a b : Type): a ~ b → b ~ a := by
   intro h
@@ -58,18 +60,16 @@ theorem my_congr_arg (a b : Type) (f : Type → Type) : a ~ b → f a ~ f b := b
   apply MyEq.subst hab
   exact MyEq.refl (f a)
 ```
- # LEAN'S EQUALITY
+ ## Lean's Equality
 
-Lean's equality relation is called Eq and its notation is =, as we have been using.
-
-Lean also defines rfl to be Eq.refl _ 
+Lean's equality relation is called `Eq` and its notation is `=`, as we have been using. Lean also defines `rfl` to be `Eq.refl _` 
 ```lean
 #print rfl
 
 example : 9 = 3*(2+1) := Eq.refl 9
 example : 9 = 3*(2+1) := rfl
 ```
- Lean provides lots of theorems about equality. 
+ Lean provides a long list of theorems about equality, such as 
 ```lean
 #check Eq.symm
 #check Eq.subst
@@ -83,7 +83,7 @@ example : 9 = 3*(2+1) := rfl
 #check congrFun
 #check congr
 ```
- # TACTICS FOR EQUALITY 
+ ### Tactics for Equality 
  rw[h]: Rewrites the current goal using the equality h. 
 ```lean
 theorem t1 (a b : Nat) : a = b → a + 1 = b + 1 := by
@@ -107,7 +107,7 @@ example (a b c : Nat) : a = b ∧ a = c → b + 1 = c + 1 := by
   rw[h1] at h2
   rw[h2]
 ```
- # THE SIMPLIFIER 
+ ## The Simplifier 
  The simplifier uses equations and lemmas to simplify expressions 
 ```lean
 theorem t3 (a b : Nat) : a = b → a + 1 = b + 1 := by
@@ -130,7 +130,7 @@ theorem t4 (a b c d e : Nat)
 
 #print t4
 ```
- # LINARITH
+ ## The `linarith` Tactic
 
 By importing Mathlib.Tactic.Linarith (see top of this file), you get an even more powerful simplifier.
 
@@ -154,14 +154,14 @@ example (x y z : ℚ)
    . linarith
    . linarith
 ```
- # EXAMPLE : INDUCTION ON NAT
+ ### Example : Induction on Nat
 
-For example, consider the sum of the first n natural numbers, which is n(n+1)/2. A proof by induction would be:
+As an example the brings many of these ideas together, consider the sum of the first `n` natural numbers, which is `n(n+1)/2`. A proof by induction would be:
 
-    `BASE CASE`: 0 = 0*1/2
-    `INDUCTIVE STEP`: ∀ k, Sum k = k(k+1)/2 → Sum (k+1) = (k+1)(k+2)/2
+- **BASE CASE**: `0 = 0*1/2`
+- **NDUCTIVE STEP**: `∀ k, Sum k = k(k+1)/2 → Sum (k+1) = (k+1)(k+2)/2`
 
-
+We can do this in lean with the `induction` tactic. 
 ```lean
 def S (n : Nat) : Nat := match n with
   | Nat.zero => 0
@@ -177,7 +177,7 @@ example : ∀ n, 2 * S n = n*(n+1) := by
     simp[S,ih]
     linarith
 ```
- # INEQUALITY
+ ## Inequality
 
 Every inductive type comes with a theorem called noConfusion that states that different constructors give different objects. 
 ```lean
@@ -196,9 +196,7 @@ example : MyNat.zero ≠ MyNat.zero.succ := by
   intro h
   exact MyNat.noConfusion h
 ```
- # EXAMPLE
-
-Suppose we want to specify who is on who's right side. 
+ Continuing the above example, suppose we want to specify who is on who's right side. 
 ```lean
 def on_right (p : Person) := match p with
   | mary => steve
@@ -217,9 +215,7 @@ example : ¬next_to mary ed := by
 example : ∀ p , p ≠ on_right p := by
   sorry
 ```
- # NOTE
-
-The `trivial` tactic actually figures out when to apply noConfusion
+ Note: The `trivial` tactic actually figures out when to apply noConfusion
 ```lean
 theorem t10 : ed ≠ steve := by
   intro h

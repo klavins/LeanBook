@@ -62,7 +62,7 @@ def And.right {p q : Prop} (hpq : And p q) :=
   match hpq with
   | And.intro _ hq => hq
 
-/- # Proofs with And-Elimination
+/- ### Proofs with And-Elimination
 
 With these inference rules, we can do even more proofs: -/
 
@@ -101,7 +101,7 @@ inductive Or (φ ψ : Prop) : Prop where
 example (p q : Prop) : And p q → Or p q :=
   λ hpq => Or.inr hpq.right
 
-/- ## Or Elimination
+/- ### Or Elimination
 
 Recall the inference rule
 ```
@@ -117,7 +117,7 @@ def Or.elim {p q r : Prop} (hpq : Or p q) (hpr : p → r) (hqr : q → r) :=
   | Or.inl hp => hpr hp
   | Or.inr hq => hqr hq
 
-/- # Example of and Or-Elim Proof
+/- ### Example of and Or-Elim Proof
 
 Here is an example proof using introduction and elimination. -/
 
@@ -144,7 +144,7 @@ def Not (p : Prop) : Prop := p → False
 example (p q : Prop): (p → q) → (Not q → Not p) :=
   λ hpq hq => λ hp => hq (hpq hp)
 
-/- ## False Elimination
+/- ### False Elimination
 
 To define the elimination rule for false
 ```

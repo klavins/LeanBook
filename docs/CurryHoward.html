@@ -378,7 +378,7 @@ example : (p → q) → (¬q → ¬p) :=
 <pre><code class="language-hs">variable (A C : Prop)
 </code></pre>
 <p>above, then my_lean_theorem would have (A : Prop) as a non-implicit argument, so it would have to be applied as</p>
-<pre><code class="language-hs">my_lean_theorem (C→A) h
+<pre><code class="language-hs">my_lean_theorem hca h
 </code></pre>
 <p>which is ugly.</p>
 <p>The way Lean uses variables is by putting them silently into all definitions and theorems that use them. So my_theorem internally looks like:</p>

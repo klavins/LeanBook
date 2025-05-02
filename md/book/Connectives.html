@@ -182,7 +182,7 @@
 <li>h is evidence that the type And p q is not empty</li>
 <li>h is a proof of the proposition And p q.</li>
 </ul>
-<h2 id="a-proof-of-a-simple-proposition"><a class="header" href="#a-proof-of-a-simple-proposition">A PROOF OF A SIMPLE PROPOSITION</a></h2>
+<h2 id="a-proof-of-a-simple-proposition"><a class="header" href="#a-proof-of-a-simple-proposition">A Proof of a Simple Proposition</a></h2>
 <p>Consider the proposition</p>
 <pre><code>p → q → And p q
 </code></pre>
@@ -210,7 +210,7 @@ def And.right {p q : Prop} (hpq : And p q) :=
   match hpq with
   | And.intro _ hq =&gt; hq
 </code></pre>
-<h1 id="proofs-with-and-elimination"><a class="header" href="#proofs-with-and-elimination">Proofs with And-Elimination</a></h1>
+<h3 id="proofs-with-and-elimination"><a class="header" href="#proofs-with-and-elimination">Proofs with And-Elimination</a></h3>
 <p>With these inference rules, we can do even more proofs:</p>
 <pre><code class="language-lean">example (p q : Prop) : (And p q) → p :=
   λ hpq =&gt; And.left hpq
@@ -240,7 +240,7 @@ example (p q : Prop) : (And p q) → (And q p) :=
 <pre><code class="language-lean">example (p q : Prop) : And p q → Or p q :=
   λ hpq =&gt; Or.inr hpq.right
 </code></pre>
-<h2 id="or-elimination"><a class="header" href="#or-elimination">OR ELIMINATION</a></h2>
+<h3 id="or-elimination"><a class="header" href="#or-elimination">Or Elimination</a></h3>
 <p>Recall the inference rule</p>
 <pre><code>           Γ,p ⊢ r    Γ,q ⊢ r    Γ ⊢ p ∨ q
   ∨-Elim ————————————————————————————————————
@@ -252,7 +252,7 @@ example (p q : Prop) : (And p q) → (And q p) :=
   | Or.inl hp =&gt; hpr hp
   | Or.inr hq =&gt; hqr hq
 </code></pre>
-<h1 id="example-of-and-or-elim-proof"><a class="header" href="#example-of-and-or-elim-proof">Example of and Or-Elim Proof</a></h1>
+<h3 id="example-of-and-or-elim-proof"><a class="header" href="#example-of-and-or-elim-proof">Example of and Or-Elim Proof</a></h3>
 <p>Here is an example proof using introduction and elimination.</p>
 <pre><code class="language-lean">example (p q : Prop): Or p q → Or q p :=
   λ hpq =&gt; Or.elim
@@ -272,7 +272,7 @@ example (p q : Prop) : (And p q) → (And q p) :=
 <pre><code class="language-lean">example (p q : Prop): (p → q) → (Not q → Not p) :=
   λ hpq hq =&gt; λ hp =&gt; hq (hpq hp)
 </code></pre>
-<h2 id="false-elimination"><a class="header" href="#false-elimination">False Elimination</a></h2>
+<h3 id="false-elimination"><a class="header" href="#false-elimination">False Elimination</a></h3>
 <p>To define the elimination rule for false</p>
 <pre><code>           Γ ⊢ ⊥
   ⊥-Elim ——————————
@@ -290,8 +290,8 @@ example (p q : Prop) : (And p q) → (And q p) :=
 <pre><code class="language-lean">example : False → True :=
   λ h =&gt; False.elim h
 </code></pre>
-<h2 id="notation"><a class="header" href="#notation">NOTATION</a></h2>
-<p>The main difference between what we have defined here and Lean is that Lean defines notation like ∨ and ∧. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.</p>
+<h2 id="notation"><a class="header" href="#notation">Notation</a></h2>
+<p>The main difference between what we have defined here and Lean is that Lean defines notation like <code>∨</code> and <code>∧</code>. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.</p>
 <pre><code class="language-hs">infixr:30 " ∨ "  =&gt; Temp.Or
 infixr:35 " ∧ "   =&gt; Temp.And
 notation:max "¬" p:40 =&gt; Temp.Not p
@@ -326,7 +326,7 @@ example : p ∧ False ↔ False := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 </code></pre>
-<h1 id="references"><a class="header" href="#references">REFERENCES</a></h1>
+<h2 id="references"><a class="header" href="#references">References</a></h2>
 <ul>
 <li>
 <p>https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html</p>

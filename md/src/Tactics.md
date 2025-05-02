@@ -1,28 +1,40 @@
 <span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Tactics.lean'>Code</a> for this chapter</span>
- **TACTICS** 
-```lean
-import Mathlib.Tactic.Linarith
-```
- # TACTIC MODE
+ # Tactics
 
- Tactic mode is entered in a proof using the keyword `by`
+Tactic mode is entered in a proof using the keyword `by`
 
- 
 ```lean
 variable (p : Type → Prop)
 
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
   sorry
 ```
- # APPLY AND EXACT
+ ## The `intro` Tactic
+
+Introducion applies to implications and forall statements, introducing either a new hypothesis or a new object. It takes the place of `λ h₁ h₂ ... => ...`
+
+Note also that by using `.` and indentation, you can visually break up your proof to it is more readable. 
+```lean
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  apply Iff.intro
+  . intro hnep x
+    sorry
+  . intro hanp
+    sorry
+```
+ ## The `apply` and `exact` Tactics
 
 The `apply` tactic applies a function, forall statement, or another theorem. It looks for arguments that match its type signature in the context and automatically uses them if possible. 
 ```lean
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
   apply Iff.intro
-  . sorry
-  . sorry
+  . intro h x hp
+    exact h (Exists.intro x hp)
+  . intro h hepx
+    apply Exists.elim hepx
+    intro x hpa
+    exact (h x) hpa
 
 example (p : Nat → Prop) (h : ∀ (x : Nat) , p x) : p 14 := by
   apply h
@@ -37,7 +49,7 @@ example (q : Nat → Prop) : (∀ x, q x) → ∀ x, q x := by
 example (p : Nat → Prop) (h : ∀ (x : Nat) , p x) : p 14 := by
   exact h 14
 ```
- # ASSUMPTION
+ ## The `assumption` Tactic
 
 This tactic looks through the context to find an assumption that applies, and applies it. It is like apply but where you don't even say what to apply. 
 ```lean
@@ -45,20 +57,7 @@ example (c : Type) (h : p c) : ∃ x, p x := by
   apply Exists.intro c
   assumption
 ```
- # INTRO
-
-Introducion applies to implications and forall statements, introducing either a new hypothesis or a new object. It takes the place of λ h₁ h₂ ... => ...
-
-Note also that by using `.` and indentation, you can visually break up your proof to it is more readable. 
-```lean
-example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
-  apply Iff.intro
-  . intro hnep x
-    sorry
-  . intro hanp
-    sorry
-```
- # STRUCTURES
+ ## Structures
 
 Structures in Lean are a way to package data. They are a kind of inductive type, but presented differently. For example, 
 ```lean
@@ -72,7 +71,7 @@ def p₁ := Point.mk 1 2
 def p₂ : Point := { x := 1, y := 2 }
 def p₃ : Point := ⟨ 1,2 ⟩
 ```
- # PACKAGING AND AND EXISTS
+ ## Packaging and Exists
 
 In Lean, And is a structure (not a simple inductive type, like I originally described). 
 ```lean
@@ -91,7 +90,7 @@ example (p : Type → Prop) (c : Type) : (∀ x, p x) → ∃ x, p x :=
 example : ∃ (p : Point) , p.x = 0 :=  by
   exact ⟨ ⟨ 0, 0 ⟩, rfl ⟩
 ```
- # TACTICS PRODUCE LOW LEVEL PROOFS THAT CAN BE CHECKED 
+ ### Tactics Produce Low Level Proofs 
 ```lean
 theorem t (p : Type → Prop) (c : Type) : (∀ x, p x) → ∃ x, p x := by
   intro h
@@ -99,7 +98,7 @@ theorem t (p : Type → Prop) (c : Type) : (∀ x, p x) → ∃ x, p x := by
 
 #print t
 ```
- # PATTERN MATCHING
+ ## Pattern Matching
 
 You can match constructors with intro to more easily break up expressions. 
 ```lean
@@ -109,135 +108,116 @@ example (p q : Prop) : p ∧ q → q := by
 
 example : (∃ x , ¬p x) → ¬ ∀ x, p x := by
   intro ⟨ x, hnp ⟩ hnap
-  sorry
+  exact hnp (hnap x)
 
 example (P Q : Type → Prop): (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x := by
   intro ⟨ x, ⟨ hp, hq ⟩ ⟩
   exact ⟨ x, ⟨ hq, hp ⟩ ⟩
 ```
- # GETTING HELP WITH APPLY?
+ ## Getting Help with Apply?
 
 You can ask Lean to try to find someting to apply with `apply?` 
 ```lean
 example : (∃ x , ¬p x) → ¬ ∀ x, p x := by
   intro ⟨ x, hnp ⟩ hnap
-  exact hnp (hnap x)
+  apply?
 ```
  It doesn't always work though. 
-```lean
-variable (α : Type) (P Q : α → Prop)
-example : (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x :=
-  by apply?
-```
- # FOL EXAMPLES REVISITED 
+ ## FOL Examples Revisited
+
+Now that we can use tactics, our First Order Logic Proofs can be made to look a little cleaner, although one might argue the use of angled brackets is harder to read. 
 ```lean
 variable (p: Type → Prop)
 variable (r : Prop)
 
 theorem asd : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
-  exact not_exists
-
-  -- apply Iff.intro
-  -- . intro h x
-  --   exact forall_not_of_not_exists h x
-  -- . intro h
-  --   exact not_exists.mpr h
-
-#print forall_exists_index
-
-#check forall_not_of_not_exists
+  apply Iff.intro
+  . intro h x hp
+    exact h (Exists.intro x hp)
+  . intro hp ⟨ x, hnp ⟩
+    exact hp x hnp
 
 example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := by
-  sorry
+  apply Iff.intro
+  . intro ⟨ x, ⟨ hx, hr ⟩ ⟩
+    exact ⟨ ⟨ x, hx ⟩ , hr ⟩
+  . intro ⟨ ⟨ x, hx ⟩ , hr ⟩
+    exact ⟨ x, ⟨ hx, hr ⟩ ⟩
 
-example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
-  sorry
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  apply Iff.intro
+  . intro h x hp
+    exact h ⟨ x, hp ⟩
+  . intro h ⟨ x, hp ⟩
+    exact h x hp
 ```
- # HAVE AND LET
+ ## The `have` and `let` Tactics
 
-You can use have to record intermediate results 
+You can use `have` to record intermediate results 
 ```lean
 example (p q : Prop) : p ∧ q → p ∨ q := by
   intro ⟨ h1, h2 ⟩
   have hp : p := h1
   exact Or.inl hp
 ```
- If you need an intermediate value, you should use let. 
+ If you need an intermediate value, you should use `let`. 
 ```lean
 example : ∃ n , n > 0 := by
   let m := 1
-  sorry
+  exact ⟨ m, Nat.one_pos ⟩
 ```
- # CASES
+ ## Cases
 
 The cases tactic wraps around Or.elim to make proofs easier to read. 
 ```lean
 example (p q : Prop) : (p ∨ q) → q ∨ p  := by
   intro h
   cases h with
-  | inl hp => apply Or.inr hp
-  | inr hq => sorry
-
-example (p q : Prop) : (p ∨ q) → q ∨ p  := by
-  intro h
-  cases h
-  . apply Or.inr
-    assumption
-  . sorry
+  | inl hp => exact Or.inr hp
+  | inr hq => exact Or.symm (Or.inr hq)
 
 -- Cases doesn't always buy you much. You can just apply Or.elim.
 example (p q : Prop) : (p ∨ q) → q ∨ p  := by
   intro h
   apply Or.elim h
   . intro hp
-    sorry
-  . sorry
+    exact Or.symm h
+  . intro hq
+    exact Or.symm h
 ```
- # CASES WORKS WITH ANY INDUCTIVE TYPE
+ ## Cases Works With any Inductive Ttype
 
 Here's are some somewhat longwinded ways to prove some simple results 
 ```lean
+variable (P Q : Type → Prop)
+
 example : (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x := by
   intro h
   cases h with
-  | intro x h => sorry
+  | intro x h => exact ⟨ x, And.symm h ⟩
 
 example (p q : Prop) : (p ∧ q) → (p ∨ q) :=  by
   intro h
   cases h with
   | intro hp hq => exact Or.inl hp
 ```
- # BY_CASES
+ ## The `by_cases` Tactic
 
-The cases tactic is not to be confused with the by_cases tactic, which uses `classical reasoning`. 
+The cases tactic is not to be confused with the `by_cases` tactic, which uses `classical reasoning`. 
 ```lean
 example (p : Prop): p ∨ ¬p := by
   by_cases h : p
   . exact Classical.em p -- assuming h : p
   . exact Classical.em p -- assuming h : ¬p
 ```
- Another example: 
-```lean
-example (n : Nat) : n = 0 ∨ ∃ x , n = Nat.succ x := by
-  sorry
-```
- # ANOTHER EXAMPLE
-
-The following examples requires Classical reasoning. In the reverse direction, just because you have a proof that r implies ∃ x, p x doesn't mean that assume there exists an x such that r → p x, because that would require a proof of r itself. So we expect to use by_cases on r to show the reverse direction when r is true and when r is false. 
-```lean
-example (r : Prop) (a : Type) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
-  sorry
-```
- # INDUCTION
+ # The `induction` Tactic
 
 Proof by induction works for all inductive types. It is similar to using cases, but it adds an `inductive hypothesis` where needed.
 
 As an example, consider the natural numbers and suppose P : Nat → Prop is a property. To prove P with induction, you do :
 
-    `BASE CASE`: P(0)
-    `INDUCTIVE STEP`: ∀ n, P(n) → P(n+1)
-
- 
+- **BASE CASE**: P(0)
+- **INDUCTIVE STEP**: ∀ n, P(n) → P(n+1) 
 ```lean
 def E (n : Nat) : Prop := match n with
   | Nat.zero => True
@@ -254,46 +234,13 @@ example : ∀ n : Nat, E n ∨ E n.succ := by
     . intro h3
       exact Or.inl h3
 ```
- # TACTIC DOCUMENTATION
+ ## Tactic Documentation
 
 There are a lot of tactics:
 
   https://github.com/haruhisa-enomoto/mathlib4-all-tactics/blob/main/all-tactics.md
 
 
- # SOLUTIONS 
-```lean
-example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
-  apply Iff.intro
-  . intro h x hp
-    exact h (Exists.intro x hp)
-  . intro h hepx
-    apply Exists.elim hepx
-    intro x hpa
-    exact (h x) hpa
-
-example (n : Nat) : n = 0 ∨ ∃ x , n = Nat.succ x := by
-  by_cases h : n = 0
-  . exact Or.inl h
-  . apply Or.inr
-    apply Exists.intro (n-1)
-    exact Eq.symm (Nat.succ_pred_eq_of_ne_zero h)
-
-example (r : Prop) (a : Type) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
-  apply Iff.intro
-  . intro ⟨ x, hrp ⟩ hr
-    exact ⟨ x, hrp hr ⟩
-  . intro hrp
-    by_cases h : r
-    . apply Exists.elim (hrp h)
-      intro c hpc
-      apply Exists.intro c
-      intro _
-      exact hpc
-    . apply Exists.intro a
-      intro hr
-      exact False.elim (h hr)
-```
 
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present

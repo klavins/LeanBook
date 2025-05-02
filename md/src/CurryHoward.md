@@ -311,7 +311,7 @@ variable (A C : Prop)
 
 above, then my_lean_theorem would have (A : Prop) as a non-implicit argument, so it would have to be applied as
 ```hs
-my_lean_theorem (C→A) h
+my_lean_theorem hca h
 ```
 
 which is ugly.

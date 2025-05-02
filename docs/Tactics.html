@@ -161,23 +161,34 @@
                 <div id="content" class="content">
                     <main>
                         <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Tactics.lean'>Code</a> for this chapter</span>
-<strong>TACTICS</strong></p>
-<pre><code class="language-lean">import Mathlib.Tactic.Linarith
-</code></pre>
-<h1 id="tactic-mode"><a class="header" href="#tactic-mode">TACTIC MODE</a></h1>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Tactics.lean'>Code</a> for this chapter</span></p>
+<h1 id="tactics"><a class="header" href="#tactics">Tactics</a></h1>
 <p>Tactic mode is entered in a proof using the keyword <code>by</code></p>
 <pre><code class="language-lean">variable (p : Type → Prop)
 
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
   sorry
 </code></pre>
-<h1 id="apply-and-exact"><a class="header" href="#apply-and-exact">APPLY AND EXACT</a></h1>
+<h2 id="the-intro-tactic"><a class="header" href="#the-intro-tactic">The <code>intro</code> Tactic</a></h2>
+<p>Introducion applies to implications and forall statements, introducing either a new hypothesis or a new object. It takes the place of <code>λ h₁ h₂ ... =&gt; ...</code></p>
+<p>Note also that by using <code>.</code> and indentation, you can visually break up your proof to it is more readable.</p>
+<pre><code class="language-lean">example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  apply Iff.intro
+  . intro hnep x
+    sorry
+  . intro hanp
+    sorry
+</code></pre>
+<h2 id="the-apply-and-exact-tactics"><a class="header" href="#the-apply-and-exact-tactics">The <code>apply</code> and <code>exact</code> Tactics</a></h2>
 <p>The <code>apply</code> tactic applies a function, forall statement, or another theorem. It looks for arguments that match its type signature in the context and automatically uses them if possible.</p>
 <pre><code class="language-lean">example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
   apply Iff.intro
-  . sorry
-  . sorry
+  . intro h x hp
+    exact h (Exists.intro x hp)
+  . intro h hepx
+    apply Exists.elim hepx
+    intro x hpa
+    exact (h x) hpa
 
 example (p : Nat → Prop) (h : ∀ (x : Nat) , p x) : p 14 := by
   apply h
@@ -191,23 +202,13 @@ example (q : Nat → Prop) : (∀ x, q x) → ∀ x, q x := by
 <pre><code class="language-lean">example (p : Nat → Prop) (h : ∀ (x : Nat) , p x) : p 14 := by
   exact h 14
 </code></pre>
-<h1 id="assumption"><a class="header" href="#assumption">ASSUMPTION</a></h1>
+<h2 id="the-assumption-tactic"><a class="header" href="#the-assumption-tactic">The <code>assumption</code> Tactic</a></h2>
 <p>This tactic looks through the context to find an assumption that applies, and applies it. It is like apply but where you don't even say what to apply.</p>
 <pre><code class="language-lean">example (c : Type) (h : p c) : ∃ x, p x := by
   apply Exists.intro c
   assumption
 </code></pre>
-<h1 id="intro"><a class="header" href="#intro">INTRO</a></h1>
-<p>Introducion applies to implications and forall statements, introducing either a new hypothesis or a new object. It takes the place of λ h₁ h₂ ... =&gt; ...</p>
-<p>Note also that by using <code>.</code> and indentation, you can visually break up your proof to it is more readable.</p>
-<pre><code class="language-lean">example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
-  apply Iff.intro
-  . intro hnep x
-    sorry
-  . intro hanp
-    sorry
-</code></pre>
-<h1 id="structures"><a class="header" href="#structures">STRUCTURES</a></h1>
+<h2 id="structures"><a class="header" href="#structures">Structures</a></h2>
 <p>Structures in Lean are a way to package data. They are a kind of inductive type, but presented differently. For example,</p>
 <pre><code class="language-lean">structure Point where
   x : Int
@@ -218,7 +219,7 @@ example (q : Nat → Prop) : (∀ x, q x) → ∀ x, q x := by
 def p₂ : Point := { x := 1, y := 2 }
 def p₃ : Point := ⟨ 1,2 ⟩
 </code></pre>
-<h1 id="packaging-and-and-exists"><a class="header" href="#packaging-and-and-exists">PACKAGING AND AND EXISTS</a></h1>
+<h2 id="packaging-and-exists"><a class="header" href="#packaging-and-exists">Packaging and Exists</a></h2>
 <p>In Lean, And is a structure (not a simple inductive type, like I originally described).</p>
 <pre><code class="language-lean">#print And
 
@@ -234,14 +235,14 @@ example (p : Type → Prop) (c : Type) : (∀ x, p x) → ∃ x, p x :=
 example : ∃ (p : Point) , p.x = 0 :=  by
   exact ⟨ ⟨ 0, 0 ⟩, rfl ⟩
 </code></pre>
-<h1 id="tactics-produce-low-level-proofs-that-can-be-checked"><a class="header" href="#tactics-produce-low-level-proofs-that-can-be-checked">TACTICS PRODUCE LOW LEVEL PROOFS THAT CAN BE CHECKED</a></h1>
+<h3 id="tactics-produce-low-level-proofs"><a class="header" href="#tactics-produce-low-level-proofs">Tactics Produce Low Level Proofs</a></h3>
 <pre><code class="language-lean">theorem t (p : Type → Prop) (c : Type) : (∀ x, p x) → ∃ x, p x := by
   intro h
   exact ⟨ c, h c ⟩
 
 #print t
 </code></pre>
-<h1 id="pattern-matching"><a class="header" href="#pattern-matching">PATTERN MATCHING</a></h1>
+<h2 id="pattern-matching"><a class="header" href="#pattern-matching">Pattern Matching</a></h2>
 <p>You can match constructors with intro to more easily break up expressions.</p>
 <pre><code class="language-lean">example (p q : Prop) : p ∧ q → q := by
   intro ⟨ _, hq ⟩
@@ -249,115 +250,102 @@ example : ∃ (p : Point) , p.x = 0 :=  by
 
 example : (∃ x , ¬p x) → ¬ ∀ x, p x := by
   intro ⟨ x, hnp ⟩ hnap
-  sorry
+  exact hnp (hnap x)
 
 example (P Q : Type → Prop): (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x := by
   intro ⟨ x, ⟨ hp, hq ⟩ ⟩
   exact ⟨ x, ⟨ hq, hp ⟩ ⟩
 </code></pre>
-<h1 id="getting-help-with-apply"><a class="header" href="#getting-help-with-apply">GETTING HELP WITH APPLY?</a></h1>
+<h2 id="getting-help-with-apply"><a class="header" href="#getting-help-with-apply">Getting Help with Apply?</a></h2>
 <p>You can ask Lean to try to find someting to apply with <code>apply?</code></p>
 <pre><code class="language-lean">example : (∃ x , ¬p x) → ¬ ∀ x, p x := by
   intro ⟨ x, hnp ⟩ hnap
-  exact hnp (hnap x)
+  apply?
 </code></pre>
 <p>It doesn't always work though.</p>
-<pre><code class="language-lean">variable (α : Type) (P Q : α → Prop)
-example : (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x :=
-  by apply?
-</code></pre>
-<h1 id="fol-examples-revisited"><a class="header" href="#fol-examples-revisited">FOL EXAMPLES REVISITED</a></h1>
+<h2 id="fol-examples-revisited"><a class="header" href="#fol-examples-revisited">FOL Examples Revisited</a></h2>
+<p>Now that we can use tactics, our First Order Logic Proofs can be made to look a little cleaner, although one might argue the use of angled brackets is harder to read.</p>
 <pre><code class="language-lean">variable (p: Type → Prop)
 variable (r : Prop)
 
 theorem asd : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
-  exact not_exists
-
-  -- apply Iff.intro
-  -- . intro h x
-  --   exact forall_not_of_not_exists h x
-  -- . intro h
-  --   exact not_exists.mpr h
-
-#print forall_exists_index
-
-#check forall_not_of_not_exists
+  apply Iff.intro
+  . intro h x hp
+    exact h (Exists.intro x hp)
+  . intro hp ⟨ x, hnp ⟩
+    exact hp x hnp
 
 example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := by
-  sorry
+  apply Iff.intro
+  . intro ⟨ x, ⟨ hx, hr ⟩ ⟩
+    exact ⟨ ⟨ x, hx ⟩ , hr ⟩
+  . intro ⟨ ⟨ x, hx ⟩ , hr ⟩
+    exact ⟨ x, ⟨ hx, hr ⟩ ⟩
 
-example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
-  sorry
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
+  apply Iff.intro
+  . intro h x hp
+    exact h ⟨ x, hp ⟩
+  . intro h ⟨ x, hp ⟩
+    exact h x hp
 </code></pre>
-<h1 id="have-and-let"><a class="header" href="#have-and-let">HAVE AND LET</a></h1>
-<p>You can use have to record intermediate results</p>
+<h2 id="the-have-and-let-tactics"><a class="header" href="#the-have-and-let-tactics">The <code>have</code> and <code>let</code> Tactics</a></h2>
+<p>You can use <code>have</code> to record intermediate results</p>
 <pre><code class="language-lean">example (p q : Prop) : p ∧ q → p ∨ q := by
   intro ⟨ h1, h2 ⟩
   have hp : p := h1
   exact Or.inl hp
 </code></pre>
-<p>If you need an intermediate value, you should use let.</p>
+<p>If you need an intermediate value, you should use <code>let</code>.</p>
 <pre><code class="language-lean">example : ∃ n , n &gt; 0 := by
   let m := 1
-  sorry
+  exact ⟨ m, Nat.one_pos ⟩
 </code></pre>
-<h1 id="cases"><a class="header" href="#cases">CASES</a></h1>
+<h2 id="cases"><a class="header" href="#cases">Cases</a></h2>
 <p>The cases tactic wraps around Or.elim to make proofs easier to read.</p>
 <pre><code class="language-lean">example (p q : Prop) : (p ∨ q) → q ∨ p  := by
   intro h
   cases h with
-  | inl hp =&gt; apply Or.inr hp
-  | inr hq =&gt; sorry
-
-example (p q : Prop) : (p ∨ q) → q ∨ p  := by
-  intro h
-  cases h
-  . apply Or.inr
-    assumption
-  . sorry
+  | inl hp =&gt; exact Or.inr hp
+  | inr hq =&gt; exact Or.symm (Or.inr hq)
 
 -- Cases doesn't always buy you much. You can just apply Or.elim.
 example (p q : Prop) : (p ∨ q) → q ∨ p  := by
   intro h
   apply Or.elim h
   . intro hp
-    sorry
-  . sorry
+    exact Or.symm h
+  . intro hq
+    exact Or.symm h
 </code></pre>
-<h1 id="cases-works-with-any-inductive-type"><a class="header" href="#cases-works-with-any-inductive-type">CASES WORKS WITH ANY INDUCTIVE TYPE</a></h1>
+<h2 id="cases-works-with-any-inductive-ttype"><a class="header" href="#cases-works-with-any-inductive-ttype">Cases Works With any Inductive Ttype</a></h2>
 <p>Here's are some somewhat longwinded ways to prove some simple results</p>
-<pre><code class="language-lean">example : (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x := by
+<pre><code class="language-lean">variable (P Q : Type → Prop)
+
+example : (∃ x, P x ∧ Q x) → ∃ x, Q x ∧ P x := by
   intro h
   cases h with
-  | intro x h =&gt; sorry
+  | intro x h =&gt; exact ⟨ x, And.symm h ⟩
 
 example (p q : Prop) : (p ∧ q) → (p ∨ q) :=  by
   intro h
   cases h with
   | intro hp hq =&gt; exact Or.inl hp
 </code></pre>
-<h1 id="by_cases"><a class="header" href="#by_cases">BY_CASES</a></h1>
-<p>The cases tactic is not to be confused with the by_cases tactic, which uses <code>classical reasoning</code>.</p>
+<h2 id="the-by_cases-tactic"><a class="header" href="#the-by_cases-tactic">The <code>by_cases</code> Tactic</a></h2>
+<p>The cases tactic is not to be confused with the <code>by_cases</code> tactic, which uses <code>classical reasoning</code>.</p>
 <pre><code class="language-lean">example (p : Prop): p ∨ ¬p := by
   by_cases h : p
   . exact Classical.em p -- assuming h : p
   . exact Classical.em p -- assuming h : ¬p
 </code></pre>
-<p>Another example:</p>
-<pre><code class="language-lean">example (n : Nat) : n = 0 ∨ ∃ x , n = Nat.succ x := by
-  sorry
-</code></pre>
-<h1 id="another-example"><a class="header" href="#another-example">ANOTHER EXAMPLE</a></h1>
-<p>The following examples requires Classical reasoning. In the reverse direction, just because you have a proof that r implies ∃ x, p x doesn't mean that assume there exists an x such that r → p x, because that would require a proof of r itself. So we expect to use by_cases on r to show the reverse direction when r is true and when r is false.</p>
-<pre><code class="language-lean">example (r : Prop) (a : Type) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
-  sorry
-</code></pre>
-<h1 id="induction"><a class="header" href="#induction">INDUCTION</a></h1>
+<h1 id="the-induction-tactic"><a class="header" href="#the-induction-tactic">The <code>induction</code> Tactic</a></h1>
 <p>Proof by induction works for all inductive types. It is similar to using cases, but it adds an <code>inductive hypothesis</code> where needed.</p>
 <p>As an example, consider the natural numbers and suppose P : Nat → Prop is a property. To prove P with induction, you do :</p>
-<pre><code>`BASE CASE`: P(0)
-`INDUCTIVE STEP`: ∀ n, P(n) → P(n+1)
-</code></pre>
+<ul>
+<li><strong>BASE CASE</strong>: P(0)</li>
+<li><strong>INDUCTIVE STEP</strong>: ∀ n, P(n) → P(n+1)</li>
+</ul>
 <pre><code class="language-lean">def E (n : Nat) : Prop := match n with
   | Nat.zero =&gt; True
   | Nat.succ x =&gt; ¬E x
@@ -373,41 +361,9 @@ example : ∀ n : Nat, E n ∨ E n.succ := by
     . intro h3
       exact Or.inl h3
 </code></pre>
-<h1 id="tactic-documentation"><a class="header" href="#tactic-documentation">TACTIC DOCUMENTATION</a></h1>
+<h2 id="tactic-documentation"><a class="header" href="#tactic-documentation">Tactic Documentation</a></h2>
 <p>There are a lot of tactics:</p>
 <p>https://github.com/haruhisa-enomoto/mathlib4-all-tactics/blob/main/all-tactics.md</p>
-<h1 id="solutions"><a class="header" href="#solutions">SOLUTIONS</a></h1>
-<pre><code class="language-lean">example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
-  apply Iff.intro
-  . intro h x hp
-    exact h (Exists.intro x hp)
-  . intro h hepx
-    apply Exists.elim hepx
-    intro x hpa
-    exact (h x) hpa
-
-example (n : Nat) : n = 0 ∨ ∃ x , n = Nat.succ x := by
-  by_cases h : n = 0
-  . exact Or.inl h
-  . apply Or.inr
-    apply Exists.intro (n-1)
-    exact Eq.symm (Nat.succ_pred_eq_of_ne_zero h)
-
-example (r : Prop) (a : Type) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
-  apply Iff.intro
-  . intro ⟨ x, hrp ⟩ hr
-    exact ⟨ x, hrp hr ⟩
-  . intro hrp
-    by_cases h : r
-    . apply Exists.elim (hrp h)
-      intro c hpc
-      apply Exists.intro c
-      intro _
-      exact hpc
-    . apply Exists.intro a
-      intro hr
-      exact False.elim (h hr)
-</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
 
@@ -415,11 +371,11 @@ Copyright © Eric Klavins, 2025-Present
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="Equality.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="FirstOrderLogic.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="Hierarchies.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="Equality.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -429,11 +385,11 @@ Copyright © Eric Klavins, 2025-Present
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="Equality.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="FirstOrderLogic.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="Hierarchies.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="Equality.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
