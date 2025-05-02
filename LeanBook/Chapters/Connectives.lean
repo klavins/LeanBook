@@ -23,7 +23,7 @@ inductive And (φ ψ : Prop) : Prop where
 - h is evidence that the type And p q is not empty
 - h is a proof of the proposition And p q.
 
-## A PROOF OF A SIMPLE PROPOSITION
+## A Proof of a Simple Proposition
 
 Consider the proposition
 ```
@@ -101,7 +101,7 @@ inductive Or (φ ψ : Prop) : Prop where
 example (p q : Prop) : And p q → Or p q :=
   λ hpq => Or.inr hpq.right
 
-/- ## OR ELIMINATION
+/- ## Or Elimination
 
 Recall the inference rule
 ```
@@ -167,9 +167,9 @@ example (p q : Prop): And p (Not p) → q :=
 example : False → True :=
   λ h => False.elim h
 
-/- ## NOTATION
+/- ## Notation
 
-The main difference between what we have defined here and Lean is that Lean defines notation like ∨ and ∧. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.
+The main difference between what we have defined here and Lean is that Lean defines notation like `∨` and `∧`. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.
 ```hs
 infixr:30 " ∨ "  => Temp.Or
 infixr:35 " ∧ "   => Temp.And
@@ -211,7 +211,7 @@ example : (p → q) → (¬q → ¬p) := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 
 
-/- # REFERENCES
+/- ## References
 
 - https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html
 
