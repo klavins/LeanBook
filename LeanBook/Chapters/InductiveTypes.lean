@@ -132,7 +132,7 @@ def e := add (var "x") (mul (neg (var "y")) (var "z"))
 #reduce e.swap -- -zy+x
 
 
-/- # INDUCTIVE TYPES MAY DEPEND ON OTHER TYPES
+/- ## Inductive Types May Depend on Other Types
 
 The types we have defined so far do not interact with other types. Here's an example that does: Lists of Nats. -/
 

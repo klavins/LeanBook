@@ -1,4 +1,5 @@
-<span style='color: orange'>***UNDER CONSTRUCTION***</span>
+<span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/SUMMARY.lean'>Code</a> for this chapter</span>
 
 
 [Foundations of Lean](./Introduction.md)

@@ -160,10 +160,159 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
-<h1 id="todo"><a class="header" href="#todo">TODO</a></h1>
-<p>Lorum ipsum.</p>
-<pre><code class="language-lean">#check true
+                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Quotients.lean'>Code</a> for this chapter</span></p>
+<h1 id="quotients"><a class="header" href="#quotients">Quotients</a></h1>
+<h2 id="a-nonstandard-point-type"><a class="header" href="#a-nonstandard-point-type">A Nonstandard Point Type</a></h2>
+<p>To motivate the case for quotients, let's consider a simple, easy to understand, but nonstandard, way of defining pairs of natural numbers. Instead of taking the cross product of Nat with itself, let's define a new inductive type <code>Walk</code> as follows:</p>
+<pre><code class="language-lean">inductive Walk where
+  | zero : Walk
+  | up : Walk → Walk
+  | right : Walk → Walk
+
+open Walk
+</code></pre>
+<p>The idea is that starting at (0,0) we can walk up or to the right to get to another point. Clearly, we have multiple ways to represent the same endpoint though. For example, we want to think of the following as equivalent:</p>
+<pre><code class="language-lean">#check zero.up.right
+#check zero.right.up
+</code></pre>
+<p>The point of quotients is to allow us to talk about points up to equivalence, and not worry about which representative of a particular set of equivalent points we are talking about.</p>
+<p>To start, we define the coordinates of a given walk. Let's do this first, and then define two Walks as equivalent if they give the same coordinates.</p>
+<pre><code class="language-lean">def Walk.x (p : Walk) : Nat := match p with
+  | zero =&gt; 0
+  | up q =&gt; x q
+  | right q =&gt; 1 + x q
+
+def Walk.y (p : Walk) : Nat := match p with
+  | zero =&gt; 0
+  | up q =&gt; 1 + y q
+  | right q =&gt; y q
+
+def a := zero.right.up.up.up.right
+def b := zero.up.right.up.right.up
+
+#eval (a.x,a.y)
+#eval (b.x,b.y)
+</code></pre>
+<p>Now we define what it means for two points to be equivalent.</p>
+<pre><code class="language-lean">def eq (p q: Walk) := p.x = q.x ∧ p.y = q.y
+
+example : eq a b := by
+  exact ⟨ rfl, rfl ⟩
+</code></pre>
+<p>This seems great, but now imagine we defined addition on Walk and had a theorem like <code>a+b=b+a</code> where <code>a</code> and <code>b</code> are Walks. We would have to state the theorem as <code>eq (a+b) (b+a)</code>. This is actually weaker than what we could say. In fact, we could say that for every <code>x</code> equivalent to  <code>a</code> and every <code>y</code> equivalent to <code>b</code>, that <code>eq (a+b) (y+x)</code>. Even better, we could define the <strong>equivalence class</strong> ⟦a⟧ of all Walks <code>x</code> such that <code>eq a x</code>. And then prove <code>⟦a+b⟧ = ⟦b+a⟧</code> where the <code>=</code> in this statement is set equality.</p>
+<p>The idea behind quotients is to <code>lift</code> our <code>eq</code> relation to actual equality, make proving these kinds of statements straightfoward.</p>
+<h2 id="equivalence-relations-and-setoids"><a class="header" href="#equivalence-relations-and-setoids">Equivalence Relations and Setoids</a></h2>
+<p>An <strong>equivalence relation</strong> is a relation that is reflexive, symmetric, and transitive. To define a decent quotient space, we need to first show our relation has these properties. This is pretty easy.</p>
+<pre><code class="language-lean">theorem eq_refl (p: Walk) : eq p p := by
+  exact ⟨ rfl, rfl ⟩
+
+theorem eq_symm {p q: Walk} : eq p q → eq q p := by
+  intro ⟨ h1, h2 ⟩
+  exact ⟨ h1.symm, h2.symm ⟩
+
+theorem eq_trans {p q r: Walk} : eq p q → eq q r → eq p r := by
+  intro ⟨ h1, h2 ⟩ ⟨ h3, h4 ⟩
+  exact ⟨ Eq.trans h1 h3, Eq.trans h2 h4 ⟩
+</code></pre>
+<p>With these theorems in place, we can claim <code>eq</code> is a proper equivalence relation.</p>
+<pre><code class="language-lean">instance eq_equiv : Equivalence eq :=
+  ⟨ eq_refl, eq_symm, eq_trans ⟩
+
+instance walk_has_equiv : HasEquiv Walk :=
+  ⟨ eq ⟩
+</code></pre>
+<p>This allows us to use the Lean standard library notation <code>≈</code> defined for equivalence relations.</p>
+<pre><code class="language-lean">#check a ≈ b     -- notation for eq a b
+</code></pre>
+<p>A <strong>setoid</strong> is a set <code>X</code> along with an equivalence relation <code>∼</code> and in the literature is written <code>(X,∼)</code>. For Lean, a setoid is a step along the path to a quotient space. For Point we can simply write the following.</p>
+<pre><code class="language-lean">instance walk_setoid : Setoid Walk :=
+  ⟨ eq, eq_equiv ⟩
+</code></pre>
+<h2 id="quotients-1"><a class="header" href="#quotients-1">Quotients</a></h2>
+<p>Given a setoid <code>(X,∼)</code>, we can form the <em>quotient</em> of <code>X</code>, which is the set of all equivalence classes of elements in <code>X</code> with respect to <code>~</code>. We denote this class <code>X/~</code> in the literature. In Lean we use the <code>Quotient</code> type.</p>
+<pre><code class="language-lean">#check Quotient          -- Construct a quotient space from a Setoid
+#check Quotient.mk       -- Make an equivalence class
+</code></pre>
+<p>For our extended example, we can form the quotient and a constructor <code>p</code> as follows:</p>
+<pre><code class="language-lean">def Point := Quotient walk_setoid
+def p (w : Walk) : Point := Quotient.mk walk_setoid w
+
+#check Point
+#check p a      -- all walks equivalent to a
+#check p b      -- all walks equivalent to b
+
+example : (p a) = (p b) := by
+  apply Quot.sound
+  simp[walk_setoid,eq]
+  exact ⟨ rfl, rfl ⟩
+</code></pre>
+<h1 id="lifting"><a class="header" href="#lifting">Lifting</a></h1>
+<p>We can define functions on the underlying space Walk and <strong>lift</strong> them to the quotient space as long as the function respects equality. That is, we require that if a ≈ b then f a ≈ f b. The work is then done by <code>Quotient.lift</code>.</p>
+<pre><code class="language-lean">#check Quotient.lift     -- Extend a function on `X` to a function on `X/~`
+</code></pre>
+<p>Obvious first candidates for lifting are the coordinate functions Walk.x and Walk.y. Let's show those respect equivalence.</p>
+<pre><code class="language-lean">theorem walk_x_respects : ∀ a b, a ≈ b → x a = x b := by
+  intro a b hab
+  exact hab.left
+
+theorem walk_y_respects : ∀ a b, a ≈ b → y a = y b := by
+  intro a b hab
+  exact hab.right
+</code></pre>
+<p>Now we can lift the coordinate functions to Point.</p>
+<pre><code class="language-lean">def X (a: Point) : ℕ := Quotient.lift x walk_x_respects a
+def Y (a: Point) : ℕ := Quotient.lift x walk_x_respects a
+
+#eval X (p a)
+#eval Y (p a)
+</code></pre>
+<p>TODO: SHOW A THEOREM USING X AND Y
+Here is another example in which we define a function <code>swap</code> that swaps all ups with rights and <em>vice verse</em>. We also show a simple theorem showing that walk_swap composed with itself is the identity. Our goal will be to lift both of these to the quotient space.</p>
+<pre><code class="language-lean">def walk_swap (a : Walk) : Walk := match a with
+  | zero =&gt; a
+  | up b =&gt; right (walk_swap b)
+  | right b =&gt; up (walk_swap b)
+
+theorem walk_swap_swap (a : Walk) : walk_swap (walk_swap a) = a := by
+  induction a with
+  | zero =&gt; rfl
+  | up b hb =&gt;
+    conv =&gt;
+      right
+      rw[←hb]
+    rfl
+  | right b hb =&gt;
+    conv =&gt;
+      right
+      rw[←hb]
+    rfl
+</code></pre>
+<p>To lift walk_swap to Points, we need to show it respects equilvalence and then use <code>Quotient,lift</code>.</p>
+<pre><code class="language-lean">theorem swap_respects : ∀ a b, a ≈ b → walk_swap a = walk_swap b := sorry
+
+-- Question: Is this helping somehow with the axiom of choice? Because I could
+-- define swap x = p (walk_swap a) for some a, but I don't know how to choose the a?
+def swap (x: Point) : Point := p (Quotient.lift walk_swap swap_respects x)
+
+theorem swap_swap (x : Point) : swap (swap x) = x := by
+  unfold swap p swap_respects
+
+  sorry
+</code></pre>
+<p>We can also lift binary functions. For example, we define a notion of adding two walks together that simply concatenates the moves from each walk.</p>
+<pre><code class="language-lean">def walk_add (a b : Walk) : Walk := match a with
+  | zero =&gt; b
+  | up c =&gt; up (walk_add c b)
+  | right c =&gt; right (walk_add c b)
+</code></pre>
+<p>Next we prove a theorem showing add respects equivalence.</p>
+<pre><code class="language-lean">theorem add_resepcts {c: Walk} : ∀ a b, a ≈ b → walk_add c a = walk_add c b := sorry
+
+def add := Quotient.lift
+
+#check Quotient.sound    -- Relate equivalence class equality to member equality
+#check Quotient.ind      -- Induction for quotients
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present

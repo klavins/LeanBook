@@ -15,7 +15,11 @@ f = open(sys.argv[1], "r", encoding='utf-8')
 
 data = f.read()
 
-print("<span style='color: orange'>***UNDER CONSTRUCTION***</span>")
+print("<span style='color: orange'>***UNDER CONSTRUCTION***</span><br>")
+
+print("<span style='color: lightgray; font-size: 10pt'>"
+      + "<a href='https://github.com/klavins/LeanBook/blob/main/main/" + sys.argv[1] + "'>"
+      + "Code</a> for this chapter</span>")
 
 comment = r'(?s:(/-.*?-/))'
 

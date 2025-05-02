@@ -160,12 +160,17 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
-<h1 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type">AND IS AN INDUCTIVE TYPE</a></h1>
+                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Connectives.lean'>Code</a> for this chapter</span></p>
+<h1 id="propositional-logic-connectives"><a class="header" href="#propositional-logic-connectives">Propositional Logic Connectives</a></h1>
+<p>One of the remarkable things about inductive types is that the capture all of propositional logic, first order logic, and more. Thus, instead of defining <em>and</em>, <em>or</em> and the other logical connectives as built-in operators in the Lean language, they are just defined in the standard library in terms of more primited inductive types.</p>
+<pre><code class="language-lean">namespace Temp
+</code></pre>
+<h2 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type"><em>And</em> is an Inductive Type</a></h2>
 <p>Recall the inference rule</p>
-<pre><code>             Γ ⊢ φ   Γ ⊢ ψ
-`∧-Intro` ———————————————————
-              Γ ⊢ φ ∧ ψ
+<pre><code>                 Γ ⊢ φ   Γ ⊢ ψ
+    ∧-Intro ———————————————————
+                  Γ ⊢ φ ∧ ψ
 </code></pre>
 <p>It states that whenever we know propositions φ and ψ, then we know φ ∧ ψ. From the point of view of types, it says that if φ and ψ are of type Prop, then so is φ ∧ ψ. In Lean we can write this as an inductive type definition as follows.</p>
 <pre><code class="language-lean">inductive And (φ ψ : Prop) : Prop where
@@ -177,28 +182,25 @@
 <li>h is evidence that the type And p q is not empty</li>
 <li>h is a proof of the proposition And p q.</li>
 </ul>
-<pre><code class="language-lean">-- p ∧ q
-</code></pre>
-<h1 id="a-proof-of-a-simple-proposition"><a class="header" href="#a-proof-of-a-simple-proposition">A PROOF OF A SIMPLE PROPOSITION</a></h1>
+<h2 id="a-proof-of-a-simple-proposition"><a class="header" href="#a-proof-of-a-simple-proposition">A PROOF OF A SIMPLE PROPOSITION</a></h2>
 <p>Consider the proposition</p>
-<p>p → q → And p q</p>
+<pre><code>p → q → And p q
+</code></pre>
 <p>As a type, this proposition is a function from p to q to And p q. Thus, we know that an element of this type has the form</p>
-<p>λ hp =&gt; λ hq =&gt; sorry</p>
+<pre><code>λ hp =&gt; λ hq =&gt; sorry
+</code></pre>
 <p>For the body of this lambda abstraction, we need to <code>introduce</code> an And type, which requires proofs of p and q respectively. Using the inductive definition of And we get</p>
-<p>λ hp hq =&gt; And.intro hp hq</p>
+<pre><code>λ hp hq =&gt; And.intro hp hq
+</code></pre>
 <pre><code class="language-lean">def g (p q : Prop) : p → q → And p q :=
   λ hp =&gt; λ hq =&gt; And.intro hp hq
-
-
-
---  λ hp : p =&gt; λ hq : q =&gt; And.intro hp hq
 </code></pre>
-<h1 id="and-eliminiation"><a class="header" href="#and-eliminiation">AND ELIMINIATION</a></h1>
+<h2 id="and-eliminiation"><a class="header" href="#and-eliminiation">And Eliminiation</a></h2>
 <p>The elimination rules for And are</p>
-<pre><code>              Γ ⊢ φ ∧ ψ                            Γ ⊢ φ ∧ ψ
+<pre><code>                Γ ⊢ φ ∧ ψ                          Γ ⊢ φ ∧ ψ
+  ∧-Elim-Left ——————————————         ∧-Elim-Right —————————————
+                  Γ ⊢ φ                              Γ ⊢ ψ
 </code></pre>
-<p><code>∧-Elim-Left</code> ——————————————         <code>∧-Elim-Right</code> —————————————
-Γ ⊢ φ                                Γ ⊢ ψ</p>
 <p>which we can write in Lean as</p>
 <pre><code class="language-lean">def And.left {p q : Prop} (hpq : And p q) :=
   match hpq with
@@ -208,51 +210,49 @@ def And.right {p q : Prop} (hpq : And p q) :=
   match hpq with
   | And.intro _ hq =&gt; hq
 </code></pre>
-<h1 id="proofs-with-and-elimination"><a class="header" href="#proofs-with-and-elimination">PROOFS WITH AND ELIMINATION</a></h1>
+<h1 id="proofs-with-and-elimination"><a class="header" href="#proofs-with-and-elimination">Proofs with And-Elimination</a></h1>
 <p>With these inference rules, we can do even more proofs:</p>
 <pre><code class="language-lean">example (p q : Prop) : (And p q) → p :=
   λ hpq =&gt; And.left hpq
 
---  λ hpq =&gt; And.left hpq
-
 example (p q : Prop) : (And p q) → (And q p) :=
   λ hpq =&gt; And.intro hpq.right hpq.left
 </code></pre>
-<h1 id="match-is-enough"><a class="header" href="#match-is-enough">MATCH IS ENOUGH</a></h1>
-<p>Note that the elimination rules above are a <code>convenience</code> we defined to make the proof look more like propositional logic. We could also just write:</p>
-<pre><code class="language-lean">theorem nels (p q : Prop) : (And p q) → p :=
+<h3 id="match-is-enough"><a class="header" href="#match-is-enough">Match is Enough</a></h3>
+<p>Note that the elimination rules above are a <em>convenience</em> we defined to make the proof look more like propositional logic. We could also just write:</p>
+<pre><code class="language-lean">example (p q : Prop) : (And p q) → p :=
   λ hpq =&gt; match hpq with
     | And.intro hp _ =&gt; hp
 </code></pre>
 <p>This pattern suggests that with inductive types, we can think of match as a generic elimination rule.</p>
-<h1 id="or-is-also-inductive"><a class="header" href="#or-is-also-inductive">OR IS ALSO INDUCTIVE</a></h1>
+<h2 id="or-is-inductive"><a class="header" href="#or-is-inductive">Or is Inductive</a></h2>
 <p>To introduce new OR propositions, we use the two introduction rules</p>
-<pre><code>               Γ ⊢ φ                                Γ ⊢ ψ
+<pre><code>                 Γ ⊢ φ                              Γ ⊢ ψ
+ ∨-Intro-Left ———————————          ∨-Intro-Right ————————————
+               Γ ⊢ φ ∨ ψ                          Γ ⊢ φ ∨ ψ
 </code></pre>
-<p><code>∨-Intro-Left</code> ———————————          <code>∨-Intro-Right</code> ————————————
-Γ ⊢ φ ∨ ψ                            Γ ⊢ φ ∨ ψ</p>
 <p>In Lean, we have</p>
 <pre><code class="language-lean">inductive Or (φ ψ : Prop) : Prop where
   | inl (h : φ) : Or φ ψ
   | inr (h : ψ) : Or φ ψ
 </code></pre>
-<p>And use this inference rule in proofs as well.</p>
+<p>And we can use this inference rule in proofs as well.</p>
 <pre><code class="language-lean">example (p q : Prop) : And p q → Or p q :=
   λ hpq =&gt; Or.inr hpq.right
 </code></pre>
-<h1 id="or-elimination"><a class="header" href="#or-elimination">OR ELIMINATION</a></h1>
+<h2 id="or-elimination"><a class="header" href="#or-elimination">OR ELIMINATION</a></h2>
 <p>Recall the inference rule</p>
-<pre><code>         Γ,p ⊢ r    Γ,q ⊢ r    Γ ⊢ p ∨ q
+<pre><code>           Γ,p ⊢ r    Γ,q ⊢ r    Γ ⊢ p ∨ q
+  ∨-Elim ————————————————————————————————————
+                       Γ ⊢ r
 </code></pre>
-<p><code>∨-Elim</code> ————————————————————————————————————
-Γ ⊢ r</p>
-<p>It allows us to prove r given proofs that p → r, q → r and p ∨ q. We can define this rule in Lean with:</p>
+<p>It allows us to prove r given proofs that <code>p → r</code>, <code>q → r</code> and <code>p ∨ q</code>. We can define this rule in Lean with:</p>
 <pre><code class="language-lean">def Or.elim {p q r : Prop} (hpq : Or p q) (hpr : p → r) (hqr : q → r) :=
   match hpq with
   | Or.inl hp =&gt; hpr hp
   | Or.inr hq =&gt; hqr hq
 </code></pre>
-<h1 id="example-or-elim-proof"><a class="header" href="#example-or-elim-proof">EXAMPLE OR ELIM PROOF</a></h1>
+<h1 id="example-of-and-or-elim-proof"><a class="header" href="#example-of-and-or-elim-proof">Example of and Or-Elim Proof</a></h1>
 <p>Here is an example proof using introduction and elimination.</p>
 <pre><code class="language-lean">example (p q : Prop): Or p q → Or q p :=
   λ hpq =&gt; Or.elim
@@ -261,35 +261,23 @@ example (p q : Prop) : (And p q) → (And q p) :=
     (λ hq =&gt; Or.inl hq)               -- q → (q ∨ p)
 </code></pre>
 <p>Once again, the elimination rule is just a convenience and the proof could be written with match.</p>
-<h1 id="false-is-inductive"><a class="header" href="#false-is-inductive">FALSE IS INDUCTIVE</a></h1>
-<p>Finally, we have False. Which has no introduction rule, kind of like Empty, except we add the requirement that False is also type of Prop.</p>
+<h2 id="false-is-inductive"><a class="header" href="#false-is-inductive">False is Inductive</a></h2>
+<p>Finally, we have <code>False</code>, which has no introduction rule, kind of like <code>Empty</code>, except we add the requirement that <code>False</code> is also type of <code>Prop</code>.</p>
 <pre><code class="language-lean">inductive False : Prop
 </code></pre>
-<p>From False we get the Not connective, which is just "syntactic sugar".</p>
+<p>From False we get the <code>Not</code> connective, which is just "syntactic sugar".</p>
 <pre><code class="language-lean">def Not (p : Prop) : Prop := p → False
 </code></pre>
 <p>Here is an example proof:</p>
 <pre><code class="language-lean">example (p q : Prop): (p → q) → (Not q → Not p) :=
   λ hpq hq =&gt; λ hp =&gt; hq (hpq hp)
-
-example (p q : Prop): (p → q) → (Not q → Not p) :=
-  λ hpq hq =&gt; λ hp =&gt; sorry
-
-example (p q : Prop): (p → q) → (Not q → Not p) :=
-  λ hpq hq =&gt; λ hp =&gt; hq sorry
-
-example (p q : Prop): (p → q) → (Not q → Not p) :=
-  λ hpq hq =&gt; λ hp =&gt; hq (hpq sorry)
-
-example (p q : Prop): (p → q) → (Not q → Not p) :=
-  λ hpq hq =&gt; λ hp =&gt; hq (hpq hp)
 </code></pre>
-<h1 id="false-elimination"><a class="header" href="#false-elimination">FALSE ELIMINATION</a></h1>
+<h2 id="false-elimination"><a class="header" href="#false-elimination">False Elimination</a></h2>
 <p>To define the elimination rule for false</p>
-<pre><code>         Γ ⊢ ⊥
+<pre><code>           Γ ⊢ ⊥
+  ⊥-Elim ——————————
+           Γ ⊢ p
 </code></pre>
-<p><code>⊥-Elim</code> ——————————
-Γ ⊢ p</p>
 <p>we take advantage of the fact that False was defined inductively.</p>
 <pre><code class="language-lean">def False.elim { p : Prop } (h : False) : p :=
   nomatch h
@@ -302,35 +290,26 @@ example (p q : Prop): (p → q) → (Not q → Not p) :=
 <pre><code class="language-lean">example : False → True :=
   λ h =&gt; False.elim h
 </code></pre>
-<h1 id="notation"><a class="header" href="#notation">NOTATION</a></h1>
+<h2 id="notation"><a class="header" href="#notation">NOTATION</a></h2>
 <p>The main difference between what we have defined here and Lean is that Lean defines notation like ∨ and ∧. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.</p>
-<p>infixr:30 " ∨ "  =&gt; Temp.Or
+<pre><code class="language-hs">infixr:30 " ∨ "  =&gt; Temp.Or
 infixr:35 " ∧ "   =&gt; Temp.And
-notation:max "¬" p:40 =&gt; Temp.Not p</p>
-<p>The numbers define the precedence of the operations. So v has lower precedence than n, which has lower precedence than -.</p>
+notation:max "¬" p:40 =&gt; Temp.Not p
+</code></pre>
+<p>The numbers define the precedence of the operations. So <code>v</code> has lower precedence than <code>∧</code>, which has lower precedence than <code>-</code>.</p>
 <p>Now we can write</p>
 <pre><code class="language-lean">end Temp -- start using Lean's propositions
 
 example (p q : Prop): (p ∧ (¬p)) → q :=
   λ h =&gt; False.elim (h.right h.left)
 </code></pre>
-<h1 id="examples"><a class="header" href="#examples">EXAMPLES</a></h1>
-<p>You should try to do as many of these as possible</p>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<p>You should try to do as many of these as possible. These are borrowed from the <a href="https://lean-lang.org/theorem_proving_in_lean4/title_page.html">Theorem Proving in Lean Book</a>.</p>
 <pre><code class="language-lean">variable (p q r : Prop)
 
 example (h : p ∨ q) : q ∨ p := sorry
 example : p ∧ q ↔ q ∧ p := sorry
 example : p ∨ q ↔ q ∨ p := sorry
-
-@[simp]
-theorem iff_and_equiv : (p ↔ q) → ((p → q) ∧ (q → p)) :=
-  λ hiff =&gt; ⟨ hiff.mp, hiff.mpr ⟩
-
-example : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) :=
-  Iff.intro
-  (λ h =&gt; And.intro h.left.left (And.intro h.left.right h.right))
-  (λ h =&gt; And.intro (And.intro h.left h.right.left) h.right.right)
-
 example : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := sorry
 example : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := sorry
 example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := sorry

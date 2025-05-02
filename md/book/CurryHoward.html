@@ -160,20 +160,29 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span>
-<strong>THE CURRY-HOWARD ISOMORPHISM</strong></p>
-<h1 id="statements-contexts-judgement"><a class="header" href="#statements-contexts-judgement">STATEMENTS, CONTEXTS, JUDGEMENT</a></h1>
+                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/CurryHoward.lean'>Code</a> for this chapter</span></p>
+<h1 id="the-curry-howard-isomorphism"><a class="header" href="#the-curry-howard-isomorphism">The Curry-Howard Isomorphism</a></h1>
+<p>Much of this chapter is an adaptation of the section of the book <em>Lectures on the Curry-Howard Isomorphism</em> by Morten Heine Sørensen and Pawel Urzyczyn. In particular, Chapter 4 of that book describes Intuitionistic Propositional Logic.</p>
+<h1 id="statements-contexts-and-judgements"><a class="header" href="#statements-contexts-and-judgements">Statements, Contexts, and Judgements</a></h1>
 <p>When we introduced the Simply Typed Lambda Calculus, we informally defined the type rules VAR, ABST and APPL. Here we define the typing system formally.</p>
+<ul>
+<li>
 <p>A <strong>type statement</strong> is a pair x : σ where x is a type variable and σ is a type. We say "x is of type σ".</p>
+</li>
+<li>
 <p>A <strong>typing context</strong> Γ is a finite set of type state statements.</p>
+</li>
+<li>
 <p>A <strong>judgement</strong> is an expression of the form Γ ⊢ M : σ where Γ is a typing context, M is a simply typed λ-calculus statement, and σ is a type.</p>
+</li>
+</ul>
 <p>For example, here is a judgment that states: "When f is a function from α to β and x is of type α, then f x is of type β. "</p>
-<pre><code class="language-hs">  { f : α → β, x : α }  ⊢ f x : β
+<pre><code>  { f : α → β, x : α }  ⊢ f x : β
 </code></pre>
-<h1 id="formal-typing-rules"><a class="header" href="#formal-typing-rules">FORMAL TYPING RULES</a></h1>
+<h2 id="typing-rules"><a class="header" href="#typing-rules">Typing Rules</a></h2>
 <p>Typing rules are written the same way as the inference rules in propositional logic.</p>
-<pre><code class="language-hs">
-  VAR   ————————————————
+<pre><code>  VAR   ————————————————
           Γ,x:τ ⊢ x:τ
 
                Γ,x:σ ⊢ M : τ
@@ -187,117 +196,136 @@
 <p>The first rule says that if a context defines x to have type τ then (somewhat obviously) we can conclude x has type τ.</p>
 <p>The second rule says that if our context defines x : σ and entails that M : τ, then we can form an abstraction from x and M that has type σ to τ.</p>
 <p>The third rule says that if Γ entails both that M : σ→τ and N : σ, then the application of M to N has type τ.</p>
-<h1 id="example"><a class="header" href="#example">EXAMPLE</a></h1>
+<h3 id="example"><a class="header" href="#example">Example</a></h3>
 <p>Q: Find the type of</p>
-<p>λ x : A =&gt; x</p>
+<pre><code>λ x : A =&gt; x
+</code></pre>
 <p>A: Working backwards from this goal we use ABST with τ=A and M=x to get</p>
-<p>x:A ⊢ x:A</p>
+<pre><code>x:A ⊢ x:A
+</code></pre>
 <p>Then we use VAR. So the expression has type A→A and a proof of this is:</p>
-<ol>
-<li>x:A ⊢ x:A                  axiomatically</li>
-<li>(λ x : A =&gt; x) : A→A       by ABST</li>
-</ol>
+<pre><code>1) x:A ⊢ x:A                  axiomatically
+2) (λ x : A =&gt; x) : A→A       by ABST
+</code></pre>
 <p>As we have seen, Lean figures this out automatically.</p>
 <pre><code class="language-lean">#check λ x : _ =&gt; x
 </code></pre>
 <h1 id="example-1"><a class="header" href="#example-1">EXAMPLE</a></h1>
 <p>Q: Find the types of x and y in</p>
-<p>λ x =&gt; λ y =&gt; x y</p>
+<pre><code>λ x =&gt; λ y =&gt; x y
+</code></pre>
 <p>A: Using the ABST rule gives</p>
-<p>x : B   ⊢  λ y =&gt; x y : A</p>
+<pre><code>x : B   ⊢  λ y =&gt; x y : A
+</code></pre>
 <p>for some types A and B. Using ABST again gives</p>
-<p>x : B, y : C   ⊢  x y : A</p>
+<pre><code>x : B, y : C   ⊢  x y : A
+</code></pre>
 <p>for some type C. Next we use the APPL rule with M = x, N = y, σ = C, τ = A</p>
-<p>x : B, y : C  ⊢  x : C → A
-x : B, y : C  ⊢  y : C</p>
+<pre><code>x : B, y : C  ⊢  x : C → A
+x : B, y : C  ⊢  y : C
+</code></pre>
 <p>These judgements would hold if B we equal to C→A. So we make that substitution so the above axioms hold to get:</p>
-<p>λ x : C → A =&gt; λ y : C =&gt; x y</p>
+<pre><code>λ x : C → A =&gt; λ y : C =&gt; x y
+</code></pre>
 <p>for some types C and A. Generally speaking, type inference involves applying typing rules, accumulating type equations, and then solving the equations, all of which is done very efficiently in Lean's kernel.</p>
-<h1 id="example-2"><a class="header" href="#example-2">EXAMPLE</a></h1>
+<h1 id="example-2"><a class="header" href="#example-2">Example</a></h1>
 <p>Q: Find the overall type of the previous expression.</p>
 <p>A: Following the derivation above in reverse gives the following type inference proof tree:</p>
-<pre><code>————————————————————————————— VAR    ————————————————————————————— VAR
- x : C → A, y : C  ⊢  x : C → A       x : C → A, y : C  ⊢  y : C
-———————————————————————————————————————————————————————————————————— APPL
-                  x : C → A, y : C   ⊢  x y : A
-             ————————————————————————————————————————— ABST
-                x : C → A  ⊢  λ y : C =&gt; x y : C → A
-        ————————————————————————————————————————————————————— ABST
-         ⊢  λ x : C → A =&gt; λ y : C =&gt; x y : (C → A) → C → A
+<pre><code>    ————————————————————————————— VAR    ————————————————————————————— VAR
+     x : C → A, y : C  ⊢  x : C → A       x : C → A, y : C  ⊢  y : C
+    ———————————————————————————————————————————————————————————————————— APPL
+                      x : C → A, y : C   ⊢  x y : A
+                 ————————————————————————————————————————— ABST
+                    x : C → A  ⊢  λ y : C =&gt; x y : C → A
+            ————————————————————————————————————————————————————— ABST
+             ⊢  λ x : C → A =&gt; λ y : C =&gt; x y : (C → A) → C → A
 </code></pre>
-<p>Thus, the type of λ x =&gt; λ y =&gt; x y is (C → A) → C → A. Note that with a little help, Lean can figure this out for us, but we do need to tell it that x is a function type of some kind.</p>
+<p>Thus, the type of <code>λ x =&gt; λ y =&gt; x y</code> is <code>(C → A) → C → A</code>. Note that with a little help, Lean can figure this out for us, but we do need to tell it that <code>x</code> is a function type of some kind.</p>
 <pre><code class="language-lean">#check λ x : _ → _ =&gt; λ y : _ =&gt; x y
 </code></pre>
-<h1 id="curry-howard-isomorphism-intuition"><a class="header" href="#curry-howard-isomorphism-intuition">CURRY-HOWARD ISOMORPHISM INTUITION</a></h1>
+<h2 id="curry-howard-isomorphism-intuition"><a class="header" href="#curry-howard-isomorphism-intuition">Curry-Howard Isomorphism Intuition</a></h2>
 <p>Consider the two types we just found:</p>
-<p>A → A
-(C → A) → C → A</p>
-<p>The first one is the type of a function on. The second one is the type of a function that takes a function on C → A.</p>
+<pre><code>A → A
+(C → A) → C → A
+</code></pre>
+<p>The first one is the type of a function on. The second one is the type of a function that takes a function on <code>C → A</code>.</p>
 <p>Wwe can also read these as propositional formulas which state</p>
-<p>A implies A
-(C implies A) implies C implies A</p>
+<pre><code>A implies A
+(C implies A) implies C implies A
+</code></pre>
 <p>It is not a coincidence that these are both tautologies.</p>
 <p>The Curry-Howard Isomorphism emerges from the observation that the λ expressions that have the above types look a lot like the proofs that the above implications are tautologies!</p>
 <p>With this observation, the statement x : A reads "x is a proof of A".</p>
-<p>λ x : A =&gt; x</p>
+<pre><code>λ x : A =&gt; x
+</code></pre>
 <p>is a method that takes a proof of A and returns a proof of A, proving the implication A → A.</p>
-<h1 id="curry-howard-types--propositions"><a class="header" href="#curry-howard-types--propositions">CURRY-HOWARD: TYPES → PROPOSITIONS</a></h1>
-<p>To state the CHI exacly, we will restrict ourselves to showing that Propositional Logic with only implication (→) is isomorphic to the simply typed λ-calculus. We will ned once definition.</p>
-<p><code>DEF</code> Given a context Γ = { x₁: φ₁, x₂ : φ₂, ..., xₙ : φₙ }, the <em>range</em> of Γ, denoted |Γ|, is { φ₁, φ₂, ..., φₙ }.</p>
-<p><code>THEOREM</code> If Γ ⊢ M : φ then |Γ| ⊢ φ.</p>
-<p><code>PROOF</code> We convert any type derivation tree into a propositional proof by replacing VAR with AX, ABST with →-Intro, and APPL with →-Elim. This is done by induction on the proof tree. Here we just show an example which should be easily generalized. The type proof tree in the previous section can be re-written be removing all "x : "</p>
-<pre><code>————————————————————— AX       ———————————————————— AX
- C → A, C  ⊢  C → A               C → A, C  ⊢  C
+<h2 id="curry-howard-types--propositions"><a class="header" href="#curry-howard-types--propositions">Curry-Howard: Types → Propositions</a></h2>
+<p>To state the CHI exacly, we will restrict ourselves to showing that Propositional Logic with only implication (→) is isomorphic to the simply typed λ-calculus. We will need one definition.</p>
+<p><strong>Def:</strong> Given a context Γ = { x₁: φ₁, x₂ : φ₂, ..., xₙ : φₙ }, the <em>range</em> of Γ, denoted |Γ|, is { φ₁, φ₂, ..., φₙ }.</p>
+<p><strong>Theorem:</strong> If Γ ⊢ M : φ then |Γ| ⊢ φ.</p>
+<p><strong>Proof Sketch:</strong> We convert any type derivation tree into a propositional proof by replacing VAR with AX, ABST with →-Intro, and APPL with →-Elim. This is done by induction on the proof tree. Here we just show an example which should be easily generalized. The type proof tree in the previous section can be re-written be removing all "x : "</p>
+<pre><code>    ————————————————————— AX       ———————————————————— AX
+     C → A, C  ⊢  C → A               C → A, C  ⊢  C
+  ——————————————————————————————————————————————————————————— →Elim
+                      C → A, C   ⊢  A
+                    ——————————————————— →-Intro
+                      C → A  ⊢  C → A
+                   —————————————————————— →-Intro
+                    ⊢  (C → A) → C → A
 </code></pre>
-<p>——————————————————————————————————————————————————————————— →Elim
-C → A, C   ⊢  A
-——————————————————— →-Intro
-C → A  ⊢  C → A
-—————————————————————— →-Intro
-⊢  (C → A) → C → A</p>
-<h1 id="curry-howard-propositions--types"><a class="header" href="#curry-howard-propositions--types">CURRY-HOWARD: PROPOSITIONS → TYPES</a></h1>
-<p>The opposite direction of the CHI is more technical. We have to show how to produce a λ-calculus term M from a proof of φ so that M : φ. For example, suppose we started with the propositional proof tree in the previous section. How would we produce the type derivation from it? Here we will outline how this is done in general.</p>
+<h2 id="curry-howard-propositions--types"><a class="header" href="#curry-howard-propositions--types">Curry-Howard: Propositions → Types</a></h2>
+<p>The opposite direction of the CHI is more technical. We have to show how to produce a λ-calculus term M from a proof of <code>φ</code> so that <code>M : φ</code>. For example, suppose we started with the propositional proof tree in the previous section. How would we produce the type derivation from it? Here we will outline how this is done in general.</p>
 <p>First we need a way to produce a type context from a propositional context. Suppose that</p>
-<p>Γ = { φ₁, φ₂, ..., φₙ }</p>
+<pre><code>Γ = { φ₁, φ₂, ..., φₙ }
+</code></pre>
 <p>and define</p>
-<p>Δ = { x₁ : φ₁, x₂ : φ₂, ..., xₙ : φₙ }</p>
-<p>where the xᵢ are introduced as new type variables. The object Δ is a function of Γ of course, but we just don't write it this way.</p>
-<p><code>THEOREM</code> If Γ ⊢ φ then there exists a λ-calculus term M such that ∆ ⊢ M:φ.</p>
-<p>The proof of this theorem uses induction on the proof tree that shows Γ ⊢ φ. Since there are three rules (AX, →Intro, and →-Elim), we have three cases, which we handle one by one.</p>
-<h1 id="case-the-proof-ends-with-Γφ--φ-by-the-var-rule"><a class="header" href="#case-the-proof-ends-with-Γφ--φ-by-the-var-rule">CASE: The proof ends with Γ,φ ⊢ φ by the VAR rule</a></h1>
-<p>Subcase 1: If φ ∈ Γ then there is some type variable x such that x : φ ∈ Δ. By the VAR rule we can conclude</p>
-<p>Δ  ⊢  x : φ</p>
-<p>Subcase 2: If φ ∉ Γ then we introduce a new variable x such that x : φ. Once again by the VAR rule</p>
-<p>Δ, x : φ  ⊢  x : φ</p>
-<p>(Why do we need two sub-cases? It's because of how we defined Δ on the previous as related to Γ and not to Γ ∪ { x : φ }).</p>
-<h1 id="case-the-proof-ends-with-elim"><a class="header" href="#case-the-proof-ends-with-elim">CASE: The proof ends with →Elim</a></h1>
-<p>Suppose the proof that Γ ⊢ φ ends with</p>
-<pre><code>Γ ⊢ ρ → φ      Γ ⊢ ρ
+<pre><code>Δ = { x₁ : φ₁, x₂ : φ₂, ..., xₙ : φₙ }
 </code></pre>
-<p>——————————————————————————
-Γ ⊢ φ</p>
-<p>We need to find a λ-term that has type φ. Here the premises of the above rule instance allow us to assume the induction hypothesis that there exists M and N such that</p>
-<p>Δ ⊢ M : ρ → φ
-Δ ⊢ N : ρ</p>
+<p>where the <code>xᵢ</code> are introduced as new type variables. The object <code>Δ</code> is a function of <code>Γ</code> of course, but we just don't write it this way.</p>
+<p><strong>Theorem:</strong> If <code>Γ ⊢ φ</code> then there exists a λ-calculus term <code>M</code> such that <code>∆ ⊢ M:φ</code>.</p>
+<p>The proof of this theorem uses induction on the proof tree that shows <code>Γ ⊢ φ</code>. Since there are three rules (AX, →Intro, and →-Elim), we have three cases, which we handle one by one.</p>
+<p><em>Case:</em> The proof ends with <code>Γ,φ ⊢ φ</code> by the VAR rule</p>
+<p><em>Subcase 1</em>: If <code>φ ∈ Γ</code> then there is some type variable <code>x</code> such that <code>x : φ ∈ Δ</code>. By the VAR rule we can conclude</p>
+<pre><code>Δ  ⊢  x : φ
+</code></pre>
+<p><em>Subcase 2</em>: If <code>φ ∉ Γ</code> then we introduce a new variable <code>x</code> such that <code>x : φ</code>. Once again by the VAR rule</p>
+<pre><code>Δ, x : φ  ⊢  x : φ
+</code></pre>
+<p>(Why do we need two sub-cases? It's because of how we defined <code>Δ</code> on the previous as related to <code>Γ</code> and not to <code>Γ ∪ { x : φ }</code>).</p>
+<p><em>Case:</em> The proof ends with →Elim</p>
+<p>Suppose the proof that <code>Γ ⊢ φ</code> ends with</p>
+<pre><code>    Γ ⊢ ρ → φ      Γ ⊢ ρ
+  ——————————————————————————
+           Γ ⊢ φ
+</code></pre>
+<p>We need to find a λ-term that has type <code>φ</code>. Here the premises of the above rule instance allow us to assume the induction hypothesis that there exists <code>M</code> and <code>N</code> such that</p>
+<pre><code>Δ ⊢ M : ρ → φ
+Δ ⊢ N : ρ
+</code></pre>
 <p>By the ABST rule, we can conclude</p>
-<p>Δ ⊢ M N : φ</p>
-<h1 id="case-the-proof-ends-with-intro"><a class="header" href="#case-the-proof-ends-with-intro">CASE: The proof ends with →Intro</a></h1>
-<p>Suppose the proposition φ has the form the ρ → ψ and the proof Γ ⊢ ρ → ψ ends with</p>
-<pre><code> Γ, ρ ⊢ ψ
+<pre><code>Δ ⊢ M N : φ
 </code></pre>
-<p>——————————————
-Γ ⊢ ρ → ψ</p>
-<p>Subcase 1: ψ ∈ Γ. By the induction hypothesis, there is a term M such that Δ ⊢ M : ψ. Introduce a variable x (not used in Δ) such that x : ρ. Then we can conclude</p>
-<p>Δ, x : ρ  ⊢  M : ψ</p>
+<p><em>Case:</em>: The proof ends with →Intro</p>
+<p>Suppose the proposition <code>φ</code> has the form the <code>ρ → ψ</code> and the proof <code>Γ ⊢ ρ → ψ</code> ends with</p>
+<pre><code>     Γ, ρ ⊢ ψ
+  ——————————————
+    Γ ⊢ ρ → ψ
+</code></pre>
+<p>Subcase 1: <code>ψ ∈ Γ</code>. By the induction hypothesis, there is a term <code>M</code> such that <code>Δ ⊢ M : ψ</code>. Introduce a variable <code>x</code> (not used in <code>Δ</code>) such that <code>x : ρ</code>. Then we can conclude</p>
+<pre><code>Δ, x : ρ  ⊢  M : ψ
+</code></pre>
 <p>and by the ABST rule</p>
-<p>Δ ⊢ λ x : ρ =&gt; M : ρ →  ψ</p>
-<p>Subcase 2: ψ ∉ Γ. Then by the induction hypothesis, there is a term M such that</p>
-<p>Δ, x : ρ ⊢ M : ψ</p>
+<pre><code>Δ ⊢ λ x : ρ =&gt; M : ρ →  ψ
+</code></pre>
+<p>Subcase 2: <code>ψ ∉ Γ</code>. Then by the induction hypothesis, there is a term <code>M</code> such that</p>
+<pre><code>Δ, x : ρ ⊢ M : ψ
+</code></pre>
 <p>from which we may also conclude</p>
-<p>Δ ⊢ λ x : ρ =&gt; M : ρ →  ψ</p>
-<h1 id="propositions-theorems-and-proofs-in-lean"><a class="header" href="#propositions-theorems-and-proofs-in-lean">PROPOSITIONS, THEOREMS, AND PROOFS IN LEAN</a></h1>
-<p>The Curry-Howard approach is exactly how proofs of theorems are done in Lean. We show that the proposition to be proved is inhabited. In the examples below, we use the type Prop, from Lean's standard library.
-We will start by declaring two variables of type Prop. We use curly braces here instead of parentheses for reasons we will explain later.</p>
+<pre><code>Δ ⊢ λ x : ρ =&gt; M : ρ →  ψ
+</code></pre>
+<h2 id="propositions-theorems-and-proofs-in-lean"><a class="header" href="#propositions-theorems-and-proofs-in-lean">Propositions, Theorems, and Proofs in Lean</a></h2>
+<p>The Curry-Howard approach is exactly how proofs of theorems are done in Lean. We show that the proposition to be proved is inhabited. In the examples below, we use the type Prop, from Lean's standard library.</p>
+<p>We will start by declaring two variables of type Prop. We use curly braces here instead of parentheses for reasons we will explain later.</p>
 <pre><code class="language-lean">variable { A C : Prop }
 </code></pre>
 <p>To prove a proposition like A → A, we define the identity function from A into A, showing the proposition considered as a type is occupied. We have called the bound variable in the lambda expression <em>proof</em>, but you could call the bound variable anything you like.</p>
@@ -308,7 +336,7 @@ We will start by declaring two variables of type Prop. We use curly braces here 
 <pre><code class="language-lean">theorem my_lean_theorem : A → A :=
   λ proof : A =&gt; proof
 </code></pre>
-<h1 id="applying-theorems-to-prove-other-theorems"><a class="header" href="#applying-theorems-to-prove-other-theorems">APPLYING THEOREMS TO PROVE OTHER THEOREMS</a></h1>
+<h3 id="applying-theorems-to-prove-other-theorems"><a class="header" href="#applying-theorems-to-prove-other-theorems">APPLYING THEOREMS TO PROVE OTHER THEOREMS</a></h3>
 <p>As another example, we prove the other proposition we encountered above. Here we call the bound variables pca for "proof of c → a" and pc for "proof of c".</p>
 <pre><code class="language-lean">theorem another_theorem : (C → A) → C → A :=
   λ pca : C → A =&gt;
@@ -319,7 +347,7 @@ We will start by declaring two variables of type Prop. We use curly braces here 
 <pre><code class="language-lean">theorem another_theorem_v2 : (C → A) → C → A :=
   λ h : C → A =&gt; my_lean_theorem h
 </code></pre>
-<h1 id="more-examples"><a class="header" href="#more-examples">MORE EXAMPLES</a></h1>
+<h3 id="more-examples"><a class="header" href="#more-examples">More Examples</a></h3>
 <pre><code class="language-lean">theorem t1 : A → C → A :=
   λ pa : A =&gt;
   λ pc : C =&gt;                                -- Notice that pc is not used
@@ -334,33 +362,35 @@ theorem t3 : A → C → A :=
 example : A → C → A :=                       -- We can state and prove an unnamed theorem
   λ pa _ =&gt; pa                               -- using the `example` keyword
 </code></pre>
-<h1 id="negation"><a class="header" href="#negation">NEGATION</a></h1>
-<p>There are, of course, only so many theorems we can state using only implication. In the next chapter we will show how the λ-calculus can be extended to include ∧, ∨, and ⊥. To give a sense of how this looks, here is an example using ¬p, which as you will recall is the same as p → ⊥.</p>
-<pre><code class="language-lean">example : p → ¬p → q :=
+<h3 id="negation"><a class="header" href="#negation">NEGATION</a></h3>
+<p>There are, of course, only so many theorems we can state using only implication. In the next chapter we will show how the λ-calculus can be extended to include <code>∧</code>, <code>∨</code>, and <code>False</code>. To give a sense of how this looks, here is an example using <code>¬p</code>, which as you will recall is the same as <code>p → False</code>.</p>
+<pre><code class="language-lean">variable (p q: Prop)
+
+example : p → ¬p → q :=
   λ pa pna =&gt; absurd pa pna
 
 example : (p → q) → (¬q → ¬p) :=
   fun hpq nq hp =&gt; absurd (hpq hp) nq
 </code></pre>
 <p>Here, absurd is a theorem from the Lean standard library that we will discuss when we get to Lean's <code>inductive type</code> system.</p>
-<h1 id="sidenote-about-variable-declarations"><a class="header" href="#sidenote-about-variable-declarations">SIDENOTE ABOUT VARIABLE DECLARATIONS</a></h1>
+<h3 id="a-note-about-variable-declarations"><a class="header" href="#a-note-about-variable-declarations">A Note About Variable Declarations</a></h3>
 <p>If we had used</p>
-<p>variable (A C : Prop)</p>
+<pre><code class="language-hs">variable (A C : Prop)
+</code></pre>
 <p>above, then my_lean_theorem would have (A : Prop) as a non-implicit argument, so it would have to be applied as</p>
-<p>my_lean_theorem (C→A) h</p>
+<pre><code class="language-hs">my_lean_theorem (C→A) h
+</code></pre>
 <p>which is ugly.</p>
 <p>The way Lean uses variables is by putting them silently into all definitions and theorems that use them. So my_theorem internally looks like:</p>
-<p>theorem my_lean_theorem (A : Prop) : A → A :=
-λ proof : A =&gt; proof</p>
+<pre><code class="language-hs">theorem my_lean_theorem (A : Prop) : A → A :=
+  λ proof : A =&gt; proof
+</code></pre>
 <p>On the other hand, if we use curly braces in the variable declaration, as we did in the previous examples, then we get</p>
-<p>theorem my_lean_theorem {A : Prop} : A → A :=
-λ proof : A =&gt; proof</p>
+<pre><code class="language-hs">theorem my_lean_theorem {A : Prop} : A → A :=
+  λ proof : A =&gt; proof
+</code></pre>
 <p>so that the type of A is an implicit argument to my_lean_theorem.</p>
-<h1 id="in-class-exercises"><a class="header" href="#in-class-exercises">IN CLASS EXERCISES</a></h1>
-<ul>
-<li>TODO</li>
-</ul>
-<h1 id="references"><a class="header" href="#references">REFERENCES</a></h1>
+<h2 id="references"><a class="header" href="#references">References</a></h2>
 <p>Morten Heine Sørensen, Pawel Urzyczyn
 "Lectures on the Curry-Howard Isomorphism"
 Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>

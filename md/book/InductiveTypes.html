@@ -160,7 +160,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span></p>
+                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/InductiveTypes.lean'>Code</a> for this chapter</span></p>
 <h1 id="inductive-types"><a class="header" href="#inductive-types">Inductive Types</a></h1>
 <p>As we saw in the chapter on the <a href="LambdaCalculus.html">λ-Calculus</a>, we can encode fairly sophisticated objects like the natural numbers using just abstractions and applications. However, such encodings are a best clunky and hard to read. Additionally, encoding complex data types as λ-Calculus expressions has other problems:</p>
 <p><strong>Noncanonical terms:</strong> The types of such encodings are not guaranteed to result in <em>canonical</em> terms. For example, Church numerals were defined to have type</p>
@@ -261,7 +262,7 @@ def e := add (var "x") (mul (neg (var "y")) (var "z"))
 
 #reduce e.swap -- -zy+x
 </code></pre>
-<h1 id="inductive-types-may-depend-on-other-types"><a class="header" href="#inductive-types-may-depend-on-other-types">INDUCTIVE TYPES MAY DEPEND ON OTHER TYPES</a></h1>
+<h2 id="inductive-types-may-depend-on-other-types"><a class="header" href="#inductive-types-may-depend-on-other-types">Inductive Types May Depend on Other Types</a></h2>
 <p>The types we have defined so far do not interact with other types. Here's an example that does: Lists of Nats.</p>
 <pre><code class="language-lean">inductive NatList where
   | empty : NatList

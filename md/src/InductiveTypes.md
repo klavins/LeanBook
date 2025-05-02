@@ -1,4 +1,5 @@
-<span style='color: orange'>***UNDER CONSTRUCTION***</span>
+<span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/InductiveTypes.lean'>Code</a> for this chapter</span>
  # Inductive Types
 
 As we saw in the chapter on the [λ-Calculus](LambdaCalculus.md), we can encode fairly sophisticated objects like the natural numbers using just abstractions and applications. However, such encodings are a best clunky and hard to read. Additionally, encoding complex data types as λ-Calculus expressions has other problems:
@@ -130,7 +131,7 @@ def e := add (var "x") (mul (neg (var "y")) (var "z"))
 
 #reduce e.swap -- -zy+x
 ```
- # INDUCTIVE TYPES MAY DEPEND ON OTHER TYPES
+ ## Inductive Types May Depend on Other Types
 
 The types we have defined so far do not interact with other types. Here's an example that does: Lists of Nats. 
 ```lean
