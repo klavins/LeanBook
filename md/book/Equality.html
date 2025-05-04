@@ -180,7 +180,7 @@ example : MyEq 1 1 :=
 
 #check 1 ~ 1
 </code></pre>
-<h3 id="refl-is-powerful"><a class="header" href="#refl-is-powerful">Refl is Powerful!</a></h3>
+<h3 id="refl-is-powerful"><a class="header" href="#refl-is-powerful">Refl is Powerful</a></h3>
 <p>In Lean, terms that are beta-reducable to each other are considered definitionally equal. You can show a lot of equalities automatically</p>
 <pre><code class="language-lean">example : 1 ~ 1 :=
   MyEq.refl 1
@@ -216,7 +216,6 @@ theorem my_congr_arg (a b : Type) (f : Type → Type) : a ~ b → f a ~ f b := b
 <h2 id="leans-equality"><a class="header" href="#leans-equality">Lean's Equality</a></h2>
 <p>Lean's equality relation is called <code>Eq</code> and its notation is <code>=</code>, as we have been using. Lean also defines <code>rfl</code> to be <code>Eq.refl _</code></p>
 <pre><code class="language-lean">#print rfl
-
 example : 9 = 3*(2+1) := Eq.refl 9
 example : 9 = 3*(2+1) := rfl
 </code></pre>

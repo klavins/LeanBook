@@ -22,7 +22,7 @@ infix:50 " ~ "  => MyEq
 
 #check 1 ~ 1
 ```
- ### Refl is Powerful!
+ ### Refl is Powerful
 
 In Lean, terms that are beta-reducable to each other are considered definitionally equal. You can show a lot of equalities automatically 
 ```lean
@@ -65,7 +65,6 @@ theorem my_congr_arg (a b : Type) (f : Type → Type) : a ~ b → f a ~ f b := b
 Lean's equality relation is called `Eq` and its notation is `=`, as we have been using. Lean also defines `rfl` to be `Eq.refl _` 
 ```lean
 #print rfl
-
 example : 9 = 3*(2+1) := Eq.refl 9
 example : 9 = 3*(2+1) := rfl
 ```

@@ -477,7 +477,7 @@ As a computer scientist myself it is very satisfying to know that programming fu
 
 This idea is not merely cute. By building on it, as Lean and similar tools do, one can enocde an astonishingly large set of all of mathematics, and presumably knowledge in general. We'll learn how to take advantage of the Curry-Howard corresponence soon.
 
-## REFERENCES
+## References
 
 Alonzo Church
 [An Unsolvable Problem of Elementary Number Theory](https://www.jstor.org/stable/2371045).

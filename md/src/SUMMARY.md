@@ -24,9 +24,9 @@
 
 # Numbers
 
-- [Hierarchies](./Hierarchies.md)
-- [Quotients](./Quotients.md)
-- [Basic Numbers](./Numbers.md)
+- [Natural Numbers and Hierarchies](./Hierarchies.md)
+- [Integers via Quotients](./Quotients.md)
+- [Rational Numbers](./Numbers.md)
 - [Real Numbers](./Reals.md)
 
 
