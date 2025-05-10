@@ -6,28 +6,38 @@ NAMES :=  Connectives \
           CurryHoward \
           Equality \
           FirstOrderLogic \
-		  Hierarchies \
           InductiveTypes \
 		  Introduction \
 		  LambdaCalculus \
 		  Lean \
 		  Numbers \
 		  PropositionalLogic \
-		  Quotients \
 		  Reals \
+		  Relations \
 		  SUMMARY \
 		  Tactics
 
 MD_FILES := $(foreach item,$(NAMES), $(MD_DIR)/$(item).md)
 
-all: $(MD_FILES)
+NAT_NAMES := Intro Definition Properties
+NAT_FILES := $(foreach item,$(NAT_NAMES), $(MD_DIR)/Naturals/$(item).md)
 
-$(MD_DIR)/%.md: $(CHAPTER_DIR)/%.lean
+INT_NAMES := Intro Definition Properties Operators
+INT_FILES := $(foreach item,$(INT_NAMES), $(MD_DIR)/Integers/$(item).md)
+
+all: $(MD_FILES) $(NAT_FILES) $(INT_FILES)
+
+$(MD_DIR)/%.md: $(CHAPTER_DIR)/%.lean 
 	python3 dm.py $(CHAPTER_DIR)/$*.lean > $@
+
+$(MD_DIR)/Naturals/%.md: $(CHAPTER_DIR)/Naturals/%.lean 
+	python3 dm.py $(CHAPTER_DIR)/Naturals/$*.lean > $@	
 
 deploy:
 	rm -rf ../docs
 	cp -r book ../docs
 
 clean:
-	rm $(MD_DIR)/*.md
+	rm -f $(MD_DIR)/*.md $(MD_DIR)/Naturals/*.md $(MD_DIR)/Integers/*.md
+
+

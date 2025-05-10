@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Equality - Foundations of Lean</title>
+        <title>Relations - Foundations of Lean</title>
 
 
         <!-- Custom HTML head -->
@@ -161,204 +161,13 @@
                 <div id="content" class="content">
                     <main>
                         <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Equality.lean'>Code</a> for this chapter</span></p>
-<h1 id="objects-functions-and-equality"><a class="header" href="#objects-functions-and-equality">Objects, Functions and Equality</a></h1>
-<p>In this chapter we extend the first order logic discussed in the last chapter to deal with functions of objects in our universe. On one of the critical components is a notion of equality between objects. Astonishingly, Lean's equality is not a built in type, but is defined in the standard library. Once we have equality, we can start working with statements about functions and their relationships in earnest.</p>
-<h2 id="equality-is-a-binary-relation-defined-inductively"><a class="header" href="#equality-is-a-binary-relation-defined-inductively">Equality is a Binary Relation Defined Inductively</a></h2>
-<pre><code class="language-lean">universe u
-
-inductive MyEq {α : Sort u} : α → α → Prop where
-  | refl a : MyEq a a
-
-#check MyEq 1 2
-
-example : MyEq 1 1 :=
-  MyEq.refl 1
-</code></pre>
-<p>We can define some notation</p>
-<pre><code class="language-lean">infix:50 " ~ "  =&gt; MyEq
-
-#check 1 ~ 1
-</code></pre>
-<h3 id="refl-is-powerful"><a class="header" href="#refl-is-powerful">Refl is Powerful</a></h3>
-<p>In Lean, terms that are beta-reducable to each other are considered definitionally equal. You can show a lot of equalities automatically</p>
-<pre><code class="language-lean">example : 1 ~ 1 :=
-  MyEq.refl 1
-
-example : 2 ~ (1+1) := by
-  apply MyEq.refl
-
-example : 9 ~ (3*(2+1)) := by
-  apply MyEq.refl
-</code></pre>
-<h3 id="substitution"><a class="header" href="#substitution">Substitution</a></h3>
-<p>Substition is the second most critical property of the equality. It allows us to conclude, for example, that if x = y then p x is equal to p y.</p>
-<pre><code class="language-lean">theorem MyEq.subst {α : Sort u} {P : α → Prop} {a b : α}
-                   (h₁ : a ~ b) (h₂ : P a) : P b := by
-  cases h₁ with
-  | refl =&gt; exact h₂
-</code></pre>
-<p>You can use this theorem to show the standard properties we know and love about equality.</p>
-<pre><code class="language-lean">theorem my_symmetry (a b : Type): a ~ b → b ~ a := by
-  intro h
-  apply MyEq.subst h
-  exact MyEq.refl a
-
-theorem my_transitivity (a b c : Type) : a ~ b → b ~ c → a ~ c := by
-  intro hab hbc
-  exact MyEq.subst hbc hab
-
-theorem my_congr_arg (a b : Type) (f : Type → Type) : a ~ b → f a ~ f b := by
-  intro hab
-  apply MyEq.subst hab
-  exact MyEq.refl (f a)
-</code></pre>
-<h2 id="leans-equality"><a class="header" href="#leans-equality">Lean's Equality</a></h2>
-<p>Lean's equality relation is called <code>Eq</code> and its notation is <code>=</code>, as we have been using. Lean also defines <code>rfl</code> to be <code>Eq.refl _</code></p>
-<pre><code class="language-lean">#print rfl
-example : 9 = 3*(2+1) := Eq.refl 9
-example : 9 = 3*(2+1) := rfl
-</code></pre>
-<p>Lean provides a long list of theorems about equality, such as</p>
-<pre><code class="language-lean">#check Eq.symm
-#check Eq.subst
-#check Eq.substr
-#check Eq.trans
-#check Eq.to_iff
-#check Eq.mp
-#check Eq.mpr
-
-#check congrArg
-#check congrFun
-#check congr
-</code></pre>
-<h3 id="tactics-for-equality"><a class="header" href="#tactics-for-equality">Tactics for Equality</a></h3>
-<p>rw[h]: Rewrites the current goal using the equality h.</p>
-<pre><code class="language-lean">theorem t1 (a b : Nat) : a = b → a + 1 = b + 1 := by
-  intro hab
-  rw[hab]
-
-#print t1
-</code></pre>
-<p>To use an equality backwards, use ← (written \left)</p>
-<pre><code class="language-lean">theorem t2 (a b c : Nat) : a = b ∧ a = c → b + 1 = c + 1 := by
-  intro ⟨ h1, h2 ⟩
-  rw[←h1, ←h2]
-
-#print t2
-</code></pre>
-<p>You can also rewrite assumptions using <code>at</code>.</p>
-<pre><code class="language-lean">example (a b c : Nat) : a = b ∧ a = c → b + 1 = c + 1 := by
-  intro ⟨ h1, h2 ⟩
-  rw[h1] at h2
-  rw[h2]
-</code></pre>
-<h2 id="the-simplifier"><a class="header" href="#the-simplifier">The Simplifier</a></h2>
-<p>The simplifier uses equations and lemmas to simplify expressions</p>
-<pre><code class="language-lean">theorem t3 (a b : Nat) : a = b → a + 1 = b + 1 := by
-  simp
-
-#print t3
-</code></pre>
-<p>Sometimes you have to tell the simplifer what equations to use.</p>
-<pre><code class="language-lean">theorem t4 (a b c d e : Nat)
- (h1 : a = b)
- (h2 : b = c + 1)
- (h3 : c = d)
- (h4 : e = 1 + d)
- : a = e := by
-   simp only[h1,h2,h3,h4,Nat.add_comm]
-
-
-#check Nat.add_comm
-
-#print t4
-</code></pre>
-<h2 id="the-linarith-tactic"><a class="header" href="#the-linarith-tactic">The <code>linarith</code> Tactic</a></h2>
-<p>By importing Mathlib.Tactic.Linarith (see top of this file), you get an even more powerful simplifier.</p>
-<pre><code class="language-lean">example (a b c d e : Nat)
- (h1 : a = b)
- (h2 : b = c + 1)
- (h3 : c = d)
- (h4 : e = 1 + d)
- : a = e := by linarith
-
-example (x y z : ℚ)
- (h1 : 2*x - y + 3*z = 9)
- (h2 : x - 3*y - 2*z = 0)
- (h3 : 3*x + 2*y -z = -1)
- : x = 1 ∧ y = -1 ∧ z = 2 := by
- apply And.intro
- . linarith
- . apply And.intro
-   . linarith
-   . linarith
-</code></pre>
-<h3 id="example--induction-on-nat"><a class="header" href="#example--induction-on-nat">Example : Induction on Nat</a></h3>
-<p>As an example the brings many of these ideas together, consider the sum of the first <code>n</code> natural numbers, which is <code>n(n+1)/2</code>. A proof by induction would be:</p>
-<ul>
-<li><strong>BASE CASE</strong>: <code>0 = 0*1/2</code></li>
-<li><strong>NDUCTIVE STEP</strong>: <code>∀ k, Sum k = k(k+1)/2 → Sum (k+1) = (k+1)(k+2)/2</code></li>
-</ul>
-<p>We can do this in lean with the <code>induction</code> tactic.</p>
-<pre><code class="language-lean">def S (n : Nat) : Nat := match n with
-  | Nat.zero =&gt; 0
-  | Nat.succ x =&gt; n + S x
-
-#eval S 3
-
-example : ∀ n, 2 * S n = n*(n+1) := by
-  intro n
-  induction n with
-  | zero =&gt; simp[S]
-  | succ k ih =&gt;
-    simp[S,ih]
-    linarith
-</code></pre>
-<h2 id="inequality"><a class="header" href="#inequality">Inequality</a></h2>
-<p>Every inductive type comes with a theorem called noConfusion that states that different constructors give different objects.</p>
-<pre><code class="language-lean">inductive Person where | mary | steve | ed | jolin
-open Person
-
-example : mary ≠ steve := by
-  intro h
-  exact noConfusion h
-
-inductive MyNat where
-  | zero : MyNat
-  | succ : MyNat → MyNat
-
-example : MyNat.zero ≠ MyNat.zero.succ := by
-  intro h
-  exact MyNat.noConfusion h
-</code></pre>
-<p>Continuing the above example, suppose we want to specify who is on who's right side.</p>
-<pre><code class="language-lean">def on_right (p : Person) := match p with
-  | mary =&gt; steve
-  | steve =&gt; ed
-  | ed =&gt; jolin
-  | jolin =&gt; mary
-
-def next_to (p q : Person) := on_right p = q ∨ on_right q = p
-
-example : ¬next_to mary ed := by
-  intro h
-  cases h with
-  | inl hme =&gt; exact noConfusion hme
-  | inr hem =&gt; exact noConfusion hem
-
-example : ∀ p , p ≠ on_right p := by
-  sorry
-</code></pre>
-<p>Note: The <code>trivial</code> tactic actually figures out when to apply noConfusion</p>
-<pre><code class="language-lean">theorem t10 : ed ≠ steve := by
-  intro h
-  trivial
-
-#print t10
-
-#help tactic trivial
-</code></pre>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Relations.lean'>Code</a> for this chapter</span></p>
+<h1 id="relations"><a class="header" href="#relations">Relations</a></h1>
+<p>As described previously, a relation is a propositionally valued predicate of two arguments. Generally speaking, that is about all you can say about predicates. However, when we restrict our attention to predicates having specific properties, we can say much more.</p>
+<p>In this chapter we will build up some of the theory behind relations and give several examples of each type of relation.</p>
+<p>Note that Mathlib has many definitions involved relations. In particular, <code>Rel</code> is the general type of relations. We will not use that infrastructure in this chapter, as our goal is to build up the theory from scratch for the purposes of understanding it better, which in turn should make Mathlib more comprehensible.</p>
+<h2 id="definitions"><a class="header" href="#definitions">Definitions</a></h2>
+<p>First, we define a general type for relations:</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © Eric Klavins, 2025-Present
 
@@ -366,11 +175,11 @@ Copyright © Eric Klavins, 2025-Present
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="Tactics.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="Equality.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="Relations.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="Naturals/Intro.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -380,11 +189,11 @@ Copyright © Eric Klavins, 2025-Present
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="Tactics.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="Equality.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="Relations.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="Naturals/Intro.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

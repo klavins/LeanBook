@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Basic Numbers - Foundations of Lean</title>
+        <title>Rational Numbers - Foundations of Lean</title>
 
 
         <!-- Custom HTML head -->
@@ -161,36 +161,7 @@
                 <div id="content" class="content">
                     <main>
                         <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Numbers.lean'>Code</a> for this chapter</span>
-** NUMBERS IN LEAN**</p>
-<pre><code class="language-lean">import Mathlib
-</code></pre>
-<h1 id="some-of-the-numebrs-provided-by-lean"><a class="header" href="#some-of-the-numebrs-provided-by-lean">SOME OF THE NUMEBRS PROVIDED BY LEAN</a></h1>
-<h1 id="standard"><a class="header" href="#standard">Standard</a></h1>
-<ul>
-<li>Natural Numbers: Nat or ℕ</li>
-<li>Integers: Int or ℤ</li>
-<li>Floating Point Numbers: Float, Float32</li>
-</ul>
-<h1 id="mathlib"><a class="header" href="#mathlib">Mathlib</a></h1>
-<ul>
-<li>Rationals: Rat or ℚ</li>
-<li>Reals: Real or ℝ</li>
-<li>Complex: Complex or ℂ</li>
-</ul>
-<pre><code class="language-lean">import Mathlib.Data.Real.Basic -- includes ℚ and ℝ
-import Mathlib.Data.Complex.Basic
-
-variable (n : Nat) (i : Int) (f : Float)
-
-variable (q : ℚ)
-#check q.num           -- ℤ
-#check q.den           -- ℕ
-
-variable (r : ℝ) (c : ℂ)
-#check c.im            -- ℝ
-#check c.re            -- ℝ
-</code></pre>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Numbers.lean'>Code</a> for this chapter</span></p>
 <h1 id="natural-numbers"><a class="header" href="#natural-numbers">NATURAL NUMBERS</a></h1>
 <p>As we've seen, the Natural Numbers are defined inductively.</p>
 <pre><code class="language-lean">namespace TempNat
@@ -567,7 +538,7 @@ Copyright © Eric Klavins, 2025-Present
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="Quotients.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="Integers/Properties.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -581,7 +552,7 @@ Copyright © Eric Klavins, 2025-Present
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="Quotients.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="Integers/Properties.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

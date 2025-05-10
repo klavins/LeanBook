@@ -19,11 +19,17 @@
 - [First Order Logic](./FirstOrderLogic.md)
 - [Tactics](./Tactics.md)
 - [Equality](./Equality.md)
+- [Relations](./Relations.md)
 
 # Numbers
 
-- [Natural Numbers and Hierarchies](./Hierarchies.md)
-- [Integers via Quotients](./Quotients.md)
+- [Natural Numbers](./Naturals/Intro.md)
+    - [Definition](./Naturals/Definition.md)
+    - [Properties](./Naturals/Properties.md)
+- [Integers](Integers/Intro.md)
+    - [Quotient Spaces](./Integers/Definition.md)
+    - [Operators](./Integers/Operators.md)
+    - [Properties](./Integers/Properties.md)
 - [Rational Numbers](./Numbers.md)
 - [Real Numbers](./Reals.md)
 

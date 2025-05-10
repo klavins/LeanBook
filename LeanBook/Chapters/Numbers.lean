@@ -1,41 +1,4 @@
-/- ** NUMBERS IN LEAN** -/
-
 import Mathlib
-
-
-/- # SOME OF THE NUMEBRS PROVIDED BY LEAN
-
-  # Standard
-  - Natural Numbers: Nat or ℕ
-  - Integers: Int or ℤ
-  - Floating Point Numbers: Float, Float32
-
-  # Mathlib
-  - Rationals: Rat or ℚ
-  - Reals: Real or ℝ
-  - Complex: Complex or ℂ -/
-
-import Mathlib.Data.Real.Basic -- includes ℚ and ℝ
-import Mathlib.Data.Complex.Basic
-
-variable (n : Nat) (i : Int) (f : Float)
-
-variable (q : ℚ)
-#check q.num           -- ℤ
-#check q.den           -- ℕ
-
-variable (r : ℝ) (c : ℂ)
-#check c.im            -- ℝ
-#check c.re            -- ℝ
-
-
-
-
-
-
-
-
-
 
 /- # NATURAL NUMBERS
 

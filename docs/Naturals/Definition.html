@@ -1,0 +1,387 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Definition - Foundations of Lean</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A light introduction to the foundations of mathematics and proof checking with Lean">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Foundations of Lean</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/klavins/LeanBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Naturals/Definition.lean'>Code</a> for this chapter</span></p>
+<h1 id="the-natural-numbers-and-hierarchies"><a class="header" href="#the-natural-numbers-and-hierarchies">The Natural Numbers and Hierarchies</a></h1>
+<p>In the chapter on inductive types, we encountered the natural numbers. So to some extent, we are done defining them. But the natural numbers have many, many properties that are incredibly useful over a huge range of mathematics. In fact, defining them is the easy part. Understanding their structure is much more interesting.</p>
+<p>In this chapter, we will define the natural numbers and develop some of their algebraic and ordering structure. Along the way, we show how Lean's <strong>hierarchy</strong> system works. Hierarchies are useful for proving general theorems about algebreic structures that can be reused in specific instances. For example, consider associative property: <code>(x+y)+z = x+(y+z)</code>. This property holds for natural numbers, integers, rationals, reals, matrices, polynomials, and many more objects. And it leads to many auxilliary theorems, such as <code>(w+x)+(y+z) = (w+(x+y))+z</code> and so on. Rather than proving all all these theorems for a new type, we just prove a few basic theorems, like associativity and a few others, and then do some book-keeping to connect our new type to the hige list of theorems that hold for similar objects.</p>
+<h2 id="the-inductive-definition-of-the-natural-numbers"><a class="header" href="#the-inductive-definition-of-the-natural-numbers">The Inductive Definition of the Natural Numbers</a></h2>
+<p>As we've seen, the Natural Numbers are defined inductively. We open the a temporary namespace, <code>Temp</code> to avoid naming conflicts with Lean's standard <code>Nat</code> type. So, in the below, every time you see <code>Nat</code>, it means <code>Temp.Nat</code>.</p>
+<pre><code class="language-lean">#check Nat.succ_add
+
+theorem succ_add_eq_add_succ' (a b : Nat) : Nat.succ a + b = a + Nat.succ b := by
+  apply Nat.succ_add
+
+example (j k: Nat) : j.succ + k = j + k.succ := by exact Nat.succ_add_eq_add_succ j k
+
+#check Nat.succ_add_eq_add_succ
+
+namespace Temp
+
+-- Definition
+inductive Nat where
+  | zero : Nat
+  | succ : Nat → Nat
+
+open Nat
+</code></pre>
+<p>Using this definition, it is straightfoward to define addition and multiplication.</p>
+<pre><code class="language-lean">def Nat.add (n m: Nat) : Nat := match m with
+  | zero =&gt; n
+  | succ k =&gt; succ (add n k)
+
+-- def Nat.add (n m: Nat) : Nat := match n,m with
+--   | a, Nat.zero   =&gt; a
+--   | a, Nat.succ b =&gt; Nat.succ (Nat.add n m)
+
+def Nat.mul (n m: Nat) : Nat := match n with
+  | zero =&gt; zero
+  | succ k =&gt; add (mul k m) m     -- (k+1)*m = k*m+m
+</code></pre>
+<h2 id="first-use-of-leans-classes"><a class="header" href="#first-use-of-leans-classes">First Use of Lean's Classes</a></h2>
+<p>If you have a type for which things like zero, one, addition, and multiplication are defined, it would be nice to use the notation 0, 1, + and *. Although you could use Lean's <code>syntax</code> and <code>infix</code> operators to define such notation, it is better practice to <strong>instantiate</strong> the <strong>classes</strong> that group all types that have zero, one, addition and multiplication. To do this, we use the <code>instance</code> keyword and various classes, such as <code>Zero</code>, <code>One</code>, <code>Add</code> and <code>Mul</code> defined in Lean's standard library or in Mathlib.</p>
+<p>Here are several examples:</p>
+<pre><code class="language-lean">instance inst_zero : Zero Nat := ⟨ zero ⟩         -- Zero
+instance inst_one : One Nat := ⟨ succ zero ⟩      -- One
+instance inst_add : Add Nat := ⟨ add ⟩            -- Addition
+instance inst_hadd : HAdd Nat Nat Nat := ⟨ add ⟩  -- Extra hints with addition
+instance inst_mul : Mul Nat := ⟨ mul ⟩            -- Multiplication
+</code></pre>
+<p>Now we can do a few examples using the notation. Note that in these examples, we have to give Lean some hints that we are working with our <code>Temp.Nat</code> type. Otherwise it assumes numbers like <code>0</code> and <code>1</code> refer to the build in Nat type.  We do this by coercing one of the terms in our expressions, as in <code>(1:Nat)</code>.</p>
+<pre><code class="language-lean">example : (1:Nat) + 0 = 1 := rfl
+example : (1:Nat) * 0 = 0 := rfl
+</code></pre>
+<h2 id="properties-of-addition-and-multiplication"><a class="header" href="#properties-of-addition-and-multiplication">Properties of Addition and Multiplication</a></h2>
+<p>With this notation, we can cleanly express some of the basic properties of the natural numbers and start working on proofs. These theorems may seem very basic, but together they form the basis of automated proof checking with the natural numbers, connecting results about, for example, cryptography, with the type-theoretic foundations of mathematics.</p>
+<p>Most of these theorems can be found in Lean's standard library. But it is interesting to reproduce them here to understand how the theory is constructed.</p>
+<pre><code class="language-lean">#check AddSemiconjBy.eq
+#check congrArg
+
+theorem succ_add (n m : Nat) : (succ n) + m = succ (n + m) := by
+  induction m with
+  | zero =&gt; rfl
+  | succ k ih =&gt; apply congrArg succ ih
+
+theorem succ_add_eq_add_succ (a b : Nat) : succ a + b = a + succ b := by
+  apply succ_add
+
+theorem add_zero_zero_add {x: Nat} : 0+x=x+0 := by
+  induction x with
+    | zero =&gt; rfl
+    | succ j ih =&gt;
+      apply congrArg succ ih
+
+theorem zero_add {x : Nat} : 0+x = x := by
+  induction x with
+    | zero =&gt; rfl
+    | succ j ih =&gt;
+      apply congrArg succ ih
+
+theorem add_comm (x y : Nat) : x+y = y+x := by
+  induction x with
+  | zero =&gt; exact add_zero_zero_add
+  | succ k ih =&gt;
+    have : y + k.succ = (y + k).succ := rfl
+    rw[this,←ih]
+    have : k + y.succ = (k+y).succ := rfl
+    rw[←this]
+    exact succ_add_eq_add_succ k y
+
+theorem add_zero (x : Nat) : x+0 = x := by
+  rw[add_comm,zero_add]
+
+theorem succ_add_one (x : Nat) : x.succ = x + 1 := by
+  induction x with
+  | zero =&gt; rfl
+  | succ k ih =&gt;
+    conv =&gt; lhs; rw[ih]
+    rfl
+
+theorem add_assoc (x y z : Nat) : x+y+z = (x+y)+z := sorry
+</code></pre>
+<h2 id="ordering-properties-of-nat"><a class="header" href="#ordering-properties-of-nat">Ordering Properties of Nat</a></h2>
+<pre><code class="language-lean">def Nat.leb (x y : Nat) : Bool := match x,y with
+  | zero,zero =&gt; true
+  | succ _,zero =&gt; false
+  | zero,succ _ =&gt; true
+  | succ k, succ j =&gt; leb k j
+
+def Nat.le (x y : Nat) : Prop := leb x y = true
+
+instance inst_dec_le : DecidableRel le := by
+  intro x y
+  match x with
+  | zero =&gt;
+    match y with
+    | zero =&gt; exact isTrue rfl
+    | succ k =&gt; exact isTrue rfl
+  | succ k =&gt;
+    match y with
+    | zero =&gt;
+      unfold le
+      exact isFalse Bool.false_ne_true
+    | succ j  =&gt;
+      unfold le
+      exact (k.succ.leb j.succ).decEq true
+
+def Nat.lt (x y: Nat) : Prop := le x y ∧ x ≠ y
+
+instance inst_le : LE Nat  := ⟨ le ⟩
+
+instance inst_lt : LT Nat  := ⟨ lt ⟩
+
+#eval le (1:Nat) 0
+
+def Nat.min (x y: Nat) : Nat := if le x y then x else y
+
+instance inst_min : Min Nat  := ⟨ min ⟩
+
+instance inst_max : Max Nat  := ⟨ sorry ⟩
+
+instance inst_ord : Ord Nat  := ⟨ sorry ⟩
+
+instance inst_preo : Preorder Nat  := ⟨ sorry, sorry, sorry ⟩
+
+instance inst_po : PartialOrder Nat  := ⟨ sorry ⟩
+
+instance inst_lo : LinearOrder Nat := ⟨
+  sorry,
+  by exact inst_dec_le,
+  sorry,
+  sorry,
+  sorry,
+  sorry,
+  sorry ⟩
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © Eric Klavins, 2025-Present
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Naturals/Intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Naturals/Properties.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Naturals/Intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Naturals/Properties.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../highlight.js"></script>
+        <script src="../lean-book.js"></script>
+
+
+    </div>
+    </body>
+</html>
