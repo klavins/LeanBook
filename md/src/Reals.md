@@ -1,36 +1,32 @@
 <span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals.lean'>Code</a> for this chapter</span>
- **REAL NUMBERS IN LEAN** 
-```lean
-import Mathlib.Data.Real.Basic
-import Mathlib.Tactic
---import Mathlib.Topology.Instances.Real
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
-```
  # WHAT IS A REAL NUMBER?
 
-One way to characterize the reals is that they are numbers with infinite decimal expansions. For example,
+<div style='background: yellow'>TODO: This chapter needs to be clean up. Any maybe, just for pedagogical purposes, it should use a construction that is different from Mathlib's.
 
+Sequences should appear in their own section or chapter as well. </div>
+
+One way to characterize the reals is that they are numbers with infinite decimal expansions. For example,
+```
   1.0000000 ...        --> Also an integer
   3.5                  --> Also a fracton
   3.3333333 ...        --> Also a fracton
   1.4142135 ...        --> √2, an algebraic number, not rational
   3.1415927 ...        --> π, a trancendental number, not alegbreic or rational
-
+```
 We might be tempted to define the reals as all sequences of integers, and in fact at least one Real Analysis textbook does this.
 
-But the usual method, and the one taken by Lean, is to define `Cauchy Sequences` over ℚ that converge to irrational values. For example, the sequence
-
+But the usual method, and the one taken by Lean, is to define `Cauchy Sequences` over `ℚ` that converge to irrational values. For example, the sequence
+```
   4/1
   4/1 - 4/3
   4/1 - 4/3 + 4/5
   4/1 - 4/3 + 4/5 - 4/7
   4/1 - 4/3 + 4/5 - 4/7 + 4/9
+```
+Converges to `π`.
 
-Converges to pi.
-
-
- # ISSUES
+## Issues
 
 Two issues arise.
 
@@ -43,7 +39,7 @@ Two issues arise.
     To address this issue, we'll define a notion of equality on Cauchy Sequences and correspond to each `equivalence class` of sequences a real number.
 
 
- # SEQUENCES
+ ## Sequences
 
 Sequences over the rational numbers are just functions from ℕ to ℚ. 
  Example: (1/n) 
@@ -69,7 +65,7 @@ def sqrt2 (n : Nat) : ℚ := match n with
 #eval [sqrt2 0, sqrt2 1, sqrt2 2, sqrt2 3, sqrt2 4]
 #eval (665857.0/470832)^2
 ```
- # OPERATIONS ON SEQUENCES
+ ## Operations on Sequences
 
 You can perform many of the same operations on sequences as you can on numbers. This allows you to make new sequences out of old ones.  
 ```lean
@@ -87,7 +83,7 @@ def two := (mul sqrt2 sqrt2)
 #eval [two 0, two 1, two 2, two 3]
 #eval (332929 : Float)/166464
 ```
- # THE USUAL NOTION OF CONVERGENCE
+ ## The Usual Notion of Convergence
 
 One notion of convergence is to specify what the sequence converges to: 
 ```lean
@@ -112,9 +108,8 @@ example : Filter.Tendsto (λ n => (1:ℚ)/n) Filter.atTop (nhds (0:ℚ)) := by
 
   NOTE: The tendency in Mathlib is to prove things in the most generality possible. But this can make it hard to understand the simple examples that abound in engineering mathematics unless you know advanced topology.
 
- # CONVERGENCE OF THE SUM OF TWO SEQUENCES 
+ ## Convergence of the Sum of Two Sequences 
 ```lean
-#help tactic use
 theorem converge_add                 -- Adapted from MIL 3.6
     {σ₁ σ₂ : ℕ → ℚ } {a b : ℚ}
     (h1 : ConvergesTo σ₁ a) (h2 : ConvergesTo σ₂ b)
@@ -138,7 +133,7 @@ theorem converge_add                 -- Adapted from MIL 3.6
     _ < ε / 2 + ε / 2           := (add_lt_add (hs m ngeNs) (ht m ngeNt))
     _ = ε                       := by norm_num
 ```
- # CAUCHY SEQUENCES
+ ## Cauchy Sequences
 
 A different notion of convergence is Cauchy Convergence, stating that values become arbitrary close to each other without saying what they become close to. In fact, whatever the value is, it may not be rational. 
 ```lean
@@ -155,11 +150,8 @@ theorem three_c : IsCauchy (λ _ => 3) := by
   simp[hε]
 ```
  Proving more complicated examples, even just 1/n, is tough without more machinery. 
- # EXAMPLE: THE SUM OF CAUCHY SEQUENCES IS CAUCHY 
+ ## Example: The Sum of Cauchy Sequences is Cauchy 
 ```lean
-#check abs_lt
-#check half_pos
-
 theorem cauchy_add {s1 s2 : ℕ → ℚ}
   : IsCauchy s1 →
     IsCauchy s2 →
@@ -182,7 +174,7 @@ theorem cauchy_add {s1 s2 : ℕ → ℚ}
   -- The rest is arithmetic
   exact ⟨ by linarith, by linarith ⟩
 ```
- # EXAMPLE THE PRODUCT OF TWO CAUCHY SEQUENCES IS CAUCHY 
+ ## Example the Product of two Cauchy Sequences is Cauchy 
 ```lean
 theorem cauchy_mul (s1 s2 : ℕ → ℚ) :
   IsCauchy s1 →
@@ -190,7 +182,7 @@ theorem cauchy_mul (s1 s2 : ℕ → ℚ) :
   IsCauchy (mul s1 s2) := by
     sorry
 ```
- # EQUALITY OF SEQUENCES
+ # Equality of Sequences
 
 Different sequences may converge to the same value. For example, here is a list of ways to approximate π:
 
@@ -224,11 +216,11 @@ example : eq (mul sqrt2 sqrt2) (λ _ => 2) := by
       -- |a^2-2|<ε → |(a^2 + 2 + 4/(a^2))/4 -2| < ε
       sorry
 ```
- # ORDERING 
+ ## Ordering 
 ```lean
 def leq (σ τ : ℕ → ℚ) := eq σ τ ∨ ∃ N, ∀ n > N, σ n ≤ τ n
 ```
- # EXAMPLE : 1 ≤ √2 
+ ## Example : 1 ≤ √2 
  The arithmetic mean is greater than or equal to the geometric mean 
 ```lean
 theorem am_gm (a b : ℚ) : ((a+b)/2)^2 ≥ a*b := by
@@ -285,7 +277,7 @@ example : leq (λ _ => 1) sqrt2 := by
       have h3 : 0 ≤ (sqrt2 k + 2 / sqrt2 k)/2 := Rat.div_nonneg (Rat.add_nonneg h1 h2) rfl
       exact (one_le_sq_iff₀ h3).mp h6
 ```
- # EXAMPLE : COMMUTATIVITY OF SEQUENCE ADDITION 
+ ## Example : Commutativity of Sequence Addition 
 ```lean
 theorem sadd_comm {σ τ : ℕ → ℚ}
   : IsCauchy σ → IsCauchy τ → eq (add σ τ) (add τ σ) := by
@@ -299,7 +291,7 @@ theorem sadd_comm {σ τ : ℕ → ℚ}
   simp_all[add]
   sorry
 ```
- # EQ IS REFLEXIVE, SYMMETRIC, AND TRANSITIVE 
+ # Ew is Reflexive, Symmetric, and Transitive 
 ```lean
 theorem eq_refl {σ : ℕ → ℚ}
   : IsCauchy σ → eq σ σ := by
@@ -325,7 +317,7 @@ theorem eq_trans {σ₁ σ₂ σ₃: ℕ → ℚ}
   : IsCauchy σ₁ → IsCauchy σ₂ → eq σ₁ σ₂ → eq σ₂ σ₃ → eq σ₁ σ₃ := by
   sorry
 ```
- # THE CAUCHY COMPLETION OF THE RATIONALS = THE REALS 
+ ## The Cauchy Completion of the Rationals = The Reals 
 ```lean
 namespace Temp
 
@@ -336,7 +328,7 @@ open Real
 
 def three := ofCauchy (λ _ => 3) three_c
 ```
- # OPERATIONS, RELATIONS, and PROPERTIES "LIFT" 
+ # Operations, Relations, and Properties "lift" 
  Example operation 
 ```lean
 def radd (x y : Real) : Real := match x, y with
@@ -364,7 +356,7 @@ theorem radd_comm {x y : Real} : req (radd x y) (radd y x) := by
 
 end Temp
 ```
- # ALL THE PROPERTIES OF THE REALS
+ # All the Properties of the Reals
 
 ℝ is a field (so is ℚ)
   + and * are associative, commutative, distributive, inverses
@@ -384,24 +376,7 @@ All these properties are available, along with many more.
 #check le_total
 #check le_csSup
 ```
- # AND MORE REAL STUFF 
-```lean
-open Real
-
-example : ∃ x : ℝ, x^2 = 2 := by
-  use sqrt 2
-  simp
-
-example (x : Real) : (cos x)^2 + (sin x)^2 = 1 := by
-  exact cos_sq_add_sin_sq x
-
-example : deriv (fun x : ℝ ↦ x^5) 6 = 5 * 6^4 := by
-  simp
-
-example : deriv sin π = -1 := by
-  simp
-```
- # REFERENCES
+ ## References
 
 A nice description of the Cauchy Completion: https://mathweb.ucsd.edu/~tkemp/140A/Construction.of.R.pdf
 
