@@ -1,3 +1,10 @@
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.
+
 /- # The Curry-Howard Isomorphism
 
 Much of this chapter is an adaptation of the section of the book _Lectures on the Curry-Howard Isomorphism_ by Morten Heine Sørensen and Pawel Urzyczyn. In particular, Chapter 4 of that book describes Intuitionistic Propositional Logic.

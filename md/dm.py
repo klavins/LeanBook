@@ -15,6 +15,19 @@ f = open(sys.argv[1], "r", encoding='utf-8')
 
 data = f.read()
 
+copyright = """
+<div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+"""
+
+print(copyright)
+
 print("<span style='color: orange'>***UNDER CONSTRUCTION***</span><br>")
 
 print("<span style='color: lightgray; font-size: 10pt'>"
@@ -34,4 +47,4 @@ for str in re.split(comment, data)[1:]:
             print(code)
             print('```')
 
-print("\n<div style='height=50px'>&nbsp;</div><hr>\nCopyright © Eric Klavins, 2025-Present")
+print("\n<div style='height=50px'>&nbsp;</div><hr>\nCopyright © 2025 Eric Klavins")

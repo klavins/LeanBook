@@ -1,3 +1,13 @@
+
+<div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+
 <span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Integers/Properties.lean'>Code</a> for this chapter</span>
  # Lifting Properties
@@ -87,4 +97,4 @@ example (x y z : Int) : x+y+z = x+z+y := by
 The construction here is defined in a number of Algebra textbooks. For and early example, see the Nicolas Bourbaki collective's book _Algebra Part I_, 1943. The English translation of that book from 1974 has the relevant material on page 20. 
 
 <div style='height=50px'>&nbsp;</div><hr>
-Copyright © Eric Klavins, 2025-Present
+Copyright © 2025 Eric Klavins

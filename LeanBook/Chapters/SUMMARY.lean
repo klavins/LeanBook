@@ -1,3 +1,10 @@
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.
+
 /-
 
 [Foundations of Lean](./Introduction.md)
@@ -32,5 +39,14 @@
     - [Properties](./Integers/Properties.md)
 - [Rational Numbers](./Numbers.md)
 - [Real Numbers](./Reals.md)
+
+# Ordering
+
+- [Definitions](./Ordering/Definition.md)
+- [Properties](./Ordering/Properties.md)
+- [Natural Numbers](./Ordering/Nats.md)
+- [Sets](./Ordering/Sets.md)
+- [Strings](./Ordering/Strings.md)
+- [Information](./Ordering/Information.md)
 
 -/

@@ -11,3 +11,4 @@ mathjax-support = true
 git-repository-url = "https://github.com/klavins/LeanBook"
 git-repository-icon = "fa-github"
 additional-js = ["highlight.js","lean-book.js"]
+additional-css = ["lean-book.css"]

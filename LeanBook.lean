@@ -3,3 +3,5 @@
 
 import LeanBook.Chapters.Integers.Definition
 import LeanBook.Chapters.Integers.Operators
+
+import LeanBook.Chapters.Ordering.Definition

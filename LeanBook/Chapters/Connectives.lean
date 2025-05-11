@@ -1,3 +1,10 @@
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.
+
 /- # Propositional Logic Connectives
 
 One of the remarkable things about inductive types is that the capture all of propositional logic, first order logic, and more. Thus, instead of defining _and_, _or_ and the other logical connectives as built-in operators in the Lean language, they are just defined in the standard library in terms of more primited inductive types. -/

@@ -1,3 +1,13 @@
+
+<div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+
 <span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals.lean'>Code</a> for this chapter</span>
  # WHAT IS A REAL NUMBER?
@@ -30,13 +40,9 @@ Converges to `π`.
 
 Two issues arise.
 
-  1) What does it mean for a sequence over ℚ to converge? The normal notion of convergence over ℝ doesn't work here, because it requires knowledge about the existence of a real number being converged to. But we haven't defined ℝ yet.
+1) What does it mean for a sequence over ℚ to converge? The normal notion of convergence over ℝ doesn't work here, because it requires knowledge about the existence of a real number being converged to. But we haven't defined ℝ yet. To address this, we'll define `Cauchy Convergence`, which states that as you go out in the sequence, the values become arbitrarily close to each other. This means it converges to something, but that something might not be rational. So we'll call it real.
 
-    To address this, we'll define `Cauchy Convergence`, which states that as you go out in the sequence, the values become arbitrarily close to each other. This means it converges to something, but that something might not be rational. So we'll call it real.
-
-  2) Multiple sequences can converge in this sense to the same value. That is, the values of two sequences become arbitrarily close to each other.
-
-    To address this issue, we'll define a notion of equality on Cauchy Sequences and correspond to each `equivalence class` of sequences a real number.
+2) Multiple sequences can converge in this sense to the same value. That is, the values of two sequences become arbitrarily close to each other. To address this issue, we'll define a notion of equality on Cauchy Sequences and correspond to each `equivalence class` of sequences a real number.
 
 
  ## Sequences
@@ -385,4 +391,4 @@ A book that describes the Cauchy Completion:  Rudin, W.: Principles of Mathemati
 A real analysis book in which ℝ is constructed from decimal expansions of the form f : ℕ → ℤ with f(0) being the integer part and f(n) ∈ {0, ..., 9} for n ≥ 1. https://docs.ufpr.br/%7Ehigidio/Ensino/Seminario/Davidson-Donsig-2010-Real%20Analysis%20and%20Aplications.pdf  
 
 <div style='height=50px'>&nbsp;</div><hr>
-Copyright © Eric Klavins, 2025-Present
+Copyright © 2025 Eric Klavins
