@@ -13,7 +13,7 @@ namespace LeanBook
 
 /- # Lifting Properties
 
-In this section we show how to lift theorems from a type to a quotient on that type. Continuing with the `Int` example, we lift all the properties required to show that `Int` is an additive group. Then, using Lean's hierarchies, we instantiate `Int` as an additive group and show how he can then use all of Mathlib's group infrastructure on our new `Int` type.
+In this section we show how to lift theorems from a type to a quotient on that type. Continuing with the `Int` example, we lift all the properties required to show that `Int` is an additive group. Then, using Lean's hierarchies, we formally instantiate `Int` as an additive group using these theorems and show how we can then use all of Mathlib's group infrastructure on our new `Int` type.
 
 ## Lifting Theorems
 

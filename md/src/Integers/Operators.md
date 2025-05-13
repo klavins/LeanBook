@@ -15,7 +15,7 @@
 In this section we show how to _lift_ an operation, such as negation or addition, from `Pair` to `Int`, and more generally from any type to a quotient on that type. 
  ## Lifting Negation
 
-Next, we define the meaning of negation, which is simply to switch the elements of a pair. 
+First, we define the meaning of negation for pairs, which is simply to switch the order of the pair's elements. 
 ```lean
 def pre_negate (x : Pair) : Pair := ⟨ x.q, x.p ⟩
 ```
@@ -38,13 +38,12 @@ def negate (x : Int) : Int := Quotient.lift pre_negate' pre_negate_respects x
 ```lean
 instance int_negate : Neg Int := ⟨ negate ⟩
 ```
- To prove theorems about negation we need some fundamental tools for proving properties of quotients:
-
-- `Quotient.exists_rep`, which says `∃ a, ⟦a⟧ = q`. This operator allows you to assert the existence of a representative of an equivalence class. Then, if you are trying to prove a result about the equivalence class, it amounts to proving it about the representative.
-
-- `Quotient.sound`, which says `a ≈ b → ⟦a⟧ = ⟦b⟧`. Applying this operator allows you to replace a goal involving proving two equivalence classes are equal, with one showing that representatives of the respective equivalence classes are equivalent under the associated Setoid relation. In other words, we _unlift_ the equality back to the underlying space.
-
-Using these two operations, we have may prove a simple theorem: 
+ Now we can use negative integers. 
+```lean
+#check -mk ⟨2,1⟩
+#check -(1:Int)
+```
+ Here is a simple theorem to test whether all of this is working. 
 ```lean
 theorem negate_negate { x : Int } : -(-x) = x := by
   let ⟨ u, hu ⟩ := Quotient.exists_rep x
@@ -78,9 +77,15 @@ def add (x y : Int) : Int := Quotient.lift₂ pre_add' pre_add_respects x y
 ```lean
 instance int_add : Add Int := ⟨ add ⟩
 ```
- Here is an example. It is remarkable to see that the entire edifice we have build can interact so easily with `rfl`. 
+ Here is an example. It is remarkable to see that the entire edifice we have built can interact so easily with `rfl`. 
 ```lean
 example : (1:Int) + 17 = 18 := rfl
+```
+ A slightly more complicated example with addition and negation requires `Quotient.sound` since we have not yet lifted any theorems from `Pair` to `Int`. 
+```lean
+example : (1:Int) + (-2) = -1 := by
+  apply Quotient.sound
+  rfl
 ```
 
 <div style='height=50px'>&nbsp;</div><hr>

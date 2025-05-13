@@ -172,7 +172,16 @@
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Integers/Intro.lean'>Code</a> for this chapter</span></p>
 <h1 id="integers-via-quotients"><a class="header" href="#integers-via-quotients">Integers via Quotients</a></h1>
-<p>Now that we have defined the natural numbers <code>Nat</code>, the next obvious step is to define the integers <code>Int</code>(whole numbers that can be positive, negative or zero) . This can be done in several ways. For example, the Lean 4 standard library defines integers inductively saying that (a) any natural number is an integer, and (b) the negative successor of an integer is an integer.</p>
+<p>Now that we have defined the natural numbers <code>Nat</code>, the next obvious step is to define the integers <code>Int</code>, which included positive _and_negative whole numbers. This can be done in several ways. For example, the Lean 4 standard library defines integers inductively saying that (a) any natural number is an integer, and (b) the negative successor of an integer is an integer.</p>
+<p>Here, mainly to synergystically illustrate the use of <strong>quotients</strong>, we take a different approach, which is standard in foundational mathematics, although perhaps not as idiomatically type theoretic. We define pairs of natural numbers <code>(p,q)</code> and use the convention that if <code>p&gt;q</code> then <code>(p,q)</code> represents the positive number <code>p-q</code>. Otherwise, it represents the non-positive number <code>q-p</code>.</p>
+<p>This construction allows for multiple representatives of the same number. Therefore, we define an equivalence <code>≈</code> on pairs. We would like to write <code>(p,q) ≈ (r,s)</code> if and only if <code>p-q=r-s</code>, but since we are in the process of defining the integers, we do not yet have a notion of negative numbers. Some rearrangement leads to</p>
+<pre><code>(p,q) ≈ (r,s)  ↔   p+s=q+r
+</code></pre>
+<p>instead.</p>
+<p>With this equivalence in place, we define an integer to be the equivalence class corresponding to a given difference. For example,</p>
+<pre><code>-2 ≡ { (0,2), (1,3), (2,4), ... }
+</code></pre>
+<p>Although we could define -2 to be the <em>set</em> of such pairs, Lean has a much more powerful tool for such constructions: the quotient. Taking the quotient of the set of pairs with respect to the equivalence relation we have defined allows us to use <em>definitional equality</em> on equivalence classes of pairs. This allows us, for example, to substitute an integer for an equivalent one in an algebreic expression.</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 

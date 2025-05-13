@@ -12,7 +12,7 @@
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/SUMMARY.lean'>Code</a> for this chapter</span>
 
 
-[Foundations of Lean](./Introduction.md)
+[Foundations in Lean](./Introduction.md)
 
 # Basics
 
@@ -49,6 +49,7 @@
 
 - [Definitions](./Ordering/Definition.md)
 - [Properties](./Ordering/Properties.md)
+- [Maps](./Ordering/Maps.md)
 - [Natural Numbers](./Ordering/Nats.md)
 - [Sets](./Ordering/Sets.md)
 - [Strings](./Ordering/Strings.md)

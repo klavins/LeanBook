@@ -172,7 +172,6 @@
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Integers/Definition.lean'>Code</a> for this chapter</span></p>
 <h1 id="from-pairs-to-integers"><a class="header" href="#from-pairs-to-integers">From Pairs to Integers</a></h1>
-<p>Here, mainly to illustrate the use of <strong>quotients</strong>, we take a different approach, which is standard in foundational mathematics, although perhaps not as idiomatically type theoretic. We define pairs of natural numbers <code>(p,q)</code> and use the convention that if <code>p&gt;q</code> then <code>(p,q)</code> represents the positive number <code>p-q</code>. Otherwise, it represents the non-positive number <code>q-p</code>. This construction allows for multiple representatives of the same number. Therefore, we define the equivalence <code>(p,q) ≈ (r,s)</code> to mean <code>p+s=q+r</code>.</p>
 <p>As usual when defining a type with the same name as something in the standard library or in Mathlib, we open a namespace to avoid naming conflicts. The <code>Int</code> type we define in this section has the fully qualified name <code>LeanBook.Int</code>, and is a totally different type than Lean's <code>Int</code> type.</p>
 <pre><code class="language-lean">namespace LeanBook
 </code></pre>
@@ -212,7 +211,7 @@ theorem eq_trans {u v w: Pair} : eq u v → eq v w → eq u w := by
   simp_all[eq]
   linarith
 </code></pre>
-<p>With these properties in hand, we can register an instance of <code>Equivalence</code>, a Lean 4 standard library class that stores the properties of the equivalence rlation in one object, and enables us to easily use any theorems requiring our <code>eq</code> relation to have them.</p>
+<p>With these properties in hand, we can register an instance of <code>Equivalence</code>, a Lean 4 standard library class that stores the properties of the equivalence relation in one object, and enables us to easily use any theorems requiring our <code>eq</code> relation to have them.</p>
 <pre><code class="language-lean">instance eq_equiv : Equivalence eq := ⟨ eq_refl, eq_symm, eq_trans ⟩
 </code></pre>
 <p>We can also register <code>eq</code> with the <code>HasEquiv</code> class, which allows us to use the `≈' notation.</p>
@@ -228,6 +227,7 @@ def v : Pair := ⟨ 12,13 ⟩
 <pre><code class="language-lean">instance pre_int_setoid : Setoid Pair :=
   ⟨ eq, eq_equiv ⟩
 </code></pre>
+<p>This exact process should be followed whenever defining a new equivalence class in Lean.</p>
 <h2 id="quotients"><a class="header" href="#quotients">Quotients</a></h2>
 <p>The <strong>equivalence class</strong> of <code>x</code> is defined to be the set of all pairs <code>y</code> such that <code>x≈y</code>. The set of all equivalence classes is called the <strong>quotient space</strong>, which we can form using Lean's <code>Quotient</code>:</p>
 <pre><code class="language-lean">def Int := Quotient pre_int_setoid
@@ -251,6 +251,38 @@ instance int_of_nat {n: ℕ} :OfNat Int n := ⟨ mk ⟨ n, 0 ⟩ ⟩
 #check (1:Int)
 #check (123:Int)
 </code></pre>
+<p>You may also encounter the notation ⟦⬝⟧ for equivalence classes. Since the notation does not know which equivalence relation you might be talking about, it is only useful in a context where the Type can be inferred.</p>
+<pre><code class="language-lean">-- Does not work:
+#check_failure ⟦⟨1,2⟩⟧
+
+-- Ok:
+def my_int : Int := ⟦⟨1,2⟩⟧
+</code></pre>
+<h2 id="using-ints-in-proofs"><a class="header" href="#using-ints-in-proofs">Using Ints in Proofs</a></h2>
+<p>To prove theorems about negation we need some fundamental tools for proving properties of quotients:</p>
+<ul>
+<li>
+<p><code>Quotient.exists_rep</code>, which says <code>∃ a, ⟦a⟧ = q</code>. This operator allows you to assert the existence of a representative of an equivalence class. Then, if you are trying to prove a result about the equivalence class, it amounts to proving it about the representative.</p>
+</li>
+<li>
+<p><code>Quotient.sound</code>, which says <code>a ≈ b → ⟦a⟧ = ⟦b⟧</code>. Applying this operator allows you to replace a goal involving proving two equivalence classes are equal, with one showing that representatives of the respective equivalence classes are equivalent under the associated Setoid relation. In other words, we <em>unlift</em> the equality back to the underlying space.</p>
+</li>
+</ul>
+<p>Using these two operations, we do a simple proof in which, for illustrative purposes, we write out each step. It is instructive to open this proof in VS Code and examine the proof state before and after each step.</p>
+<pre><code class="language-lean">example : ∀ x : Int, x = x := by
+  intro x
+  obtain ⟨ ⟨ a, b ⟩, hd ⟩ := Quotient.exists_rep x
+  rewrite[←hd]
+  apply Quotient.sound
+  simp only [pre_int_setoid,HasEquiv.Equiv,eq]
+  exact Nat.add_comm a b
+</code></pre>
+<p>The proof can be made much simpler in this example, because definitional equality is all you need in this case.</p>
+<pre><code class="language-lean">example : ∀ x : Int, x = x := by
+  intro x
+  rfl
+</code></pre>
+<p>However, the use of <code>Quotient.exists_rep</code> and <code>Quotient.sound</code> in the more complicated proofs is often needed, and the above pattern will be applicable in many situations.</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 

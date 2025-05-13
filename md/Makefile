@@ -25,7 +25,7 @@ NAT_FILES := $(foreach item,$(NAT_NAMES), $(MD_DIR)/Naturals/$(item).md)
 INT_NAMES := Intro Definition Properties Operators
 INT_FILES := $(foreach item,$(INT_NAMES), $(MD_DIR)/Integers/$(item).md)
 
-ORD_NAMES := Definition Properties Nats Sets Information Strings
+ORD_NAMES := Definition Properties Nats Sets Information Strings Maps
 ORD_FILES := $(foreach item,$(ORD_NAMES), $(MD_DIR)/Ordering/$(item).md)
 
 all: $(MD_FILES) $(NAT_FILES) $(INT_FILES) $(ORD_FILES)

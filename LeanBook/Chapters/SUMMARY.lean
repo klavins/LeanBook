@@ -7,7 +7,7 @@
 
 /-
 
-[Foundations of Lean](./Introduction.md)
+[Foundations in Lean](./Introduction.md)
 
 # Basics
 

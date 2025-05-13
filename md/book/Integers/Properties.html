@@ -172,7 +172,7 @@
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Integers/Properties.lean'>Code</a> for this chapter</span></p>
 <h1 id="lifting-properties"><a class="header" href="#lifting-properties">Lifting Properties</a></h1>
-<p>In this section we show how to lift theorems from a type to a quotient on that type. Continuing with the <code>Int</code> example, we lift all the properties required to show that <code>Int</code> is an additive group. Then, using Lean's hierarchies, we instantiate <code>Int</code> as an additive group and show how he can then use all of Mathlib's group infrastructure on our new <code>Int</code> type.</p>
+<p>In this section we show how to lift theorems from a type to a quotient on that type. Continuing with the <code>Int</code> example, we lift all the properties required to show that <code>Int</code> is an additive group. Then, using Lean's hierarchies, we formally instantiate <code>Int</code> as an additive group using these theorems and show how we can then use all of Mathlib's group infrastructure on our new <code>Int</code> type.</p>
 <h2 id="lifting-theorems"><a class="header" href="#lifting-theorems">Lifting Theorems</a></h2>
 <p>There is no direct operator for lifting theorems, but doing so is straightforward. One typically defines a theorem on the base space and then uses it to prove the corresponding theorem on the quotient space. For example, here are several theorems defined on pairs.</p>
 <pre><code class="language-lean">theorem pre_add_com {x y: Pair} : eq (pre_add x y) (pre_add y x) := by

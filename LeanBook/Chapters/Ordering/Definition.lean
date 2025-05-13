@@ -6,21 +6,14 @@
 --  (at your option) any later version.
 
 import Mathlib
+import LeanBook.Chapters.Relations
 
 universe u v
 
 namespace LeanBook
 open LeanBook
 
-/- # Relations -/
-
-def Relation (A : Type u) (B : Type v) := A → B → Prop
-def Refl {A : Type u} (r : Relation A A) := ∀ x, r x x
-def Symm {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x
-def AntiSym {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x → x = y
-def Trans {A : Type u} (r : Relation A A) := ∀ x y z, r x y → r y z → r x z
-
-/- ## Partial Orders  -/
+/- # Partial Orders  -/
 
 class Poset (α : Type u) where
   le : Relation α α

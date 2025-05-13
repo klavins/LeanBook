@@ -7,7 +7,7 @@
 
 /-
 
-# Foundations of Lean
+# Foundations in Lean
 by Eric Klavins
 
 The notes presented here were initially developed for a special topics graudate course on Lean I taught in the Winter of 2025. The course was taken mainly by Electrical and Computer Engineers with standard programming experience, some engineering mathematics background, and a variety of different application areas in mind. The main reading for the course included all the standard Lean references and books. These notes are merely a supplement for those excellent resources.

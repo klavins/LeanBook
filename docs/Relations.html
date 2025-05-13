@@ -29,6 +29,7 @@
         <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="lean-book.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -160,16 +161,32 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+                        <div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Relations.lean'>Code</a> for this chapter</span></p>
 <h1 id="relations"><a class="header" href="#relations">Relations</a></h1>
 <p>As described previously, a relation is a propositionally valued predicate of two arguments. Generally speaking, that is about all you can say about predicates. However, when we restrict our attention to predicates having specific properties, we can say much more.</p>
 <p>In this chapter we will build up some of the theory behind relations and give several examples of each type of relation.</p>
 <p>Note that Mathlib has many definitions involved relations. In particular, <code>Rel</code> is the general type of relations. We will not use that infrastructure in this chapter, as our goal is to build up the theory from scratch for the purposes of understanding it better, which in turn should make Mathlib more comprehensible.</p>
-<h2 id="definitions"><a class="header" href="#definitions">Definitions</a></h2>
+<h1 id="definitions"><a class="header" href="#definitions">Definitions</a></h1>
 <p>First, we define a general type for relations:</p>
+<pre><code class="language-lean">def Relation (A : Type u) (B : Type v) := A → B → Prop
+</code></pre>
+<h2 id="types-of-relation"><a class="header" href="#types-of-relation">Types of Relation</a></h2>
+<pre><code class="language-lean">def Refl {A : Type u} (r : Relation A A) := ∀ x, r x x
+def Symm {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x
+def AntiSym {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x → x = y
+def Trans {A : Type u} (r : Relation A A) := ∀ x y z, r x y → r y z → r x z
+</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
-Copyright © Eric Klavins, 2025-Present
+Copyright © 2025 Eric Klavins
 
                     </main>
 

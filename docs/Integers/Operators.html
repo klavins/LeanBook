@@ -29,6 +29,7 @@
         <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../lean-book.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -160,12 +161,20 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+                        <div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Integers/Operators.lean'>Code</a> for this chapter</span></p>
 <h1 id="lifting-operators"><a class="header" href="#lifting-operators">Lifting Operators</a></h1>
 <p>In this section we show how to <em>lift</em> an operation, such as negation or addition, from <code>Pair</code> to <code>Int</code>, and more generally from any type to a quotient on that type.</p>
 <h2 id="lifting-negation"><a class="header" href="#lifting-negation">Lifting Negation</a></h2>
-<p>Next, we define the meaning of negation, which is simply to switch the elements of a pair.</p>
+<p>First, we define the meaning of negation for pairs, which is simply to switch the order of the pair's elements.</p>
 <pre><code class="language-lean">def pre_negate (x : Pair) : Pair := ⟨ x.q, x.p ⟩
 </code></pre>
 <p>We would like to <strong>lift</strong> the definition of negation to our new <code>Int</code> type. This means defining negation of an entire equivalence class, which would only work if our <code>pre_negate</code> function has the same result on all elements of an equivalence class, which fortunately it does! To capture this notion we define a <em>respects</em> theorem.</p>
@@ -184,16 +193,11 @@ def negate (x : Int) : Int := Quotient.lift pre_negate' pre_negate_respects x
 <p>We may register our negation function wit the <code>Neg</code> class, allowing us to use the <code>-</code> notation for it, and to use any general theorems proved in Mathlib for types with negation.</p>
 <pre><code class="language-lean">instance int_negate : Neg Int := ⟨ negate ⟩
 </code></pre>
-<p>To prove theorems about negation we need some fundamental tools for proving properties of quotients:</p>
-<ul>
-<li>
-<p><code>Quotient.exists_rep</code>, which says <code>∃ a, ⟦a⟧ = q</code>. This operator allows you to assert the existence of a representative of an equivalence class. Then, if you are trying to prove a result about the equivalence class, it amounts to proving it about the representative.</p>
-</li>
-<li>
-<p><code>Quotient.sound</code>, which says <code>a ≈ b → ⟦a⟧ = ⟦b⟧</code>. Applying this operator allows you to replace a goal involving proving two equivalence classes are equal, with one showing that representatives of the respective equivalence classes are equivalent under the associated Setoid relation. In other words, we <em>unlift</em> the equality back to the underlying space.</p>
-</li>
-</ul>
-<p>Using these two operations, we have may prove a simple theorem:</p>
+<p>Now we can use negative integers.</p>
+<pre><code class="language-lean">#check -mk ⟨2,1⟩
+#check -(1:Int)
+</code></pre>
+<p>Here is a simple theorem to test whether all of this is working.</p>
 <pre><code class="language-lean">theorem negate_negate { x : Int } : -(-x) = x := by
   let ⟨ u, hu ⟩ := Quotient.exists_rep x
   rw[←hu]
@@ -221,11 +225,16 @@ def add (x y : Int) : Int := Quotient.lift₂ pre_add' pre_add_respects x y
 <p>And while we are at it, we can register addition with Mathlib's Add class so we can use <code>+</code>.</p>
 <pre><code class="language-lean">instance int_add : Add Int := ⟨ add ⟩
 </code></pre>
-<p>Here is an example. It is remarkable to see that the entire edifice we have build can interact so easily with <code>rfl</code>.</p>
+<p>Here is an example. It is remarkable to see that the entire edifice we have built can interact so easily with <code>rfl</code>.</p>
 <pre><code class="language-lean">example : (1:Int) + 17 = 18 := rfl
 </code></pre>
+<p>A slightly more complicated example with addition and negation requires <code>Quotient.sound</code> since we have not yet lifted any theorems from <code>Pair</code> to <code>Int</code>.</p>
+<pre><code class="language-lean">example : (1:Int) + (-2) = -1 := by
+  apply Quotient.sound
+  rfl
+</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
-Copyright © Eric Klavins, 2025-Present
+Copyright © 2025 Eric Klavins
 
                     </main>
 
