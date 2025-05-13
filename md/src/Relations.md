@@ -26,10 +26,10 @@ abbrev Relation (A : Type u) (B : Type v) := A → B → Prop
 ```
  ## Types of Relation 
 ```lean
-abbrev Refl {A : Type u} (r : Relation A A) := ∀ x, r x x
-abbrev Symm {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x
-abbrev AntiSym {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x → x = y
-abbrev Trans {A : Type u} (r : Relation A A) := ∀ x y z, r x y → r y z → r x z
+abbrev Refl {A : Type u} (r : Relation A A) {x : A} := r x x
+abbrev Symm {A : Type u} (r : Relation A A) {x y : A} := r x y → r y x
+abbrev AntiSym {A : Type u} (r : Relation A A) {x y : A}:= r x y → r y x → x = y
+abbrev Trans {A : Type u} (r : Relation A A) {x y z : A} := r x y → r y z → r x z
 ```
 
 <div style='height=50px'>&nbsp;</div><hr>

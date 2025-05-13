@@ -2329,13 +2329,13 @@ Copyright © 2025 Eric Klavins
 <p>Note that Mathlib has many definitions involved relations. In particular, <code>Rel</code> is the general type of relations. We will not use that infrastructure in this chapter, as our goal is to build up the theory from scratch for the purposes of understanding it better, which in turn should make Mathlib more comprehensible.</p>
 <h1 id="definitions"><a class="header" href="#definitions">Definitions</a></h1>
 <p>First, we define a general type for relations:</p>
-<pre><code class="language-lean">def Relation (A : Type u) (B : Type v) := A → B → Prop
+<pre><code class="language-lean">abbrev Relation (A : Type u) (B : Type v) := A → B → Prop
 </code></pre>
 <h2 id="types-of-relation"><a class="header" href="#types-of-relation">Types of Relation</a></h2>
-<pre><code class="language-lean">def Refl {A : Type u} (r : Relation A A) := ∀ x, r x x
-def Symm {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x
-def AntiSym {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x → x = y
-def Trans {A : Type u} (r : Relation A A) := ∀ x y z, r x y → r y z → r x z
+<pre><code class="language-lean">abbrev Refl {A : Type u} (r : Relation A A) {x : A} := r x x
+abbrev Symm {A : Type u} (r : Relation A A) {x y : A} := r x y → r y x
+abbrev AntiSym {A : Type u} (r : Relation A A) {x y : A}:= r x y → r y x → x = y
+abbrev Trans {A : Type u} (r : Relation A A) {x y z : A} := r x y → r y z → r x z
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -3335,62 +3335,307 @@ Copyright © 2025 Eric Klavins
 </div>
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Definition.lean'>Code</a> for this chapter</span></p>
-<h1 id="partial-orders"><a class="header" href="#partial-orders">Partial Orders</a></h1>
+<h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
+<p>An <strong>order relation</strong> on a set <code>A</code> is a predicate <code>A → A → Prop</code> that captures some notion of order. A familiar example is the the <em>less than</em> relation on the natural numbers:</p>
+<pre><code class="language-lean">#check 1 ≤ 2
+</code></pre>
+<p>where <code>&lt;</code> is shorthand for</p>
+<pre><code class="language-lean">#check Nat.le       -- ℕ → ℕ → Prop
+</code></pre>
+<p><code>Nat.le</code> is an example of a <strong>total order</strong> on a set, meaning any two elements <code>x</code> and <code>y</code> are related (i.e. <code>x≤y</code> or <code>y≤x</code>). This need not be the case in general. For example, the subset relation <code>⊆</code> on sets is only a <strong>partial order</strong>, because one can find sets <code>A</code> and <code>B</code> for which neither <code>A ⊆ B</code> or <code>B ⊆ A</code>.</p>
+<pre><code class="language-lean">namespace Temp
+
+def A : Set ℕ := {1,2}
+def B : Set ℕ := {3,4}
+
+example : ¬A ⊆ B ∧ ¬B ⊆ A := by
+  apply And.intro
+  . intro h
+    have h1a: 1 ∈ A := by simp[A]
+    have h1b := h h1a
+    simp[B] at h1b
+  . intro h
+    have h3b: 3 ∈ B := by simp[B]
+    have h3a := h h3b
+    simp[A] at h3a
+
+end Temp
+</code></pre>
+<p>You will encounter many other examples of orderings besides these two, some of which we will get to in later sections. For now, we aim like to define a hierarchy of types of orders that capture their similarities and differences, defining a general theory of orders. A side goal here is to show how Lean's heirachy machinery works from the point of view of defining a <em>new</em> hierarchy instead of using someone else's hierarchy.</p>
+<p>Most of this material comes from the book <em>Introduction to Lattices and Order</em> by Davey and Priestly.</p>
+<h2 id="partial-orders"><a class="header" href="#partial-orders">Partial Orders</a></h2>
+<p>A <strong>partially ordered set</strong> or <strong>poset</strong> is a set and a <em>less-than</em> ordering relation on the set that requires pretty much the minimum one might expect from a binary relation for it to be called an ordering: the relation needs to be reflexive, anti-symmetric, and transitive (see <a href="Ordering/../Relations.html">Relations</a>). Using a new Lean <code>class</code>, we define a class of types that have a less-than relation with these three properties.</p>
 <pre><code class="language-lean">class Poset (α : Type u) where
-  le : Relation α α
-  refl : Refl le
-  anti_sym : AntiSym le
-  trans : Trans le
-
-namespace Poset
-
-instance le_inst {A : Type u} [Poset A] : LE A := ⟨ Poset.le ⟩
+  le : α → α → Prop
+  refl : ∀ x, le x x
+  anti_sym : ∀ x y, le x y → le y x → x = y
+  trans : ∀ x y z, le x y → le y z → le x z
+</code></pre>
+<h3 id="example--the-natural-numbers"><a class="header" href="#example--the-natural-numbers">Example : The Natural Numbers</a></h3>
+<p>Lean's standard library has all of these properties defined for natural numbers. Therefore, we can assert that <code>ℕ</code> is a <code>poset</code> by instantiating the <code>Poset</code> class as follows.</p>
+<pre><code class="language-lean">instance : Poset ℕ := ⟨ Nat.le, @Nat.le.refl, @Nat.le_antisymm, @Nat.le_trans⟩
+</code></pre>
+<h3 id="example--sets"><a class="header" href="#example--sets">Example : Sets</a></h3>
+<p>Lean's standard library also has all of these properties defined for sets.</p>
+<pre><code class="language-lean">instance {A: Type u} : Poset (Set A) := ⟨
+  Set.Subset,
+  Set.Subset.refl,
+  λ _ _ h1 h2 =&gt; Set.Subset.antisymm h1 h2,
+  λ _ _ _ h1 h2 =&gt; Set.Subset.trans h1 h2
+⟩
+</code></pre>
+<h2 id="poset-notation"><a class="header" href="#poset-notation">Poset Notation</a></h2>
+<p>Simply having the <code>Poset</code> class defined does not give us much, however. Thus, the main goal of this section is to develop theorems that, for example, apply to any <code>Poset</code>, define specific kinds of <code>Poset</code>, or that relate <code>Posets</code> to each other.</p>
+<p>To state these theorems cleaning, we first register some notation with Lean. Instantiating the <code>LE</code> and <code>LT</code> classes in Lean's standard library allow us to use <code>≤</code>, <code>≥</code>, <code>&lt;</code>, and <code>ge</code> on elements of our <code>Poset</code> type. Notice how these instances are declared. We have to supply a Type <code>A</code>, and require that it has been instantiated as a <code>Poset</code>.</p>
+<pre><code class="language-lean">instance le_inst {A : Type u} [Poset A] : LE A := ⟨ Poset.le ⟩
 instance lt_inst {A : Type u} [Poset A] : LT A := ⟨ λ x y =&gt; x ≤ y ∧ x ≠ y ⟩
-instance coe {A : Type u} : CoeSort (Poset A) (Type u) := ⟨ λ _ =&gt; A ⟩
+
+example {A : Type u} [Poset A] (x:A) := x ≥ x
 </code></pre>
-<h2 id="other-operators"><a class="header" href="#other-operators">Other operators</a></h2>
-<pre><code class="language-lean">def up {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; x ≤ y
-def down {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; y ≤ x
+<h2 id="total-orders"><a class="header" href="#total-orders">Total Orders</a></h2>
+<p>A <strong>total order</strong> is a <code>Poset</code> with the added requirement that any two elements are comparable.</p>
+<pre><code class="language-lean">def Comparable {P : Type u} [Poset P] (x y: P) := x ≤ y ∨ y ≤ x
 
-def Minimal {P : Type u} [Poset P] (S : Set P) (x : P) := x ∈ S ∧ ∀ y, x ≤ y
-def Maximal {P : Type u} [Poset P] (S : Set P) (x : P) := x ∈ S ∧ ∀ y, y ≤ x
-
-def is_bot {P : Type u} [Poset P] (x : P) := ∀ y, x ≤ y
-def is_top {P : Type u} [Poset P] (x : P) := ∀ y, y ≤ x
+class TotalOrder (T: Type u) extends Poset T where
+  comp: ∀ x y : T, Comparable x y
 </code></pre>
-<h2 id="important-subsets-of-posets"><a class="header" href="#important-subsets-of-posets">Important Subsets of Posets</a></h2>
-<pre><code class="language-lean">def Chain {P : Type u} [Poset P] (S : Set P) := ∀ x ∈ S, ∀ y ∈ S, x ≤ y ∨ y ≤ x
-def AntiChain {P : Type u} [Poset P] (S : Set P) := ∀ x ∈ S, ∀ y ∈ S, ¬x ≤ y ∧ ¬y ≤ x
-
-def UpSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, y ≤ x) → x ∈ S
-def DownSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, x ≤ y) → x ∈ S
-
-theorem up_is_up {P : Type u} [Poset P] (x : P) : UpSet (up x) := by
-  intro z ⟨ y, ⟨ h1, h2 ⟩ ⟩
-  simp_all[Set.mem_def,up]
-  apply Poset.trans x y z h1 h2
-
-theorem down_is_down {P : Type u} [Poset P] (x : P) : DownSet (down x) := by
-  intro z ⟨ y, ⟨ h1, h2 ⟩ ⟩
-  simp_all[Set.mem_def,down]
-  apply Poset.trans z y x h2 h1
+<p>The natural numbers are a total order, which is shown via a theorem in Lean's standard library. :</p>
+<pre><code class="language-lean">instance nat_total_order : TotalOrder ℕ :=
+  ⟨ Nat.le_total ⟩
+</code></pre>
+<p>Sets are not a total order, however.</p>
+<pre><code class="language-lean">example : ∃ x y : Set ℕ, ¬Comparable x y := by
+  apply Exists.intro {1}
+  apply Exists.intro {2}
+  simp[Comparable]
 </code></pre>
 <h2 id="meet-semilattices"><a class="header" href="#meet-semilattices">(Meet) Semilattices</a></h2>
-<pre><code class="language-lean">def IsGLBFunc {P : Type u} [Poset P] (f: P → P → P) :=
-  ∀ x y, (f x y ≤ x ∧ f x y ≤ y) ∧ (∀ w, w ≤ x → w ≤ y → w ≤ f x y)
-
-class Semilattice (L : Type u) extends Poset L where
+<p>A <code>Semilattice</code> is a <code>Poset</code> for which there exists a greatest lower bound function, usually called <code>meet</code>, for every pair of points <code>x</code> and <code>y</code>. Then we extend the hierarchy with a new class of orders.</p>
+<pre><code class="language-lean">class Semilattice (L : Type u) extends Poset L where
   meet : L → L → L
-  is_glb : IsGLBFunc meet
+  lb : ∀ x y, meet x y ≤ x ∧ meet x y ≤ y
+  greatest : ∀ x y w, w ≤ x → w ≤ y → w ≤ meet x y
+</code></pre>
+<p>For example, the natural numbers form a semilattice. So do sets.</p>
+<pre><code class="language-lean">instance nat_semi_lattice : Semilattice ℕ :=
+  ⟨
+    Nat.min,
+    by
+      intro x y
+      exact ⟨ Nat.min_le_left x y, Nat.min_le_right x y⟩,
+    by
+      intro x y _ h1 h2
+      exact Nat.le_min_of_le_of_le h1 h2
+  ⟩
+
+instance set_semi_lattice {α : Type u}: Semilattice (Set α) :=
+  ⟨
+    Set.inter,
+    by
+      intro A B
+      apply And.intro
+      . intro x hx
+        exact Set.mem_of_mem_inter_left hx
+      . intro x hx
+        exact Set.mem_of_mem_inter_right hx,
+    by
+      intro A B _ h1 h2 _ hc
+      exact ⟨ h1 hc, h2 hc ⟩
+  ⟩
 </code></pre>
 <h2 id="lattices"><a class="header" href="#lattices">Lattices</a></h2>
-<pre><code class="language-lean">def IsLUBFunc {P : Type u} [Poset P] (f: P → P → P) :=
-  ∀ x y, (x ≤ f x y ∧ y ≤ f x y) ∧ (∀ w, x ≤ w → y ≤ w → f x y ≤ w)
-
-class Lattice (L : Type u) extends Semilattice L where
+<p>If all pairs of elements also have a least upper bound, then the <code>Poset</code> is called a <code>Lattice</code>. The least upper bound function is called the <strong>join</strong>.</p>
+<pre><code class="language-lean">class Lattice (L : Type u) extends Semilattice L where
   join : L → L → L
-  is_lub : IsLUBFunc join
+  ub : ∀ x y, (x ≤ join x y ∧ y ≤ join x y)
+  least : ∀ x y w, x ≤ w → y ≤ w → join x y ≤ w
 </code></pre>
+<p>Both ℕ and Sets are Lattices as well. The joing for ℕ is <code>Nat.max</code> and the join for sets is <code>Set.union</code>.</p>
+<pre><code class="language-lean">instance nat_lattice : Lattice ℕ :=
+  ⟨
+    Nat.max,
+    by
+      intro x y
+      exact ⟨ Nat.le_max_left x y, Nat.le_max_right x y ⟩,
+    by
+      intro x y _ h1 h2
+      exact Nat.max_le_of_le_of_le h1 h2
+  ⟩
+
+instance set_lattice {α : Type u}: Lattice (Set α) :=
+  ⟨
+    Set.union,
+    by
+      intro A B
+      . exact Set.union_subset_iff.mp (λ  _ a =&gt; a),
+    by
+      intro A B C h1 h2 c hc
+      apply Or.elim hc
+      . exact λ h3 =&gt; h1 h3
+      . exact λ h3 =&gt; h2 h3
+  ⟩
+</code></pre>
+<p>As an example of a semilattice that is not a lattice is the so-called <a href="Ordering/./Information.html">information ordering</a> on partial functions, decribed in a separate chapter.</p>
+<h2 id="notation-for-lattices"><a class="header" href="#notation-for-lattices">Notation for Lattices</a></h2>
+<p>The meet and join of two elements <code>x</code> and <code>y</code> of a poset are denonted <code>x ⊓ y</code> and <code>x sup y</code>. The notation classes for these operations are called <code>Min</code> and <code>Max</code>, even though you do not have to use them for actual mins and maxes.</p>
+<pre><code class="language-lean">instance Semilattice.and_inst {L : Type u} [Semilattice L] : Min L :=
+  ⟨ meet ⟩
+
+instance Lattice.or_inst {L : Type u} [Lattice L] : Max L :=
+  ⟨ join ⟩
+</code></pre>
+<h2 id="meet-and-join-example-theorems"><a class="header" href="#meet-and-join-example-theorems">Meet and Join Example Theorems</a></h2>
+<p>Here are two straightforward theorems about meets and joins that test out the definitions and notation. They follow from the definitions of greatest lower bound, least upper bound, anti-symmetry, and reflexivity.</p>
+<pre><code class="language-lean">theorem Semilattice.meet_idempotent {L : Type u} [Semilattice L] (x : L) : x ⊓ x = x := by
+  have ⟨ h1, h2 ⟩ := lb x x
+  have h4 := greatest x x x (Poset.refl x) (Poset.refl x)
+  exact Poset.anti_sym (x ⊓ x) x h1 h4
+
+theorem Lattice.join_idempotent {L : Type u} [Lattice L] (x : L) : x ⊔ x = x := by
+  have ⟨ h1, h2 ⟩ := ub x x
+  have h4 := least x x x (Poset.refl x) (Poset.refl x)
+  apply Poset.anti_sym (x ⊔ x) x h4 h1
+</code></pre>
+<h2 id="complete-lattices"><a class="header" href="#complete-lattices">Complete Lattices</a></h2>
+<pre><code class="language-lean">class HasTop (P : Type u) extends Poset P where
+  ex_top : ∃ top : P, ∀ x, x ≤ top
+
+class HasBot (P : Type u) extends Poset P where
+  ex_bot : ∃ bot : P, ∀ x, bot ≤ x
+
+class CompleteSemilattice (L : Type u) extends Poset L where
+  inf : Set L → L
+  lb : ∀ S, ∀ x ∈ S, inf S ≤ x
+  greatest : ∀ S, ∀ w, ∀ x, (x ∈ S ∧ w ≤ x) → w ≤ inf S
+
+class CompleteLattice (L : Type u) extends CompleteSemilattice L where
+  sup : Set L → L
+  ub : ∀ S, ∀ x ∈ S, x ≤ sup S
+  least : ∀ S, ∀ w, ∀ x, (x ∈ S ∧ x ≤ w) → sup S ≤ w
+</code></pre>
+<h2 id="hierarchy"><a class="header" href="#hierarchy">Hierarchy</a></h2>
+<pre><code>     Lattice      CL
+        |          |
+    Semilattice   CSL    Total Order
+          \        |       /
+                 Poset
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Properties.lean'>Code</a> for this chapter</span></p>
+<h2 id="simple-properties"><a class="header" href="#simple-properties">Simple Properties</a></h2>
+<pre><code class="language-lean">theorem eq_to_le {P : Type u} [Poset P] {x y : P} : x = y → x ≤ y := by
+  intro h
+  rw[h]
+  exact refl y
+</code></pre>
+<h2 id="up-sets-and-down-sets"><a class="header" href="#up-sets-and-down-sets">Up Sets and Down Sets</a></h2>
+<p>The set of all elements above (below) a given element <code>x:P</code> is called the up (down) set of <code>x</code>.</p>
+<pre><code class="language-lean">def up {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; x ≤ y
+def down {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; y ≤ x
+</code></pre>
+<p>A set that is upwardly (downwardly) closed is called an Up (Down) set. We define predicates on subsets of a Poset to capture these properties. These are a bit tricky to read. The first one says that if <code>x</code> is any element and there is a <code>y</code> in some upward closed set <code>S</code> that is less than or equal to it, then <code>x</code> must also be in <code>S</code>. The second statement about downward closed sets is similar.</p>
+<pre><code class="language-lean">def UpSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, y ≤ x) → x ∈ S
+def DownSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, x ≤ y) → x ∈ S
+</code></pre>
+<p>Simple theorems relating these definitions can now be proved. The next two, for example, show that up (down) sets are upwardly (downwardly) closed.</p>
+<pre><code class="language-lean">theorem up_is_up {P : Type u} [Poset P] (x : P) : UpSet (up x) := by
+  intro z ⟨ y, ⟨ h1, h2 ⟩  ⟩
+  simp_all[Set.mem_def,up]
+  exact trans x y z h1 h2
+
+theorem down_is_down {P : Type u} [Poset P] (x : P) : DownSet (down x) := by
+  intro z ⟨ y, ⟨ h1, h2 ⟩  ⟩
+  simp_all[Set.mem_def,down]
+  apply trans z y x h2 h1
+</code></pre>
+<p>Upward closed sets are not just those built from a single element. For example, the union of two upwardly closed sets is also upwardly closed.</p>
+<pre><code class="language-lean">theorem up_union {P : Type u} [Poset P] (x y: P) : UpSet ((up x) ∪ (up y)) := by
+  intro w ⟨ z, ⟨ h1, h2 ⟩ ⟩
+  apply Or.elim h1
+  . intro h3
+    exact Or.inl (trans x z w h3 h2)
+  . intro h3
+    apply Or.inr (trans y z w h3 h2)
+</code></pre>
+<h2 id="minimal-and-maximal-elements"><a class="header" href="#minimal-and-maximal-elements">Minimal and Maximal Elements</a></h2>
+<p>A <strong>minimal</strong> element of a set <code>S ⊆ P</code> is one for which no other elements of <code>S</code> are smaller.</p>
+<pre><code class="language-lean">def Minimal {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S, x ≤ m → x = m
+</code></pre>
+<p>Minimal elements are not necessarily unique. The following example shows that when <code>x</code> and <code>y</code> are unrelated, either one of them is minimal.</p>
+<pre><code class="language-lean">example {P : Type u} [Poset P] (x y: P) : (¬x≤y ∧ ¬y≤x) → Minimal {x,y} x := by
+  intro ⟨h1, h2⟩ z h3 h4
+  apply Or.elim h3
+  . exact id
+  . intro h5
+    rw[h5] at h4
+    exact False.elim (h2 h4)
+</code></pre>
+<p>On the other hand, a <strong>minimum</strong> element is a unique minimal element.</p>
+<pre><code class="language-lean">def Minimum {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S, m ≤ x
+</code></pre>
+<p>The most minimal element of a <code>Poset</code> is usually called <code>bot</code>.</p>
+<pre><code class="language-lean">def is_bot {P : Type u} [Poset P] (x : P) := ∀ y, x ≤ y
+
+theorem bot_minimum {P : Type u} [Poset P] (m : P) : is_bot m → Minimum Set.univ m := by
+  intro hb x hm
+  simp_all[is_bot]
+</code></pre>
+<p>These definitions apply to maxima as well.</p>
+<pre><code class="language-lean">def Maximal {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S , m ≤ x → x = m
+def Maximum {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S, x ≤ m
+def is_top {P : Type u} [Poset P] (x : P) := ∀ y, y ≤ x
+</code></pre>
+<h2 id="chains-and-anti-chains"><a class="header" href="#chains-and-anti-chains">Chains and Anti-Chains</a></h2>
+<p>A chain is a totally ordered subset of a poset.</p>
+<pre><code class="language-lean">def Chain {P : Type u} [Poset P] (S : Set P) := ∀ x ∈ S, ∀ y ∈ S, x ≤ y ∨ y ≤ x
+</code></pre>
+<p>For example, the upset of any natural number is a chain.</p>
+<pre><code class="language-lean">example {n : ℕ} : Chain (up n) := by
+  intro x hx y hy
+  exact Nat.le_total x y
+</code></pre>
+<p>An antichain is a set of uncomparable elements.</p>
+<pre><code class="language-lean">def AntiChain {P : Type u} [Poset P] (S : Set P) := ∀ x ∈ S, ∀ y ∈ S, x ≠ y → (¬x ≤ y ∧ ¬y ≤ x)
+</code></pre>
+<p>For example, the set of singletons each containing a different natural number is an anti-chain.</p>
+<pre><code class="language-lean">def my_anti_chain : Set (Set ℕ) := { {n} | n : ℕ }
+
+example : AntiChain my_anti_chain := by
+  simp[my_anti_chain]
+  intro Sm ⟨ m, hsm ⟩ Sn ⟨ n, hsn ⟩ hmn
+  simp[le_inst]
+  apply And.intro
+  . intro h
+    rw[←hsm,←hsn] at h
+    rw[←hsm,←hsn] at hmn
+    exact hmn (congrArg singleton (h rfl))
+  . intro h
+    rw[←hsm,←hsn] at h
+    rw[←hsm,←hsn] at hmn
+    exact id (Ne.symm hmn) (congrArg singleton (h rfl))
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Maps.lean'>Code</a> for this chapter</span></p>
 <h2 id="maps-between-posets"><a class="header" href="#maps-between-posets">Maps Between Posets</a></h2>
 <pre><code class="language-lean">def OrderPreserving {P Q : Type u} [Poset P] [Poset Q] (φ : P → Q) :=
   ∀ x y : P, x ≤ y → φ x ≤ φ y
@@ -3414,15 +3659,10 @@ theorem order_pres_comp {P Q R : Type u} [Poset P] [Poset Q] [Poset R] (φ : P �
   apply h1 x y
   exact hxy
 
-theorem eq_to_le {P : Type u} [Poset P] {x y : P} : x = y → x ≤ y := by
-  intro h
-  rw[h]
-  exact Poset.refl y
-
 theorem order_embed_1to1 {P Q : Type u} [Poset P] [Poset Q] (φ : P → Q)
   : OrderEmbedding φ → OneToOne φ := by
   intro h x y hxy
-  apply Poset.anti_sym
+  apply anti_sym
   . apply (h x y).mpr
     exact eq_to_le hxy
   . apply (h y x).mpr
@@ -3433,47 +3673,36 @@ theorem order_iso_bijective {P Q : Type u} [Poset P] [Poset Q] (φ : P → Q)
   intro ⟨ h1, h2 ⟩
   exact ⟨ order_embed_1to1 φ h2, h1 ⟩
 </code></pre>
-<h2 id="trees"><a class="header" href="#trees">Trees</a></h2>
-<pre><code class="language-lean">class Tree (T : Type u) extends Poset T where
-  has_bot : ∃ x : T, is_bot x
-  down_chain : ∀ x : T, Chain (down x)
+<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
+<pre><code class="language-lean">example : OrderPreserving (λ _ : ℕ =&gt; 0) := by
+  intro x y h
+  dsimp
+  rfl
+
+def f (n:ℕ) : Set ℕ := { x | x ≤ n }
+
+example : OrderEmbedding f := by
+  intro x y
+  constructor
+  . intro h
+    intro z hz
+    exact trans z x y hz h
+  . intro h
+    simp[f] at h
+    exact h x (Poset.refl x)
+
+def g (x : ℕ) : ℕ := 2*x
+
+example : OrderEmbedding g := by
+  intro x y
+  constructor
+  . intro h
+    simp[g]
+    exact h
+  . intro h
+    simp[g] at h
+    exact h
 </code></pre>
-<div style='height=50px'>&nbsp;</div><hr>
-Copyright © 2025 Eric Klavins
-<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
---  Copyright (C) 2025  Eric Klavins
---
---  This program is free software: you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation, either version 3 of the License, or
---  (at your option) any later version.   
-</div>
-<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Properties.lean'>Code</a> for this chapter</span></p>
-<div style='height=50px'>&nbsp;</div><hr>
-Copyright © 2025 Eric Klavins
-<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
---  Copyright (C) 2025  Eric Klavins
---
---  This program is free software: you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation, either version 3 of the License, or
---  (at your option) any later version.   
-</div>
-<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Nats.lean'>Code</a> for this chapter</span></p>
-<div style='height=50px'>&nbsp;</div><hr>
-Copyright © 2025 Eric Klavins
-<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
---  Copyright (C) 2025  Eric Klavins
---
---  This program is free software: you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation, either version 3 of the License, or
---  (at your option) any later version.   
-</div>
-<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Sets.lean'>Code</a> for this chapter</span></p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 <div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
@@ -3590,26 +3819,6 @@ instance info_semilattice {A : Type u} [DecidableEq A] : Semilattice (List A) :=
         . apply meet_le
         . apply meet_le'
       . apply meet_great
-  ⟩
-
-instance list_tree {A : Type u} : Poset.Tree (List A) :=
-  ⟨
-    by
-      use []
-      intro y
-      simp[le_inst,le],
-
-    by
-      intro x y ⟨ q, hy ⟩ z ⟨ r, hr ⟩
-      by_cases h : y ≤ z
-      . exact Or.inl h
-      . apply Or.inr
-        simp_all[le_inst,le,IsPrefix]
-        use ?w
-
-        sorry
-
-
   ⟩
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>

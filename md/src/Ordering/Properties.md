@@ -10,6 +10,13 @@
 
 <span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Properties.lean'>Code</a> for this chapter</span>
+ ## Simple Properties 
+```lean
+theorem eq_to_le {P : Type u} [Poset P] {x y : P} : x = y → x ≤ y := by
+  intro h
+  rw[h]
+  exact refl y
+```
  ## Up Sets and Down Sets
 
 The set of all elements above (below) a given element `x:P` is called the up (down) set of `x`. 
@@ -27,12 +34,12 @@ def DownSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, x ≤ y) 
 theorem up_is_up {P : Type u} [Poset P] (x : P) : UpSet (up x) := by
   intro z ⟨ y, ⟨ h1, h2 ⟩  ⟩
   simp_all[Set.mem_def,up]
-  exact Poset.trans x y z h1 h2
+  exact trans x y z h1 h2
 
 theorem down_is_down {P : Type u} [Poset P] (x : P) : DownSet (down x) := by
   intro z ⟨ y, ⟨ h1, h2 ⟩  ⟩
   simp_all[Set.mem_def,down]
-  apply Poset.trans z y x h2 h1
+  apply trans z y x h2 h1
 ```
  Upward closed sets are not just those built from a single element. For example, the union of two upwardly closed sets is also upwardly closed. 
 ```lean
@@ -40,9 +47,9 @@ theorem up_union {P : Type u} [Poset P] (x y: P) : UpSet ((up x) ∪ (up y)) := 
   intro w ⟨ z, ⟨ h1, h2 ⟩ ⟩
   apply Or.elim h1
   . intro h3
-    exact Or.inl (Poset.trans x z w h3 h2)
+    exact Or.inl (trans x z w h3 h2)
   . intro h3
-    apply Or.inr (Poset.trans y z w h3 h2)
+    apply Or.inr (trans y z w h3 h2)
 ```
  ## Minimal and Maximal Elements
 
@@ -94,7 +101,7 @@ example {n : ℕ} : Chain (up n) := by
 ```lean
 def AntiChain {P : Type u} [Poset P] (S : Set P) := ∀ x ∈ S, ∀ y ∈ S, x ≠ y → (¬x ≤ y ∧ ¬y ≤ x)
 ```
- For example, the set of singletons each containing a different natural number is an antichain. 
+ For example, the set of singletons each containing a different natural number is an anti-chain. 
 ```lean
 def my_anti_chain : Set (Set ℕ) := { {n} | n : ℕ }
 

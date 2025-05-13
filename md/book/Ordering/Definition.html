@@ -200,14 +200,12 @@ end Temp
 <p>You will encounter many other examples of orderings besides these two, some of which we will get to in later sections. For now, we aim like to define a hierarchy of types of orders that capture their similarities and differences, defining a general theory of orders. A side goal here is to show how Lean's heirachy machinery works from the point of view of defining a <em>new</em> hierarchy instead of using someone else's hierarchy.</p>
 <p>Most of this material comes from the book <em>Introduction to Lattices and Order</em> by Davey and Priestly.</p>
 <h2 id="partial-orders"><a class="header" href="#partial-orders">Partial Orders</a></h2>
-<p>A <strong>partially ordered set</strong> or <strong>poset</strong> is a set and a <em>less-than</em> ordering relation on the set that requires pretty much the minimum one might expect from a binary relation for it to be called an ordering: the relation needs to be reflexive, anti-symmetric, and transitive (see <a href="../Relations.html">Relations</a> for these definitions). Using a new Lean <code>class</code>, we define a class of types that have a less-than relation with these three properties.</p>
+<p>A <strong>partially ordered set</strong> or <strong>poset</strong> is a set and a <em>less-than</em> ordering relation on the set that requires pretty much the minimum one might expect from a binary relation for it to be called an ordering: the relation needs to be reflexive, anti-symmetric, and transitive (see <a href="../Relations.html">Relations</a>). Using a new Lean <code>class</code>, we define a class of types that have a less-than relation with these three properties.</p>
 <pre><code class="language-lean">class Poset (α : Type u) where
-  le : Relation α α
-  refl : Refl le
-  anti_sym : AntiSym le
-  trans : Trans le
-
-namespace Poset
+  le : α → α → Prop
+  refl : ∀ x, le x x
+  anti_sym : ∀ x y, le x y → le y x → x = y
+  trans : ∀ x y z, le x y → le y z → le x z
 </code></pre>
 <h3 id="example--the-natural-numbers"><a class="header" href="#example--the-natural-numbers">Example : The Natural Numbers</a></h3>
 <p>Lean's standard library has all of these properties defined for natural numbers. Therefore, we can assert that <code>ℕ</code> is a <code>poset</code> by instantiating the <code>Poset</code> class as follows.</p>
@@ -248,14 +246,11 @@ class TotalOrder (T: Type u) extends Poset T where
   simp[Comparable]
 </code></pre>
 <h2 id="meet-semilattices"><a class="header" href="#meet-semilattices">(Meet) Semilattices</a></h2>
-<p>A <code>Semilattice</code> is a <code>Poset</code> for which there exists a greatest lower bound function, usually called <code>meet</code>, for every pair of points <code>x</code> and <code>y</code>. We define the notion of a greatest lower bound first.</p>
-<pre><code class="language-lean">def IsGLBFunc {P : Type u} [Poset P] (f: P → P → P) :=
-  ∀ x y, (f x y ≤ x ∧ f x y ≤ y) ∧ (∀ w, w ≤ x → w ≤ y → w ≤ f x y)
-</code></pre>
-<p>Then we extend the hierarchy with a new class of orders.</p>
+<p>A <code>Semilattice</code> is a <code>Poset</code> for which there exists a greatest lower bound function, usually called <code>meet</code>, for every pair of points <code>x</code> and <code>y</code>. Then we extend the hierarchy with a new class of orders.</p>
 <pre><code class="language-lean">class Semilattice (L : Type u) extends Poset L where
   meet : L → L → L
-  is_glb : IsGLBFunc meet
+  lb : ∀ x y, meet x y ≤ x ∧ meet x y ≤ y
+  greatest : ∀ x y w, w ≤ x → w ≤ y → w ≤ meet x y
 </code></pre>
 <p>For example, the natural numbers form a semilattice. So do sets.</p>
 <pre><code class="language-lean">instance nat_semi_lattice : Semilattice ℕ :=
@@ -263,10 +258,10 @@ class TotalOrder (T: Type u) extends Poset T where
     Nat.min,
     by
       intro x y
-      apply And.intro
-      . exact ⟨ Nat.min_le_left x y, Nat.min_le_right x y⟩
-      . intro _ h1 h2
-        exact Nat.le_min_of_le_of_le h1 h2
+      exact ⟨ Nat.min_le_left x y, Nat.min_le_right x y⟩,
+    by
+      intro x y _ h1 h2
+      exact Nat.le_min_of_le_of_le h1 h2
   ⟩
 
 instance set_semi_lattice {α : Type u}: Semilattice (Set α) :=
@@ -275,23 +270,21 @@ instance set_semi_lattice {α : Type u}: Semilattice (Set α) :=
     by
       intro A B
       apply And.intro
-      . apply And.intro
-        . intro x hx
-          exact Set.mem_of_mem_inter_left hx
-        . intro x hx
-          exact Set.mem_of_mem_inter_right hx
-      . intro _ h1 h2 _ hc
-        exact ⟨ h1 hc, h2 hc ⟩
+      . intro x hx
+        exact Set.mem_of_mem_inter_left hx
+      . intro x hx
+        exact Set.mem_of_mem_inter_right hx,
+    by
+      intro A B _ h1 h2 _ hc
+      exact ⟨ h1 hc, h2 hc ⟩
   ⟩
 </code></pre>
 <h2 id="lattices"><a class="header" href="#lattices">Lattices</a></h2>
 <p>If all pairs of elements also have a least upper bound, then the <code>Poset</code> is called a <code>Lattice</code>. The least upper bound function is called the <strong>join</strong>.</p>
-<pre><code class="language-lean">def IsLUBFunc {P : Type u} [Poset P] (f: P → P → P) :=
-  ∀ x y, (x ≤ f x y ∧ y ≤ f x y) ∧ (∀ w, x ≤ w → y ≤ w → f x y ≤ w)
-
-class Lattice (L : Type u) extends Semilattice L where
+<pre><code class="language-lean">class Lattice (L : Type u) extends Semilattice L where
   join : L → L → L
-  is_lub : IsLUBFunc join
+  ub : ∀ x y, (x ≤ join x y ∧ y ≤ join x y)
+  least : ∀ x y w, x ≤ w → y ≤ w → join x y ≤ w
 </code></pre>
 <p>Both ℕ and Sets are Lattices as well. The joing for ℕ is <code>Nat.max</code> and the join for sets is <code>Set.union</code>.</p>
 <pre><code class="language-lean">instance nat_lattice : Lattice ℕ :=
@@ -299,47 +292,69 @@ class Lattice (L : Type u) extends Semilattice L where
     Nat.max,
     by
       intro x y
-      apply And.intro
-      . exact ⟨ Nat.le_max_left x y, Nat.le_max_right x y ⟩
-      . intro _ h1 h2
-        exact Nat.max_le_of_le_of_le h1 h2
+      exact ⟨ Nat.le_max_left x y, Nat.le_max_right x y ⟩,
+    by
+      intro x y _ h1 h2
+      exact Nat.max_le_of_le_of_le h1 h2
   ⟩
-
 
 instance set_lattice {α : Type u}: Lattice (Set α) :=
   ⟨
     Set.union,
     by
       intro A B
-      simp
-      apply And.intro
-      . exact Set.union_subset_iff.mp sorry
-      . intro C h1 h2 c hc
-        apply Or.elim hc
-        . exact λ h3 =&gt; h1 h3
-        . exact λ h3 =&gt; h2 h3
+      . exact Set.union_subset_iff.mp (λ  _ a =&gt; a),
+    by
+      intro A B C h1 h2 c hc
+      apply Or.elim hc
+      . exact λ h3 =&gt; h1 h3
+      . exact λ h3 =&gt; h2 h3
   ⟩
 </code></pre>
 <p>As an example of a semilattice that is not a lattice is the so-called <a href="./Information.html">information ordering</a> on partial functions, decribed in a separate chapter.</p>
 <h2 id="notation-for-lattices"><a class="header" href="#notation-for-lattices">Notation for Lattices</a></h2>
 <p>The meet and join of two elements <code>x</code> and <code>y</code> of a poset are denonted <code>x ⊓ y</code> and <code>x sup y</code>. The notation classes for these operations are called <code>Min</code> and <code>Max</code>, even though you do not have to use them for actual mins and maxes.</p>
-<pre><code class="language-lean">instance semi_lattice_and {L : Type u} [Semilattice L] : Min L :=
-  ⟨ Semilattice.meet ⟩
+<pre><code class="language-lean">instance Semilattice.and_inst {L : Type u} [Semilattice L] : Min L :=
+  ⟨ meet ⟩
 
-instance lattice_or {L : Type u} [Lattice L] : Max L :=
-  ⟨ Lattice.join ⟩
+instance Lattice.or_inst {L : Type u} [Lattice L] : Max L :=
+  ⟨ join ⟩
 </code></pre>
-<h2 id="meet-and-join-example-thoerems"><a class="header" href="#meet-and-join-example-thoerems">Meet and Join Example Thoerems</a></h2>
-<p>Here are two straightforward theorems about meets and joins that test out the definitions and notation.</p>
-<pre><code class="language-lean">theorem meet_idempotent {L : Type u} [Semilattice L] (x : L) : x ⊓ x = x := by
-  have ⟨ ⟨ h1, h2 ⟩, h3 ⟩ := Semilattice.is_glb x x
-  have h4 := h3 x (by apply Poset.refl) (by apply Poset.refl)
+<h2 id="meet-and-join-example-theorems"><a class="header" href="#meet-and-join-example-theorems">Meet and Join Example Theorems</a></h2>
+<p>Here are two straightforward theorems about meets and joins that test out the definitions and notation. They follow from the definitions of greatest lower bound, least upper bound, anti-symmetry, and reflexivity.</p>
+<pre><code class="language-lean">theorem Semilattice.meet_idempotent {L : Type u} [Semilattice L] (x : L) : x ⊓ x = x := by
+  have ⟨ h1, h2 ⟩ := lb x x
+  have h4 := greatest x x x (Poset.refl x) (Poset.refl x)
   exact Poset.anti_sym (x ⊓ x) x h1 h4
 
-theorem join_idempotent {L : Type u} [Lattice L] (x : L) : x ⊔ x = x := by
-  have ⟨ ⟨ h1, h2 ⟩, h3 ⟩ := Lattice.is_lub x x
-  have h4 := h3 x (by apply Poset.refl) (by apply Poset.refl)
+theorem Lattice.join_idempotent {L : Type u} [Lattice L] (x : L) : x ⊔ x = x := by
+  have ⟨ h1, h2 ⟩ := ub x x
+  have h4 := least x x x (Poset.refl x) (Poset.refl x)
   apply Poset.anti_sym (x ⊔ x) x h4 h1
+</code></pre>
+<h2 id="complete-lattices"><a class="header" href="#complete-lattices">Complete Lattices</a></h2>
+<pre><code class="language-lean">class HasTop (P : Type u) extends Poset P where
+  ex_top : ∃ top : P, ∀ x, x ≤ top
+
+class HasBot (P : Type u) extends Poset P where
+  ex_bot : ∃ bot : P, ∀ x, bot ≤ x
+
+class CompleteSemilattice (L : Type u) extends Poset L where
+  inf : Set L → L
+  lb : ∀ S, ∀ x ∈ S, inf S ≤ x
+  greatest : ∀ S, ∀ w, ∀ x, (x ∈ S ∧ w ≤ x) → w ≤ inf S
+
+class CompleteLattice (L : Type u) extends CompleteSemilattice L where
+  sup : Set L → L
+  ub : ∀ S, ∀ x ∈ S, x ≤ sup S
+  least : ∀ S, ∀ w, ∀ x, (x ∈ S ∧ x ≤ w) → sup S ≤ w
+</code></pre>
+<h2 id="hierarchy"><a class="header" href="#hierarchy">Hierarchy</a></h2>
+<pre><code>     Lattice      CL
+        |          |
+    Semilattice   CSL    Total Order
+          \        |       /
+                 Poset
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

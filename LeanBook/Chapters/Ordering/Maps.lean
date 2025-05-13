@@ -1,17 +1,15 @@
+import Mathlib
+import LeanBook.Chapters.Ordering.Definition
+import LeanBook.Chapters.Ordering.Properties
 
-<div style='display:none'>
---  Copyright (C) 2025  Eric Klavins
---
---  This program is free software: you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation, either version 3 of the License, or
---  (at your option) any later version.   
-</div>
+namespace LeanBook
 
-<span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Maps.lean'>Code</a> for this chapter</span>
- ## Maps Between Posets 
-```lean
+open Poset
+
+universe u v
+
+/- ## Maps Between Posets -/
+
 def OrderPreserving {P Q : Type u} [Poset P] [Poset Q] (φ : P → Q) :=
   ∀ x y : P, x ≤ y → φ x ≤ φ y
 
@@ -47,9 +45,9 @@ theorem order_iso_bijective {P Q : Type u} [Poset P] [Poset Q] (φ : P → Q)
   : OrderIsomorphism φ → (OneToOne φ ∧ Onto φ) := by
   intro ⟨ h1, h2 ⟩
   exact ⟨ order_embed_1to1 φ h2, h1 ⟩
-```
- ## Examples 
-```lean
+
+/- ## Examples -/
+
 example : OrderPreserving (λ _ : ℕ => 0) := by
   intro x y h
   dsimp
@@ -78,7 +76,3 @@ example : OrderEmbedding g := by
   . intro h
     simp[g] at h
     exact h
-```
-
-<div style='height=50px'>&nbsp;</div><hr>
-Copyright © 2025 Eric Klavins

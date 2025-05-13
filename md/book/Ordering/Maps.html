@@ -194,15 +194,10 @@ theorem order_pres_comp {P Q R : Type u} [Poset P] [Poset Q] [Poset R] (φ : P �
   apply h1 x y
   exact hxy
 
-theorem eq_to_le {P : Type u} [Poset P] {x y : P} : x = y → x ≤ y := by
-  intro h
-  rw[h]
-  exact Poset.refl y
-
 theorem order_embed_1to1 {P Q : Type u} [Poset P] [Poset Q] (φ : P → Q)
   : OrderEmbedding φ → OneToOne φ := by
   intro h x y hxy
-  apply Poset.anti_sym
+  apply anti_sym
   . apply (h x y).mpr
     exact eq_to_le hxy
   . apply (h y x).mpr
@@ -212,6 +207,36 @@ theorem order_iso_bijective {P Q : Type u} [Poset P] [Poset Q] (φ : P → Q)
   : OrderIsomorphism φ → (OneToOne φ ∧ Onto φ) := by
   intro ⟨ h1, h2 ⟩
   exact ⟨ order_embed_1to1 φ h2, h1 ⟩
+</code></pre>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<pre><code class="language-lean">example : OrderPreserving (λ _ : ℕ =&gt; 0) := by
+  intro x y h
+  dsimp
+  rfl
+
+def f (n:ℕ) : Set ℕ := { x | x ≤ n }
+
+example : OrderEmbedding f := by
+  intro x y
+  constructor
+  . intro h
+    intro z hz
+    exact trans z x y hz h
+  . intro h
+    simp[f] at h
+    exact h x (Poset.refl x)
+
+def g (x : ℕ) : ℕ := 2*x
+
+example : OrderEmbedding g := by
+  intro x y
+  constructor
+  . intro h
+    simp[g]
+    exact h
+  . intro h
+    simp[g] at h
+    exact h
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -224,7 +249,7 @@ Copyright © 2025 Eric Klavins
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Ordering/Nats.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Ordering/Strings.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -238,7 +263,7 @@ Copyright © 2025 Eric Klavins
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Ordering/Nats.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Ordering/Strings.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

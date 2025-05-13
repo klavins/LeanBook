@@ -171,6 +171,12 @@
 </div>
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Properties.lean'>Code</a> for this chapter</span></p>
+<h2 id="simple-properties"><a class="header" href="#simple-properties">Simple Properties</a></h2>
+<pre><code class="language-lean">theorem eq_to_le {P : Type u} [Poset P] {x y : P} : x = y → x ≤ y := by
+  intro h
+  rw[h]
+  exact refl y
+</code></pre>
 <h2 id="up-sets-and-down-sets"><a class="header" href="#up-sets-and-down-sets">Up Sets and Down Sets</a></h2>
 <p>The set of all elements above (below) a given element <code>x:P</code> is called the up (down) set of <code>x</code>.</p>
 <pre><code class="language-lean">def up {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; x ≤ y
@@ -184,21 +190,21 @@ def DownSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, x ≤ y) 
 <pre><code class="language-lean">theorem up_is_up {P : Type u} [Poset P] (x : P) : UpSet (up x) := by
   intro z ⟨ y, ⟨ h1, h2 ⟩  ⟩
   simp_all[Set.mem_def,up]
-  exact Poset.trans x y z h1 h2
+  exact trans x y z h1 h2
 
 theorem down_is_down {P : Type u} [Poset P] (x : P) : DownSet (down x) := by
   intro z ⟨ y, ⟨ h1, h2 ⟩  ⟩
   simp_all[Set.mem_def,down]
-  apply Poset.trans z y x h2 h1
+  apply trans z y x h2 h1
 </code></pre>
 <p>Upward closed sets are not just those built from a single element. For example, the union of two upwardly closed sets is also upwardly closed.</p>
 <pre><code class="language-lean">theorem up_union {P : Type u} [Poset P] (x y: P) : UpSet ((up x) ∪ (up y)) := by
   intro w ⟨ z, ⟨ h1, h2 ⟩ ⟩
   apply Or.elim h1
   . intro h3
-    exact Or.inl (Poset.trans x z w h3 h2)
+    exact Or.inl (trans x z w h3 h2)
   . intro h3
-    apply Or.inr (Poset.trans y z w h3 h2)
+    apply Or.inr (trans y z w h3 h2)
 </code></pre>
 <h2 id="minimal-and-maximal-elements"><a class="header" href="#minimal-and-maximal-elements">Minimal and Maximal Elements</a></h2>
 <p>A <strong>minimal</strong> element of a set <code>S ⊆ P</code> is one for which no other elements of <code>S</code> are smaller.</p>
@@ -240,7 +246,7 @@ def is_top {P : Type u} [Poset P] (x : P) := ∀ y, y ≤ x
 <p>An antichain is a set of uncomparable elements.</p>
 <pre><code class="language-lean">def AntiChain {P : Type u} [Poset P] (S : Set P) := ∀ x ∈ S, ∀ y ∈ S, x ≠ y → (¬x ≤ y ∧ ¬y ≤ x)
 </code></pre>
-<p>For example, the set of singletons each containing a different natural number is an antichain.</p>
+<p>For example, the set of singletons each containing a different natural number is an anti-chain.</p>
 <pre><code class="language-lean">def my_anti_chain : Set (Set ℕ) := { {n} | n : ℕ }
 
 example : AntiChain my_anti_chain := by

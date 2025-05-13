@@ -171,6 +171,98 @@
 </div>
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Properties.lean'>Code</a> for this chapter</span></p>
+<h2 id="simple-properties"><a class="header" href="#simple-properties">Simple Properties</a></h2>
+<pre><code class="language-lean">theorem eq_to_le {P : Type u} [Poset P] {x y : P} : x = y → x ≤ y := by
+  intro h
+  rw[h]
+  exact refl y
+</code></pre>
+<h2 id="up-sets-and-down-sets"><a class="header" href="#up-sets-and-down-sets">Up Sets and Down Sets</a></h2>
+<p>The set of all elements above (below) a given element <code>x:P</code> is called the up (down) set of <code>x</code>.</p>
+<pre><code class="language-lean">def up {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; x ≤ y
+def down {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; y ≤ x
+</code></pre>
+<p>A set that is upwardly (downwardly) closed is called an Up (Down) set. We define predicates on subsets of a Poset to capture these properties. These are a bit tricky to read. The first one says that if <code>x</code> is any element and there is a <code>y</code> in some upward closed set <code>S</code> that is less than or equal to it, then <code>x</code> must also be in <code>S</code>. The second statement about downward closed sets is similar.</p>
+<pre><code class="language-lean">def UpSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, y ≤ x) → x ∈ S
+def DownSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, x ≤ y) → x ∈ S
+</code></pre>
+<p>Simple theorems relating these definitions can now be proved. The next two, for example, show that up (down) sets are upwardly (downwardly) closed.</p>
+<pre><code class="language-lean">theorem up_is_up {P : Type u} [Poset P] (x : P) : UpSet (up x) := by
+  intro z ⟨ y, ⟨ h1, h2 ⟩  ⟩
+  simp_all[Set.mem_def,up]
+  exact trans x y z h1 h2
+
+theorem down_is_down {P : Type u} [Poset P] (x : P) : DownSet (down x) := by
+  intro z ⟨ y, ⟨ h1, h2 ⟩  ⟩
+  simp_all[Set.mem_def,down]
+  apply trans z y x h2 h1
+</code></pre>
+<p>Upward closed sets are not just those built from a single element. For example, the union of two upwardly closed sets is also upwardly closed.</p>
+<pre><code class="language-lean">theorem up_union {P : Type u} [Poset P] (x y: P) : UpSet ((up x) ∪ (up y)) := by
+  intro w ⟨ z, ⟨ h1, h2 ⟩ ⟩
+  apply Or.elim h1
+  . intro h3
+    exact Or.inl (trans x z w h3 h2)
+  . intro h3
+    apply Or.inr (trans y z w h3 h2)
+</code></pre>
+<h2 id="minimal-and-maximal-elements"><a class="header" href="#minimal-and-maximal-elements">Minimal and Maximal Elements</a></h2>
+<p>A <strong>minimal</strong> element of a set <code>S ⊆ P</code> is one for which no other elements of <code>S</code> are smaller.</p>
+<pre><code class="language-lean">def Minimal {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S, x ≤ m → x = m
+</code></pre>
+<p>Minimal elements are not necessarily unique. The following example shows that when <code>x</code> and <code>y</code> are unrelated, either one of them is minimal.</p>
+<pre><code class="language-lean">example {P : Type u} [Poset P] (x y: P) : (¬x≤y ∧ ¬y≤x) → Minimal {x,y} x := by
+  intro ⟨h1, h2⟩ z h3 h4
+  apply Or.elim h3
+  . exact id
+  . intro h5
+    rw[h5] at h4
+    exact False.elim (h2 h4)
+</code></pre>
+<p>On the other hand, a <strong>minimum</strong> element is a unique minimal element.</p>
+<pre><code class="language-lean">def Minimum {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S, m ≤ x
+</code></pre>
+<p>The most minimal element of a <code>Poset</code> is usually called <code>bot</code>.</p>
+<pre><code class="language-lean">def is_bot {P : Type u} [Poset P] (x : P) := ∀ y, x ≤ y
+
+theorem bot_minimum {P : Type u} [Poset P] (m : P) : is_bot m → Minimum Set.univ m := by
+  intro hb x hm
+  simp_all[is_bot]
+</code></pre>
+<p>These definitions apply to maxima as well.</p>
+<pre><code class="language-lean">def Maximal {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S , m ≤ x → x = m
+def Maximum {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S, x ≤ m
+def is_top {P : Type u} [Poset P] (x : P) := ∀ y, y ≤ x
+</code></pre>
+<h2 id="chains-and-anti-chains"><a class="header" href="#chains-and-anti-chains">Chains and Anti-Chains</a></h2>
+<p>A chain is a totally ordered subset of a poset.</p>
+<pre><code class="language-lean">def Chain {P : Type u} [Poset P] (S : Set P) := ∀ x ∈ S, ∀ y ∈ S, x ≤ y ∨ y ≤ x
+</code></pre>
+<p>For example, the upset of any natural number is a chain.</p>
+<pre><code class="language-lean">example {n : ℕ} : Chain (up n) := by
+  intro x hx y hy
+  exact Nat.le_total x y
+</code></pre>
+<p>An antichain is a set of uncomparable elements.</p>
+<pre><code class="language-lean">def AntiChain {P : Type u} [Poset P] (S : Set P) := ∀ x ∈ S, ∀ y ∈ S, x ≠ y → (¬x ≤ y ∧ ¬y ≤ x)
+</code></pre>
+<p>For example, the set of singletons each containing a different natural number is an anti-chain.</p>
+<pre><code class="language-lean">def my_anti_chain : Set (Set ℕ) := { {n} | n : ℕ }
+
+example : AntiChain my_anti_chain := by
+  simp[my_anti_chain]
+  intro Sm ⟨ m, hsm ⟩ Sn ⟨ n, hsn ⟩ hmn
+  simp[le_inst]
+  apply And.intro
+  . intro h
+    rw[←hsm,←hsn] at h
+    rw[←hsm,←hsn] at hmn
+    exact hmn (congrArg singleton (h rfl))
+  . intro h
+    rw[←hsm,←hsn] at h
+    rw[←hsm,←hsn] at hmn
+    exact id (Ne.symm hmn) (congrArg singleton (h rfl))
+</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 
@@ -182,7 +274,7 @@ Copyright © 2025 Eric Klavins
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Ordering/Nats.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Ordering/Maps.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -196,7 +288,7 @@ Copyright © 2025 Eric Klavins
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Ordering/Nats.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Ordering/Maps.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

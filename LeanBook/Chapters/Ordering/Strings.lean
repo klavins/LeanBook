@@ -120,23 +120,3 @@ instance info_semilattice {A : Type u} [DecidableEq A] : Semilattice (List A) :=
         . apply meet_le'
       . apply meet_great
   ⟩
-
-instance list_tree {A : Type u} : Poset.Tree (List A) :=
-  ⟨
-    by
-      use []
-      intro y
-      simp[le_inst,le],
-
-    by
-      intro x y ⟨ q, hy ⟩ z ⟨ r, hr ⟩
-      by_cases h : y ≤ z
-      . exact Or.inl h
-      . apply Or.inr
-        simp_all[le_inst,le,IsPrefix]
-        use ?w
-
-        sorry
-
-
-  ⟩

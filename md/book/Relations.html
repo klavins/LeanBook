@@ -180,10 +180,10 @@
 <pre><code class="language-lean">abbrev Relation (A : Type u) (B : Type v) := A → B → Prop
 </code></pre>
 <h2 id="types-of-relation"><a class="header" href="#types-of-relation">Types of Relation</a></h2>
-<pre><code class="language-lean">abbrev Refl {A : Type u} (r : Relation A A) := ∀ x, r x x
-abbrev Symm {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x
-abbrev AntiSym {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x → x = y
-abbrev Trans {A : Type u} (r : Relation A A) := ∀ x y z, r x y → r y z → r x z
+<pre><code class="language-lean">abbrev Refl {A : Type u} (r : Relation A A) {x : A} := r x x
+abbrev Symm {A : Type u} (r : Relation A A) {x y : A} := r x y → r y x
+abbrev AntiSym {A : Type u} (r : Relation A A) {x y : A}:= r x y → r y x → x = y
+abbrev Trans {A : Type u} (r : Relation A A) {x y z : A} := r x y → r y z → r x z
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

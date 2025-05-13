@@ -44,8 +44,7 @@
 
 - [Definitions](./Ordering/Definition.md)
 - [Properties](./Ordering/Properties.md)
-- [Natural Numbers](./Ordering/Nats.md)
-- [Sets](./Ordering/Sets.md)
+- [Maps](./Ordering/Maps.md)
 - [Strings](./Ordering/Strings.md)
 - [Information](./Ordering/Information.md)
 

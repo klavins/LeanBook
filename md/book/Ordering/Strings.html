@@ -276,26 +276,6 @@ instance info_semilattice {A : Type u} [DecidableEq A] : Semilattice (List A) :=
         . apply meet_le'
       . apply meet_great
   ⟩
-
-instance list_tree {A : Type u} : Poset.Tree (List A) :=
-  ⟨
-    by
-      use []
-      intro y
-      simp[le_inst,le],
-
-    by
-      intro x y ⟨ q, hy ⟩ z ⟨ r, hr ⟩
-      by_cases h : y ≤ z
-      . exact Or.inl h
-      . apply Or.inr
-        simp_all[le_inst,le,IsPrefix]
-        use ?w
-
-        sorry
-
-
-  ⟩
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -304,7 +284,7 @@ Copyright © 2025 Eric Klavins
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Ordering/Sets.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Ordering/Maps.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -318,7 +298,7 @@ Copyright © 2025 Eric Klavins
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Ordering/Sets.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Ordering/Maps.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

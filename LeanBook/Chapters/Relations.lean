@@ -23,11 +23,11 @@ Note that Mathlib has many definitions involved relations. In particular, `Rel` 
 
 First, we define a general type for relations: -/
 
-def Relation (A : Type u) (B : Type v) := A → B → Prop
+abbrev Relation (A : Type u) (B : Type v) := A → B → Prop
 
 /- ## Types of Relation -/
 
-def Refl {A : Type u} (r : Relation A A) := ∀ x, r x x
-def Symm {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x
-def AntiSym {A : Type u} (r : Relation A A) := ∀ x y, r x y → r y x → x = y
-def Trans {A : Type u} (r : Relation A A) := ∀ x y z, r x y → r y z → r x z
+abbrev Refl {A : Type u} (r : Relation A A) {x : A} := r x x
+abbrev Symm {A : Type u} (r : Relation A A) {x y : A} := r x y → r y x
+abbrev AntiSym {A : Type u} (r : Relation A A) {x y : A}:= r x y → r y x → x = y
+abbrev Trans {A : Type u} (r : Relation A A) {x y z : A} := r x y → r y z → r x z
