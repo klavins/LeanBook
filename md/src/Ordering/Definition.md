@@ -199,31 +199,109 @@ theorem Lattice.join_idempotent {L : Type u} [Lattice L] (x : L) : x ⊔ x = x :
   have h4 := least x x x (Poset.refl x) (Poset.refl x)
   apply Poset.anti_sym (x ⊔ x) x h4 h1
 ```
- ## Complete Lattices 
-```lean
-class HasTop (P : Type u) extends Poset P where
-  ex_top : ∃ top : P, ∀ x, x ≤ top
+ ## Complete Lattices
 
-class HasBot (P : Type u) extends Poset P where
-  ex_bot : ∃ bot : P, ∀ x, bot ≤ x
+Lattices require that every pair of elements have a greatest lower bound and leaset upper bound. A Complete Lattice requires that every set have such bounds. An example of a Complete Lattice is `Set A`, which we show after defining Complete Lattices. 
+```lean
+def IsLB {P : Type u} [Poset P] (S : Set P) (lb : P) := ∀ x ∈ S, lb ≤ x
 
 class CompleteSemilattice (L : Type u) extends Poset L where
   inf : Set L → L
-  lb : ∀ S, ∀ x ∈ S, inf S ≤ x
-  greatest : ∀ S, ∀ w, ∀ x, (x ∈ S ∧ w ≤ x) → w ≤ inf S
+  lb : ∀ S, IsLB S (inf S)
+  greatest : ∀ S w, (IsLB S w) → w ≤ inf S
+
+def IsUB {P : Type u} [Poset P] (S : Set P) (ub : P) := ∀ x, x ∈ S → x ≤ ub
 
 class CompleteLattice (L : Type u) extends CompleteSemilattice L where
   sup : Set L → L
-  ub : ∀ S, ∀ x ∈ S, x ≤ sup S
-  least : ∀ S, ∀ w, ∀ x, (x ∈ S ∧ x ≤ w) → sup S ≤ w
+  ub : ∀ S, IsUB S (sup S)
+  least : ∀ S, ∀ w, (IsUB S w) → sup S ≤ w
+```
+ Example: The set of subsets of a given set `A` is a complete lattice, which we show in two steps using straighforward proofs. 
+```lean
+instance set_csl {A : Type u}: CompleteSemilattice (Set A) :=
+  ⟨
+    λ S => { x | ∀ T ∈ S, x ∈ T },
+    by
+      intro S T h x hx
+      dsimp at hx
+      exact hx T h,
+    by
+      intro S T h x hx R hR
+      exact h R hR hx
+  ⟩
+
+instance set_cl {A : Type u}: CompleteLattice (Set A) :=
+  ⟨
+    λ S => { x | ∃ T ∈ S, x ∈ T },
+    by
+      intro S T h x hx
+      apply Exists.intro T
+      exact ⟨h, hx⟩,
+    by
+      intro S T h x hx
+      dsimp at hx
+      obtain ⟨ R, ⟨ h1, h2 ⟩ ⟩ := hx
+      exact h R h1 h2
+  ⟩
+```
+ ## Complete Lattices are Bounded
+
+Notice that in the definition of `inf` the condition `(IsLB S w)` in  `(IsLB S w)→ w ≤ inf S` is trivially satisfied if `S = ∅`. Therefore, `w ≤ inf ∅` for all `w`, meaning that `inf ∅` is a top element. Similarly, `sup ∅` is a bottom element. We can conclude that every Complete Lattice is bounded, as shown by the next two theorems.  
+```lean
+theorem CompleteLattice.has_bot {L : Type u} [CompleteLattice L]
+  : ∃ bot : L, ∀ x, bot ≤ x := by
+  use sup (∅:Set L)
+  intro x
+  apply CompleteLattice.least ∅ x
+  simp[IsUB]
+
+theorem CompleteLattice.has_top {L : Type u} [CompleteLattice L]
+  : ∃ top : L, ∀ x, x ≤ top := by
+  use CompleteSemilattice.inf (∅:Set L)
+  intro x
+  apply CompleteSemilattice.greatest ∅ x
+  simp[IsLB]
+```
+ ## Complete Lattices are Lattices
+
+We can also show that a complete lattice is a lattice by restricting `inf` and `sup` to act on sets of size two. 
+```lean
+instance CompleteSemilattice.inst_sl {L : Type u} [CompleteSemilattice L]
+  : Semilattice L := ⟨
+    λ x y => inf {x,y},
+    by
+      intro x y
+      apply And.intro <;>
+      apply lb <;>
+      simp,
+    by
+      intro x u z h1 h2
+      apply greatest
+      simp[IsLB, h1, h2]
+  ⟩
+
+instance CompleteLattice.inst_l {L : Type u} [CompleteLattice L]
+  : Lattice L := ⟨
+    λ x y => sup {x,y},
+    by
+      intro x y
+      apply And.intro <;>
+      apply ub <;>
+      simp,
+    by
+      intro x u z h1 h2
+      apply least
+      simp[IsUB, h1, h2]
+  ⟩
 ```
  ## Hierarchy
 ```
-     Lattice      CL
-        |          |
-    Semilattice   CSL    Total Order
-          \        |       /
-                 Poset
+     Lattice     CL
+        |         |
+    Semilattice  CSL   Total Order
+             \    |    /
+                Poset
 ```
 
 

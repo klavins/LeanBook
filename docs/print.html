@@ -3497,28 +3497,100 @@ theorem Lattice.join_idempotent {L : Type u} [Lattice L] (x : L) : x ⊔ x = x :
   apply Poset.anti_sym (x ⊔ x) x h4 h1
 </code></pre>
 <h2 id="complete-lattices"><a class="header" href="#complete-lattices">Complete Lattices</a></h2>
-<pre><code class="language-lean">class HasTop (P : Type u) extends Poset P where
-  ex_top : ∃ top : P, ∀ x, x ≤ top
-
-class HasBot (P : Type u) extends Poset P where
-  ex_bot : ∃ bot : P, ∀ x, bot ≤ x
+<p>Lattices require that every pair of elements have a greatest lower bound and leaset upper bound. A Complete Lattice requires that every set have such bounds. An example of a Complete Lattice is <code>Set A</code>, which we show after defining Complete Lattices.</p>
+<pre><code class="language-lean">def IsLB {P : Type u} [Poset P] (S : Set P) (lb : P) := ∀ x ∈ S, lb ≤ x
 
 class CompleteSemilattice (L : Type u) extends Poset L where
   inf : Set L → L
-  lb : ∀ S, ∀ x ∈ S, inf S ≤ x
-  greatest : ∀ S, ∀ w, ∀ x, (x ∈ S ∧ w ≤ x) → w ≤ inf S
+  lb : ∀ S, IsLB S (inf S)
+  greatest : ∀ S w, (IsLB S w) → w ≤ inf S
+
+def IsUB {P : Type u} [Poset P] (S : Set P) (ub : P) := ∀ x, x ∈ S → x ≤ ub
 
 class CompleteLattice (L : Type u) extends CompleteSemilattice L where
   sup : Set L → L
-  ub : ∀ S, ∀ x ∈ S, x ≤ sup S
-  least : ∀ S, ∀ w, ∀ x, (x ∈ S ∧ x ≤ w) → sup S ≤ w
+  ub : ∀ S, IsUB S (sup S)
+  least : ∀ S, ∀ w, (IsUB S w) → sup S ≤ w
+</code></pre>
+<p>Example: The set of subsets of a given set <code>A</code> is a complete lattice, which we show in two steps using straighforward proofs.</p>
+<pre><code class="language-lean">instance set_csl {A : Type u}: CompleteSemilattice (Set A) :=
+  ⟨
+    λ S =&gt; { x | ∀ T ∈ S, x ∈ T },
+    by
+      intro S T h x hx
+      dsimp at hx
+      exact hx T h,
+    by
+      intro S T h x hx R hR
+      exact h R hR hx
+  ⟩
+
+instance set_cl {A : Type u}: CompleteLattice (Set A) :=
+  ⟨
+    λ S =&gt; { x | ∃ T ∈ S, x ∈ T },
+    by
+      intro S T h x hx
+      apply Exists.intro T
+      exact ⟨h, hx⟩,
+    by
+      intro S T h x hx
+      dsimp at hx
+      obtain ⟨ R, ⟨ h1, h2 ⟩ ⟩ := hx
+      exact h R h1 h2
+  ⟩
+</code></pre>
+<h2 id="complete-lattices-are-bounded"><a class="header" href="#complete-lattices-are-bounded">Complete Lattices are Bounded</a></h2>
+<p>Notice that in the definition of <code>inf</code> the condition <code>(IsLB S w)</code> in  <code>(IsLB S w)→ w ≤ inf S</code> is trivially satisfied if <code>S = ∅</code>. Therefore, <code>w ≤ inf ∅</code> for all <code>w</code>, meaning that <code>inf ∅</code> is a top element. Similarly, <code>sup ∅</code> is a bottom element. We can conclude that every Complete Lattice is bounded, as shown by the next two theorems.</p>
+<pre><code class="language-lean">theorem CompleteLattice.has_bot {L : Type u} [CompleteLattice L]
+  : ∃ bot : L, ∀ x, bot ≤ x := by
+  use sup (∅:Set L)
+  intro x
+  apply CompleteLattice.least ∅ x
+  simp[IsUB]
+
+theorem CompleteLattice.has_top {L : Type u} [CompleteLattice L]
+  : ∃ top : L, ∀ x, x ≤ top := by
+  use CompleteSemilattice.inf (∅:Set L)
+  intro x
+  apply CompleteSemilattice.greatest ∅ x
+  simp[IsLB]
+</code></pre>
+<h2 id="complete-lattices-are-lattices"><a class="header" href="#complete-lattices-are-lattices">Complete Lattices are Lattices</a></h2>
+<p>We can also show that a complete lattice is a lattice by restricting <code>inf</code> and <code>sup</code> to act on sets of size two.</p>
+<pre><code class="language-lean">instance CompleteSemilattice.inst_sl {L : Type u} [CompleteSemilattice L]
+  : Semilattice L := ⟨
+    λ x y =&gt; inf {x,y},
+    by
+      intro x y
+      apply And.intro &lt;;&gt;
+      apply lb &lt;;&gt;
+      simp,
+    by
+      intro x u z h1 h2
+      apply greatest
+      simp[IsLB, h1, h2]
+  ⟩
+
+instance CompleteLattice.inst_l {L : Type u} [CompleteLattice L]
+  : Lattice L := ⟨
+    λ x y =&gt; sup {x,y},
+    by
+      intro x y
+      apply And.intro &lt;;&gt;
+      apply ub &lt;;&gt;
+      simp,
+    by
+      intro x u z h1 h2
+      apply least
+      simp[IsUB, h1, h2]
+  ⟩
 </code></pre>
 <h2 id="hierarchy"><a class="header" href="#hierarchy">Hierarchy</a></h2>
-<pre><code>     Lattice      CL
-        |          |
-    Semilattice   CSL    Total Order
-          \        |       /
-                 Poset
+<pre><code>     Lattice     CL
+        |         |
+    Semilattice  CSL   Total Order
+             \    |    /
+                Poset
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
