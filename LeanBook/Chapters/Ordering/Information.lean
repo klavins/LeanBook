@@ -6,6 +6,7 @@
 --  (at your option) any later version.
 
 import Mathlib
+import LeanBook.Chapters.Relations
 import LeanBook.Chapters.Ordering.Definition
 
 namespace LeanBook
@@ -13,7 +14,6 @@ namespace LeanBook
 open Poset
 
 universe u v
-
 
 /- # Information Ordering on Values -/
 

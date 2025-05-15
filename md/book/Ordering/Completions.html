@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Properties - Foundations of Lean</title>
+        <title>Completions - Foundations of Lean</title>
 
 
         <!-- Custom HTML head -->
@@ -170,83 +170,112 @@
 --  (at your option) any later version.   
 </div>
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Integers/Properties.lean'>Code</a> for this chapter</span></p>
-<h1 id="lifting-properties"><a class="header" href="#lifting-properties">Lifting Properties</a></h1>
-<p>In this section we show how to lift theorems from a type to a quotient on that type. Continuing with the <code>Int</code> example, we lift all the properties required to show that <code>Int</code> is an additive group. Then, using Lean's hierarchies, we formally instantiate <code>Int</code> as an additive group using these theorems and show how we can then use all of Mathlib's group infrastructure on our new <code>Int</code> type.</p>
-<h2 id="lifting-theorems"><a class="header" href="#lifting-theorems">Lifting Theorems</a></h2>
-<p>There is no direct operator for lifting theorems, but doing so is straightforward. One typically defines a theorem on the base space and then uses it to prove the corresponding theorem on the quotient space. For example, here are several theorems defined on pairs.</p>
-<pre><code class="language-lean">theorem pre_add_com {x y: Pair} : eq (pre_add x y) (pre_add y x) := by
-  simp[eq,pre_add]
-  linarith
-
-theorem pre_add_assoc {x y z: Pair}
-  : eq (pre_add (pre_add x y) z) (pre_add x (pre_add y z))  := by
-  simp[eq,pre_add]
-  linarith
-
-theorem pre_zero_add (x : Pair) : eq (pre_add ⟨0,0⟩ x) x := by
-  simp[eq,pre_add]
-  linarith
-
-theorem pre_inv_add_cancel (x : Pair) : eq (pre_add (pre_negate x) x) ⟨0,0⟩ := by
-  simp[eq,pre_negate,pre_add]
-  linarith
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Completions.lean'>Code</a> for this chapter</span></p>
+<h1 id="the-dedekind-mcneil-completion"><a class="header" href="#the-dedekind-mcneil-completion">The Dedekind-McNeil Completion</a></h1>
+<p>A completion is an embedding of a poset into a complete lattice. In this chapter we describe one such completion, the Dedekind-McNeil Completion, which is a generalization of the Dedekind cuts method of constructing the real numbers from the rational numbers. We define <code>DM P</code> for any poset. If <code>P=ℚ</code>, the result is isomorphic to the reals with <code>-∞</code> and <code>∞</code>.</p>
+<p>We first define <code>DM P</code> to be the family of subsets of <code>S ⊆ P</code> such that <code>upper (lower P) = P</code>. We could use Lean's subset notation, but that complicates the process of instantiating classes. So instead we use a structure.</p>
+<pre><code class="language-lean">@[ext]
+structure DM (P : Type u) [Poset P] where
+  val : Set P
+  h : upper (lower val) = val
 </code></pre>
-<p>To lift these theorems to Int, we apply essentially the same pattern to each. We assert the existence of <code>Pairs</code> that represent each of the intgers in the target theorem. We substitute those in for the integers. We use <code>Quot.sound</code> to restate the goal in terms of pairs. Finally we use the underlying theorem. Here are several examples:</p>
-<pre><code class="language-lean">theorem add_comm (x y: Int) : x+y = y+x := by
-  have ⟨ u, hu ⟩ := Quotient.exists_rep x
-  have ⟨ v, hv ⟩ := Quotient.exists_rep y
-  rw[←hu,←hv]
-  apply Quot.sound
-  apply pre_add_com
-
-theorem add_assoc (x y z: Int) : x+y+z = x+(y+z) := by
-  have ⟨ u, hu ⟩ := Quotient.exists_rep x
-  have ⟨ v, hv ⟩ := Quotient.exists_rep y
-  have ⟨ w, hw ⟩ := Quotient.exists_rep z
-  rw[←hu,←hv,←hw]
-  apply Quot.sound
-  apply pre_add_assoc
-
-theorem zero_add (x : Int) : 0 + x = x := by
-  have ⟨ u, hu ⟩ := Quotient.exists_rep x
-  rw[←hu]
-  apply Quot.sound
-  apply pre_zero_add
-
-theorem inv_add_cancel (x : Int) : -x + x = 0 := by
-  have ⟨ u, hu ⟩ := Quotient.exists_rep x
-  rw[←hu]
-  apply Quot.sound
-  apply pre_inv_add_cancel
+<p>We can easily show that <code>DM P</code> is a poset under the usual <code>⊆</code> ordering.</p>
+<pre><code class="language-lean">instance DM.poset {P : Type u} [Poset P] : Poset (DM P) :=
+  ⟨
+    λ ⟨ A, hA ⟩ ⟨ B, hB ⟩ =&gt; A ⊆ B,
+    by
+      intro ⟨ A, _ ⟩
+      exact Set.Subset.refl A,
+    by
+      intro ⟨ A, hA ⟩ ⟨ B, hB ⟩ h1 h2
+      simp_all
+      exact Set.Subset.antisymm h1 h2,
+    by
+      intro ⟨ A, hA ⟩ ⟨ B, hB ⟩ ⟨ C, hC ⟩ h1 h2
+      exact Set.Subset.trans h1 h2
+  ⟩
 </code></pre>
-<h2 id="instantiating-the-additive-group-structure-on-int"><a class="header" href="#instantiating-the-additive-group-structure-on-int">Instantiating the Additive Group Structure on Int</a></h2>
-<p>The theorems above were chosen so that we could instantiate a everything we need to show that <code>Int</code> forms an additive, commutative group.</p>
-<pre><code class="language-lean">instance int_add_comm_magma : AddCommMagma Int := ⟨ add_comm ⟩
-
-instance int_add_semi : AddSemigroup Int := ⟨ add_assoc ⟩
-
-instance int_add_comm_semi : AddCommSemigroup Int := ⟨ add_comm ⟩
-
-instance int_group : AddGroup Int :=
-  AddGroup.ofLeftAxioms add_assoc zero_add inv_add_cancel
+<p>The <code>DM</code> structure forms what Davey and Priestly call a topped intersection structure, which is a Complete Lattice with a particular definition for the meet and join that we define next.</p>
+<h2 id="the-meet"><a class="header" href="#the-meet">The Meet</a></h2>
+<p>We define a meet for <code>DM P</code>, which is just set-intersection taken over a subset of <code>DM P</code>. We have to show such an intersection still satisfies the <code>upper-lower</code> condition. First we define the intersection.</p>
+<pre><code class="language-lean">def DM.inter {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∀ T ∈ S, x ∈ T.val }
 </code></pre>
-<p>Now we get all the theorems and tactics about additive groups from Mathlib to apply to our <code>Int</code> type! For example,</p>
-<pre><code class="language-lean">example (x: Int) : x-x = 0 := by
-  group
-
-example (x y : Int) : x + y - y = x := by
-  exact add_sub_cancel_right x y
-
-example (x y z : Int) : x+y+z = x+z+y := by
-  calc x+y+z
-  _ = x+(y+z) := by rw[add_assoc]
-  _ = x+(z+y) := by rw[add_comm y z]
-  _ = x+z+y   := by rw[add_assoc]
+<p>We will need to use the fact that the interection of a family ot sets is a subset of every member of the family.</p>
+<pre><code class="language-lean">theorem DM.inter_sub {P : Type u} [Poset P] {S : Set (DM P)}
+  : ∀ T ∈ S, inter S ⊆ T.val := by
+  intro T hT x hx
+  exact hx T hT
 </code></pre>
-<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
-<h2 id="references"><a class="header" href="#references">References</a></h2>
-<p>The construction here is defined in a number of Algebra textbooks. For an early example, see the Nicolas Bourbaki collective's book <em>Algebra Part I</em>, 1943. The English translation of that book from 1974 has the relevant material on page 20.</p>
+<p>Now we can show the intersection is the meet.</p>
+<pre><code class="language-lean">theorem DM.inter_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : upper (lower (inter S)) = inter S := by
+    apply Set.eq_of_subset_of_subset
+    . intro x hx T hT
+      rw[←T.h]
+      exact sub_up (sub_low (inter_sub T hT)) hx
+    . exact sub_ul (inter S)
+
+def DM.meet {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
+  ⟨ inter S, inter_in_dm ⟩
+</code></pre>
+<p>To show that <code>DM P</code> is a Complete Semilattice, we need to show that this definition of <code>meet</code> is indeed a greatest lower bound.</p>
+<pre><code class="language-lean">theorem DM.meet_lb {P : Type u} [Poset P] :
+  ∀ S : Set (DM P), IsLB S (meet S) := by
+  intro S T hT
+  apply DM.inter_sub
+  exact hT
+
+theorem DM.meet_greatest {P : Type u} [Poset P]
+  : ∀ S : Set (DM P), ∀ w, (IsLB S w) → w ≤ meet S := by
+  intro S W h
+  intro x hx T hT
+  exact h T hT hx
+</code></pre>
+<p>Now we have everything we need to instantiate the Complete Semilattice class.</p>
+<pre><code class="language-lean">instance DM.csl {P : Type u} [Poset P] : CompleteSemilattice (DM P) :=
+  ⟨ meet, meet_lb, meet_greatest ⟩
+</code></pre>
+<h2 id="the-join"><a class="header" href="#the-join">The Join</a></h2>
+<p>Next we define a join, which is the intersection of sets containing the union. First we define the union.</p>
+<pre><code class="language-lean">def DM.union {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∃ T ∈ S, x ∈ T.val }
+</code></pre>
+<p>Next we have an intermediate theorem analogous to the intersection theorem proved for the meet.</p>
+<pre><code class="language-lean">theorem DM.inter_union_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : ∀ C ∈ {C : DM P| union S ⊆ C.val}, inter {C | union S ⊆ C.val} ⊆ C.val := by
+    intro C hC x hx
+    exact hx C hC
+</code></pre>
+<p>Next we show the intersection of sets containing the union is in <code>DM P</code>.</p>
+<pre><code class="language-lean">theorem DM.union_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : upper (lower (inter {C | union S ⊆ C.val})) = inter {C | union S ⊆ C.val} := by
+  apply Set.eq_of_subset_of_subset
+  . intro x hx T hT
+    rw[←T.h]
+    exact sub_up (sub_low (inter_union_dm T hT)) hx
+  . apply sub_ul
+</code></pre>
+<p>The join is then defined as follows.</p>
+<pre><code class="language-lean">def DM.join {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
+  ⟨ inter { C | union S ⊆ C.val }, union_in_dm ⟩
+</code></pre>
+<p>To show <code>DM P</code> is a Complete Lattice, we need to show the join is a least upper bound, which we do in two steps.</p>
+<pre><code class="language-lean">theorem DM.join_ub {P : Type u} [Poset P] :
+  ∀ S : Set (DM P), IsUB S (join S) := by
+  intro S T hT x hx W hW
+  simp[union,Set.subset_def] at hW
+  exact hW x T hT hx
+
+theorem DM.join_least {P : Type u} [Poset P]
+  : ∀ S : Set (DM P), ∀ W, (IsUB S W) → join S ≤ W := by
+  intro S W h x hx
+  apply hx W
+  intro y ⟨ Q, ⟨ h1, h2 ⟩ ⟩
+  exact h Q h1 h2
+</code></pre>
+<p>Now we have everything we need to show <code>DM P</code> is a Complete Lattice.</p>
+<pre><code class="language-lean">instance DM.lattice {P : Type u} [Poset P] : CompleteLattice (DM P) :=
+  ⟨ join, join_ub, join_least ⟩
+</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 
@@ -254,13 +283,10 @@ Copyright © 2025 Eric Klavins
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Integers/Operators.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Ordering/Information.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Numbers.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -268,13 +294,10 @@ Copyright © 2025 Eric Klavins
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Integers/Operators.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Ordering/Information.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Numbers.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
             </nav>
 
         </div>

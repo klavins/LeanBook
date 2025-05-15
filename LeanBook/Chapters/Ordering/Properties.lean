@@ -56,6 +56,50 @@ theorem up_union {P : Type u} [Poset P] (x y: P) : UpSet ((up x) ∪ (up y)) := 
   . intro h3
     apply Or.inr (trans y z w h3 h2)
 
+/- ## Lower and Upper Sets -/
+
+def upper {P : Type u} [Poset P] (A : Set P) : Set P :=
+ { x | ∀ a ∈ A, a ≤ x }
+
+def lower {P : Type u} [Poset P] (A : Set P) : Set P :=
+ { x | ∀ a ∈ A, x ≤ a }
+
+-- 1
+theorem sub_ul {P : Type u} [Poset P] (A : Set P)
+  : A ⊆ upper (lower A) := by
+  intro x hx a ha
+  exact ha x hx
+
+-- 2
+theorem sub_up {P : Type u} [Poset P] {A B : Set P}
+  : A ⊆ B → upper B ⊆ upper A := by
+  intro h b hb a ha
+  exact hb a (h ha)
+
+-- 3
+theorem sub_low {P : Type u} [Poset P] {A B : Set P}
+  : A ⊆ B → lower B ⊆ lower A := by
+  intro h b hb a ha
+  exact hb a (h ha)
+
+-- 4
+theorem up_ulu {P : Type u} [Poset P] (A : Set P)
+ : upper A = upper (lower (upper A)) := by
+ apply Set.eq_of_subset_of_subset
+ . intro a ha b hb
+   exact hb a ha
+ . intro a ha b hb
+   exact ha b fun a a ↦ a b hb
+
+-- 5
+theorem low_lul {P : Type u} [Poset P] (A : Set P)
+ : lower A = lower (upper (lower A)) := by
+ apply Set.eq_of_subset_of_subset
+ . intro a ha b hb
+   exact hb a ha
+ . intro a ha b hb
+   exact ha b fun a a ↦ a b hb
+
 /- ## Minimal and Maximal Elements
 
 A **minimal** element of a set `S ⊆ P` is one for which no other elements of `S` are smaller. -/

@@ -52,6 +52,7 @@
 - [Maps](./Ordering/Maps.md)
 - [Strings](./Ordering/Strings.md)
 - [Information](./Ordering/Information.md)
+- [Completions](./Ordering/Completions.md)
 
 
 

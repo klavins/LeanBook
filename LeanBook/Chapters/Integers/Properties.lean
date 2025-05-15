@@ -96,4 +96,4 @@ example (x y z : Int) : x+y+z = x+z+y := by
 
 /- ## References
 
-The construction here is defined in a number of Algebra textbooks. For and early example, see the Nicolas Bourbaki collective's book _Algebra Part I_, 1943. The English translation of that book from 1974 has the relevant material on page 20. -/
+The construction here is defined in a number of Algebra textbooks. For an early example, see the Nicolas Bourbaki collective's book _Algebra Part I_, 1943. The English translation of that book from 1974 has the relevant material on page 20. -/

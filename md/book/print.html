@@ -2833,7 +2833,7 @@ example (x y z : Int) : x+y+z = x+z+y := by
 </code></pre>
 <h2 id="exercises-1"><a class="header" href="#exercises-1">Exercises</a></h2>
 <h2 id="references-4"><a class="header" href="#references-4">References</a></h2>
-<p>The construction here is defined in a number of Algebra textbooks. For and early example, see the Nicolas Bourbaki collective's book <em>Algebra Part I</em>, 1943. The English translation of that book from 1974 has the relevant material on page 20.</p>
+<p>The construction here is defined in a number of Algebra textbooks. For an early example, see the Nicolas Bourbaki collective's book <em>Algebra Part I</em>, 1943. The English translation of that book from 1974 has the relevant material on page 20.</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 <div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
@@ -3639,6 +3639,49 @@ theorem down_is_down {P : Type u} [Poset P] (x : P) : DownSet (down x) := by
   . intro h3
     apply Or.inr (trans y z w h3 h2)
 </code></pre>
+<h2 id="lower-and-upper-sets"><a class="header" href="#lower-and-upper-sets">Lower and Upper Sets</a></h2>
+<pre><code class="language-lean">def upper {P : Type u} [Poset P] (A : Set P) : Set P :=
+ { x | ∀ a ∈ A, a ≤ x }
+
+def lower {P : Type u} [Poset P] (A : Set P) : Set P :=
+ { x | ∀ a ∈ A, x ≤ a }
+
+-- 1
+theorem sub_ul {P : Type u} [Poset P] (A : Set P)
+  : A ⊆ upper (lower A) := by
+  intro x hx a ha
+  exact ha x hx
+
+-- 2
+theorem sub_up {P : Type u} [Poset P] {A B : Set P}
+  : A ⊆ B → upper B ⊆ upper A := by
+  intro h b hb a ha
+  exact hb a (h ha)
+
+-- 3
+theorem sub_low {P : Type u} [Poset P] {A B : Set P}
+  : A ⊆ B → lower B ⊆ lower A := by
+  intro h b hb a ha
+  exact hb a (h ha)
+
+-- 4
+theorem up_ulu {P : Type u} [Poset P] (A : Set P)
+ : upper A = upper (lower (upper A)) := by
+ apply Set.eq_of_subset_of_subset
+ . intro a ha b hb
+   exact hb a ha
+ . intro a ha b hb
+   exact ha b fun a a ↦ a b hb
+
+-- 5
+theorem low_lul {P : Type u} [Poset P] (A : Set P)
+ : lower A = lower (upper (lower A)) := by
+ apply Set.eq_of_subset_of_subset
+ . intro a ha b hb
+   exact hb a ha
+ . intro a ha b hb
+   exact ha b fun a a ↦ a b hb
+</code></pre>
 <h2 id="minimal-and-maximal-elements"><a class="header" href="#minimal-and-maximal-elements">Minimal and Maximal Elements</a></h2>
 <p>A <strong>minimal</strong> element of a set <code>S ⊆ P</code> is one for which no other elements of <code>S</code> are smaller.</p>
 <pre><code class="language-lean">def Minimal {P : Type u} [Poset P] (S : Set P) (m : P) := ∀ x ∈ S, x ≤ m → x = m
@@ -4054,6 +4097,123 @@ instance info_semilattice {A : Type u} {B : Type v} [DecidableEq B] : Semilattic
   ⟩
 
 end PartialFunction
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Completions.lean'>Code</a> for this chapter</span></p>
+<h1 id="the-dedekind-mcneil-completion"><a class="header" href="#the-dedekind-mcneil-completion">The Dedekind-McNeil Completion</a></h1>
+<p>A completion is an embedding of a poset into a complete lattice. In this chapter we describe one such completion, the Dedekind-McNeil Completion, which is a generalization of the Dedekind cuts method of constructing the real numbers from the rational numbers. We define <code>DM P</code> for any poset. If <code>P=ℚ</code>, the result is isomorphic to the reals with <code>-∞</code> and <code>∞</code>.</p>
+<p>We first define <code>DM P</code> to be the family of subsets of <code>S ⊆ P</code> such that <code>upper (lower P) = P</code>. We could use Lean's subset notation, but that complicates the process of instantiating classes. So instead we use a structure.</p>
+<pre><code class="language-lean">@[ext]
+structure DM (P : Type u) [Poset P] where
+  val : Set P
+  h : upper (lower val) = val
+</code></pre>
+<p>We can easily show that <code>DM P</code> is a poset under the usual <code>⊆</code> ordering.</p>
+<pre><code class="language-lean">instance DM.poset {P : Type u} [Poset P] : Poset (DM P) :=
+  ⟨
+    λ ⟨ A, hA ⟩ ⟨ B, hB ⟩ =&gt; A ⊆ B,
+    by
+      intro ⟨ A, _ ⟩
+      exact Set.Subset.refl A,
+    by
+      intro ⟨ A, hA ⟩ ⟨ B, hB ⟩ h1 h2
+      simp_all
+      exact Set.Subset.antisymm h1 h2,
+    by
+      intro ⟨ A, hA ⟩ ⟨ B, hB ⟩ ⟨ C, hC ⟩ h1 h2
+      exact Set.Subset.trans h1 h2
+  ⟩
+</code></pre>
+<p>The <code>DM</code> structure forms what Davey and Priestly call a topped intersection structure, which is a Complete Lattice with a particular definition for the meet and join that we define next.</p>
+<h2 id="the-meet"><a class="header" href="#the-meet">The Meet</a></h2>
+<p>We define a meet for <code>DM P</code>, which is just set-intersection taken over a subset of <code>DM P</code>. We have to show such an intersection still satisfies the <code>upper-lower</code> condition. First we define the intersection.</p>
+<pre><code class="language-lean">def DM.inter {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∀ T ∈ S, x ∈ T.val }
+</code></pre>
+<p>We will need to use the fact that the interection of a family ot sets is a subset of every member of the family.</p>
+<pre><code class="language-lean">theorem DM.inter_sub {P : Type u} [Poset P] {S : Set (DM P)}
+  : ∀ T ∈ S, inter S ⊆ T.val := by
+  intro T hT x hx
+  exact hx T hT
+</code></pre>
+<p>Now we can show the intersection is the meet.</p>
+<pre><code class="language-lean">theorem DM.inter_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : upper (lower (inter S)) = inter S := by
+    apply Set.eq_of_subset_of_subset
+    . intro x hx T hT
+      rw[←T.h]
+      exact sub_up (sub_low (inter_sub T hT)) hx
+    . exact sub_ul (inter S)
+
+def DM.meet {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
+  ⟨ inter S, inter_in_dm ⟩
+</code></pre>
+<p>To show that <code>DM P</code> is a Complete Semilattice, we need to show that this definition of <code>meet</code> is indeed a greatest lower bound.</p>
+<pre><code class="language-lean">theorem DM.meet_lb {P : Type u} [Poset P] :
+  ∀ S : Set (DM P), IsLB S (meet S) := by
+  intro S T hT
+  apply DM.inter_sub
+  exact hT
+
+theorem DM.meet_greatest {P : Type u} [Poset P]
+  : ∀ S : Set (DM P), ∀ w, (IsLB S w) → w ≤ meet S := by
+  intro S W h
+  intro x hx T hT
+  exact h T hT hx
+</code></pre>
+<p>Now we have everything we need to instantiate the Complete Semilattice class.</p>
+<pre><code class="language-lean">instance DM.csl {P : Type u} [Poset P] : CompleteSemilattice (DM P) :=
+  ⟨ meet, meet_lb, meet_greatest ⟩
+</code></pre>
+<h2 id="the-join"><a class="header" href="#the-join">The Join</a></h2>
+<p>Next we define a join, which is the intersection of sets containing the union. First we define the union.</p>
+<pre><code class="language-lean">def DM.union {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∃ T ∈ S, x ∈ T.val }
+</code></pre>
+<p>Next we have an intermediate theorem analogous to the intersection theorem proved for the meet.</p>
+<pre><code class="language-lean">theorem DM.inter_union_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : ∀ C ∈ {C : DM P| union S ⊆ C.val}, inter {C | union S ⊆ C.val} ⊆ C.val := by
+    intro C hC x hx
+    exact hx C hC
+</code></pre>
+<p>Next we show the intersection of sets containing the union is in <code>DM P</code>.</p>
+<pre><code class="language-lean">theorem DM.union_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : upper (lower (inter {C | union S ⊆ C.val})) = inter {C | union S ⊆ C.val} := by
+  apply Set.eq_of_subset_of_subset
+  . intro x hx T hT
+    rw[←T.h]
+    exact sub_up (sub_low (inter_union_dm T hT)) hx
+  . apply sub_ul
+</code></pre>
+<p>The join is then defined as follows.</p>
+<pre><code class="language-lean">def DM.join {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
+  ⟨ inter { C | union S ⊆ C.val }, union_in_dm ⟩
+</code></pre>
+<p>To show <code>DM P</code> is a Complete Lattice, we need to show the join is a least upper bound, which we do in two steps.</p>
+<pre><code class="language-lean">theorem DM.join_ub {P : Type u} [Poset P] :
+  ∀ S : Set (DM P), IsUB S (join S) := by
+  intro S T hT x hx W hW
+  simp[union,Set.subset_def] at hW
+  exact hW x T hT hx
+
+theorem DM.join_least {P : Type u} [Poset P]
+  : ∀ S : Set (DM P), ∀ W, (IsUB S W) → join S ≤ W := by
+  intro S W h x hx
+  apply hx W
+  intro y ⟨ Q, ⟨ h1, h2 ⟩ ⟩
+  exact h Q h1 h2
+</code></pre>
+<p>Now we have everything we need to show <code>DM P</code> is a Complete Lattice.</p>
+<pre><code class="language-lean">instance DM.lattice {P : Type u} [Poset P] : CompleteLattice (DM P) :=
+  ⟨ join, join_ub, join_least ⟩
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
