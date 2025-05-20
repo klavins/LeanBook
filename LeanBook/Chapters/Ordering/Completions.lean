@@ -1,22 +1,23 @@
 import Mathlib
 import LeanBook.Chapters.Ordering.Definition
 import LeanBook.Chapters.Ordering.Properties
+import LeanBook.Chapters.Ordering.Maps
 
 universe u v
 
 namespace LeanBook
 open LeanBook
 
-/- # The Dedekind-McNeil Completion
+/- # The Dedekind-MacNeille Completion
 
-A completion is an embedding of a poset into a complete lattice. In this chapter we describe one such completion, the Dedekind-McNeil Completion, which is a generalization of the Dedekind cuts method of constructing the real numbers from the rational numbers. We define `DM P` for any poset. If `P=ℚ`, the result is isomorphic to the reals with `-∞` and `∞`.
+A completion is an embedding of a poset into a complete lattice. In this chapter we describe one such completion, the Dedekind-MacNeille Completion, which is a generalization of the Dedekind cuts method of constructing the real numbers from the rational numbers. We define `DM P` for any poset. If `P=ℚ`, the result is isomorphic to the reals with `-∞` and `∞`.
 
-We first define `DM P` to be the family of subsets of `S ⊆ P` such that `upper (lower P) = P`. We could use Lean's subset notation, but that complicates the process of instantiating classes. So instead we use a structure.  -/
+We first define `DM P` to be the family of subsets of `S ⊆ P` such that `lower (upper P) = P`. We could use Lean's subset notation, but that complicates the process of instantiating classes. So instead we use a structure.  -/
 
 @[ext]
 structure DM (P : Type u) [Poset P] where
   val : Set P
-  h : upper (lower val) = val
+  h : lower (upper val) = val
 
 /- We can easily show that `DM P` is a poset under the usual `⊆` ordering.  -/
 
@@ -37,6 +38,7 @@ instance DM.poset {P : Type u} [Poset P] : Poset (DM P) :=
 
 /- The `DM` structure forms what Davey and Priestly call a topped intersection structure, which is a Complete Lattice with a particular definition for the meet and join that we define next. -/
 
+
 /- ## The Meet
 
 We define a meet for `DM P`, which is just set-intersection taken over a subset of `DM P`. We have to show such an intersection still satisfies the `upper-lower` condition. First we define the intersection. -/
@@ -53,12 +55,12 @@ theorem DM.inter_sub {P : Type u} [Poset P] {S : Set (DM P)}
 /- Now we can show the intersection is the meet. -/
 
 theorem DM.inter_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
-  : upper (lower (inter S)) = inter S := by
+  : lower (upper (inter S)) = inter S := by
     apply Set.eq_of_subset_of_subset
     . intro x hx T hT
       rw[←T.h]
-      exact sub_up (sub_low (inter_sub T hT)) hx
-    . exact sub_ul (inter S)
+      exact sub_low (sub_up (inter_sub T hT)) hx
+    . exact sub_lu (inter S)
 
 def DM.meet {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
   ⟨ inter S, inter_in_dm ⟩
@@ -82,6 +84,7 @@ theorem DM.meet_greatest {P : Type u} [Poset P]
 instance DM.csl {P : Type u} [Poset P] : CompleteSemilattice (DM P) :=
   ⟨ meet, meet_lb, meet_greatest ⟩
 
+
 /- ## The Join
 
 Next we define a join, which is the intersection of sets containing the union. First we define the union. -/
@@ -98,12 +101,12 @@ theorem DM.inter_union_dm {P : Type u} [Poset P] {S : Set (DM P)}
 /- Next we show the intersection of sets containing the union is in `DM P`. -/
 
 theorem DM.union_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
-  : upper (lower (inter {C | union S ⊆ C.val})) = inter {C | union S ⊆ C.val} := by
+  : lower (upper (inter {C | union S ⊆ C.val})) = inter {C | union S ⊆ C.val} := by
   apply Set.eq_of_subset_of_subset
   . intro x hx T hT
     rw[←T.h]
-    exact sub_up (sub_low (inter_union_dm T hT)) hx
-  . apply sub_ul
+    exact sub_low (sub_up (inter_union_dm T hT)) hx
+  . apply sub_lu
 
 /- The join is then defined as follows. -/
 
@@ -129,3 +132,90 @@ theorem DM.join_least {P : Type u} [Poset P]
 
 instance DM.lattice {P : Type u} [Poset P] : CompleteLattice (DM P) :=
   ⟨ join, join_ub, join_least ⟩
+
+
+/- ## Completion Map -/
+
+theorem DM.down_is_dm {P : Type u} [Poset P] {x : P}
+  : lower (upper (down x)) = down x :=
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro y hy
+      exact hy x fun a a ↦ a
+    . intro a ha
+      simp_all[upper,lower]
+
+def DM.make {P : Type u} [Poset P] (x : P) : DM P := ⟨ down x, down_is_dm ⟩
+
+theorem DM.make_embed {P : Type u} [Poset P]
+  : OrderEmbedding (make : P → DM P) := by
+  intro x y
+  constructor
+  . intro h z hz
+    exact Poset.trans z x y hz h
+  . intro h
+    simp[make,down,le_inst,Poset.le] at h
+    exact h x (Poset.refl x)
+
+-- example {P : Type u} [Poset P] (A : DM P) (hne : A.val ≠ ∅)
+--   : A.val ≠ Set.univ → ∃ p : P, A ≤ DM.make p := by
+--   intro h
+--   simp[DM.make,down,le_inst,Poset.le]
+--   by_contra hn
+--   simp[Set.not_subset] at hn
+
+--   sorry
+
+/- ## Example -/
+
+namespace Temp
+
+inductive MyPoset where
+  | a : MyPoset
+  | b : MyPoset
+
+open MyPoset
+
+def myle (x y : MyPoset) := x = y
+
+instance : Poset MyPoset :=
+  ⟨ myle, by simp[myle], by simp[myle], by simp[myle] ⟩
+
+theorem my_poset_all {x : MyPoset} : x ∈ ({a, b}: Set MyPoset) := by
+  match x with
+  | a => exact Set.mem_insert a {b}
+  | b => exact Set.mem_insert_of_mem a rfl
+
+def top : DM MyPoset := ⟨
+  { a, b },
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro x h
+      exact my_poset_all
+    . intro x hx
+      simp[lower,upper]
+      intro y h1 h2
+      match x with
+      | a => exact h1
+      | b => exact h2
+  ⟩
+
+def bot : DM MyPoset := ⟨
+  ∅,
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro x hx
+      simp[lower,upper] at hx
+      have h1 := hx a
+      have h2 := hx b
+      rw[h1] at h2
+      apply noConfusion h2
+    . exact Set.empty_subset (lower (upper ∅))
+⟩
+
+example : ∃ b : DM MyPoset, ∀ x, b ≤ x := by
+  use bot
+  intro S y hy
+  exact False.elim hy
+
+end Temp

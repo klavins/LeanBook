@@ -8,3 +8,5 @@ import LeanBook.Chapters.Integers.Operators
 
 import LeanBook.Chapters.Ordering.Definition
 import LeanBook.Chapters.Ordering.Properties
+import LeanBook.Chapters.Ordering.Completions
+import LeanBook.Chapters.Ordering.Maps

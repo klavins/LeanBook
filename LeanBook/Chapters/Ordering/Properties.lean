@@ -26,8 +26,8 @@ theorem eq_to_le {P : Type u} [Poset P] {x y : P} : x = y → x ≤ y := by
 
 The set of all elements above (below) a given element `x:P` is called the up (down) set of `x`. -/
 
-def up {P : Type u} [Poset P] (x : P) : Set P := λ y => x ≤ y
-def down {P : Type u} [Poset P] (x : P) : Set P := λ y => y ≤ x
+def up {P : Type u} [Poset P] (x : P) : Set P := { y | x ≤ y }
+def down {P : Type u} [Poset P] (x : P) : Set P := { y | y ≤ x }
 
 /- A set that is upwardly (downwardly) closed is called an Up (Down) set. We define predicates on subsets of a Poset to capture these properties. These are a bit tricky to read. The first one says that if `x` is any element and there is a `y` in some upward closed set `S` that is less than or equal to it, then `x` must also be in `S`. The second statement about downward closed sets is similar.  -/
 
@@ -70,6 +70,16 @@ theorem sub_ul {P : Type u} [Poset P] (A : Set P)
   intro x hx a ha
   exact ha x hx
 
+theorem sub_lu {P : Type u} [Poset P] (A : Set P)
+  : A ⊆ lower (upper A) := by
+  intro x hx a ha
+  exact ha x hx
+
+theorem eq_to_sub {P : Type u} [Poset P] (A : Set P)
+  : lower (upper A) ⊆ A → lower (upper A) = A := by
+  intro h
+  exact Set.eq_of_subset_of_subset h (sub_lu A)
+
 -- 2
 theorem sub_up {P : Type u} [Poset P] {A B : Set P}
   : A ⊆ B → upper B ⊆ upper A := by
@@ -83,7 +93,7 @@ theorem sub_low {P : Type u} [Poset P] {A B : Set P}
   exact hb a (h ha)
 
 -- 4
-theorem up_ulu {P : Type u} [Poset P] (A : Set P)
+theorem up_ulu {P : Type u} [Poset P] {A : Set P}
  : upper A = upper (lower (upper A)) := by
  apply Set.eq_of_subset_of_subset
  . intro a ha b hb
@@ -92,13 +102,14 @@ theorem up_ulu {P : Type u} [Poset P] (A : Set P)
    exact ha b fun a a ↦ a b hb
 
 -- 5
-theorem low_lul {P : Type u} [Poset P] (A : Set P)
+theorem low_lul {P : Type u} [Poset P] {A : Set P}
  : lower A = lower (upper (lower A)) := by
  apply Set.eq_of_subset_of_subset
  . intro a ha b hb
    exact hb a ha
  . intro a ha b hb
    exact ha b fun a a ↦ a b hb
+
 
 /- ## Minimal and Maximal Elements
 
@@ -167,3 +178,13 @@ example : AntiChain my_anti_chain := by
     rw[←hsm,←hsn] at h
     rw[←hsm,←hsn] at hmn
     exact id (Ne.symm hmn) (congrArg singleton (h rfl))
+
+
+
+/- ## Exercises -/
+
+/- 1) Show the rational numbers ℚ with the natural order ≤ form a Poset -/
+instance : Poset ℚ := ⟨ λ x y => x ≤ y, sorry, sorry, sorry ⟩
+
+/- 2) Show the upper set (0,1) is [1,∞) -/
+example : upper {x:ℚ | 0 < x ∧ x < 1} = { x | 1 ≤ x } := sorry

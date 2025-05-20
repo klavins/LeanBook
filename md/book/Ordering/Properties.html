@@ -179,8 +179,8 @@
 </code></pre>
 <h2 id="up-sets-and-down-sets"><a class="header" href="#up-sets-and-down-sets">Up Sets and Down Sets</a></h2>
 <p>The set of all elements above (below) a given element <code>x:P</code> is called the up (down) set of <code>x</code>.</p>
-<pre><code class="language-lean">def up {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; x ≤ y
-def down {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; y ≤ x
+<pre><code class="language-lean">def up {P : Type u} [Poset P] (x : P) : Set P := { y | x ≤ y }
+def down {P : Type u} [Poset P] (x : P) : Set P := { y | y ≤ x }
 </code></pre>
 <p>A set that is upwardly (downwardly) closed is called an Up (Down) set. We define predicates on subsets of a Poset to capture these properties. These are a bit tricky to read. The first one says that if <code>x</code> is any element and there is a <code>y</code> in some upward closed set <code>S</code> that is less than or equal to it, then <code>x</code> must also be in <code>S</code>. The second statement about downward closed sets is similar.</p>
 <pre><code class="language-lean">def UpSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, y ≤ x) → x ∈ S
@@ -219,6 +219,16 @@ theorem sub_ul {P : Type u} [Poset P] (A : Set P)
   intro x hx a ha
   exact ha x hx
 
+theorem sub_lu {P : Type u} [Poset P] (A : Set P)
+  : A ⊆ lower (upper A) := by
+  intro x hx a ha
+  exact ha x hx
+
+theorem eq_to_sub {P : Type u} [Poset P] (A : Set P)
+  : lower (upper A) ⊆ A → lower (upper A) = A := by
+  intro h
+  exact Set.eq_of_subset_of_subset h (sub_lu A)
+
 -- 2
 theorem sub_up {P : Type u} [Poset P] {A B : Set P}
   : A ⊆ B → upper B ⊆ upper A := by
@@ -232,7 +242,7 @@ theorem sub_low {P : Type u} [Poset P] {A B : Set P}
   exact hb a (h ha)
 
 -- 4
-theorem up_ulu {P : Type u} [Poset P] (A : Set P)
+theorem up_ulu {P : Type u} [Poset P] {A : Set P}
  : upper A = upper (lower (upper A)) := by
  apply Set.eq_of_subset_of_subset
  . intro a ha b hb
@@ -241,7 +251,7 @@ theorem up_ulu {P : Type u} [Poset P] (A : Set P)
    exact ha b fun a a ↦ a b hb
 
 -- 5
-theorem low_lul {P : Type u} [Poset P] (A : Set P)
+theorem low_lul {P : Type u} [Poset P] {A : Set P}
  : lower A = lower (upper (lower A)) := by
  apply Set.eq_of_subset_of_subset
  . intro a ha b hb
@@ -305,6 +315,17 @@ example : AntiChain my_anti_chain := by
     rw[←hsm,←hsn] at h
     rw[←hsm,←hsn] at hmn
     exact id (Ne.symm hmn) (congrArg singleton (h rfl))
+</code></pre>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>Show the rational numbers ℚ with the natural order ≤ form a Poset</li>
+</ol>
+<pre><code class="language-lean">instance : Poset ℚ := ⟨ λ x y =&gt; x ≤ y, sorry, sorry, sorry ⟩
+</code></pre>
+<ol start="2">
+<li>Show the upper set (0,1) is [1,∞)</li>
+</ol>
+<pre><code class="language-lean">example : upper {x:ℚ | 0 &lt; x ∧ x &lt; 1} = { x | 1 ≤ x } := sorry
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
