@@ -2,7 +2,8 @@ CHAPTER_DIR := ../LeanBook/Chapters
 
 MD_DIR := src
 
-NAMES :=  Connectives \
+NAMES :=  Appendix \
+          Connectives \
           CurryHoward \
           Equality \
           FirstOrderLogic \

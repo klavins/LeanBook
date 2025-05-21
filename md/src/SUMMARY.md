@@ -55,6 +55,10 @@
 - [Completions](./Ordering/Completions.md)
 - [Dedekind-MacNeille Reals](./Ordering/Reals.md)
 
+# Extra Matrial
+
+- [Appendix](./Appendix.md)
+
 
 
 <div style='height=50px'>&nbsp;</div><hr>

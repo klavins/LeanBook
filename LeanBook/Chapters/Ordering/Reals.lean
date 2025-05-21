@@ -54,6 +54,40 @@ theorem neginf_le (S : Real) : bot ≤ S := by
 theorem posinf_ge (S : Real) : S ≤ top := by
   simp[le_inst,Poset.le,top]
 
+
+theorem not_top_is_bounded {x : Real} : x ≠ top → ∃ q : ℚ, x ≤ ofRat q := by
+
+  intro ht
+  simp[top] at ht
+
+  have h1 : x.val ≠ Set.univ := by
+    by_contra h
+    exact ht (DM.ext h)
+
+  have ⟨ q, hq ⟩ : ∃ q, q ∈ Set.univ \ x.val := by
+    by_contra h
+    simp at h
+    exact h1 (Set.eq_univ_iff_forall.mpr h)
+
+  have h2 : ¬q ∈ x.val := by exact Set.not_mem_of_mem_diff hq
+
+  rw[←x.h] at h2
+  simp[upper,lower] at h2
+  obtain ⟨ r, ⟨ hr, hrq ⟩ ⟩ := h2
+
+  use r
+  simp[ofRat,DM.make,down,le_inst,Poset.le]
+
+  intro y hy
+  simp
+  exact hr y hy
+
+theorem not_bot_to_exists {x : Real} : x ≠ bot → ∃ v, v ∈ x.val := by
+  intro h
+  apply Set.nonempty_iff_ne_empty.mpr
+  intro hxb
+  exact h (DM.ext hxb)
+
 /- ### Addition -/
 
 def set_sum (A B : Set ℚ) : Set ℚ :=
@@ -189,25 +223,56 @@ instance hsub_inst : HSub Real Real Real:= ⟨ sub ⟩
 
 instance sub_inst : Sub Real := ⟨ sub ⟩
 
-theorem add_inv {A : Real} : A - A = ofRat (0:ℚ) := by
+theorem neg_order {A : Real} : -A ≤ A ∨ A ≤ -A := by
+  by_cases h : -A ≤ A
+  . exact Or.inl h
+  . apply Or.inr
+    simp_all[le_inst,Poset.le,neg_inst,negate,set_negate]
+    intro x hx
+    simp[Set.not_subset] at h
+    obtain ⟨ q, ⟨ hq, hnq ⟩ ⟩ := h
 
-  simp[hadd_inst,hsub_inst,sub,add,neg_inst,ofRat,DM.make,down]
-  ext x
-
-  constructor
-
-  . intro hx
-    simp
-    simp[set_sum] at hx
-    have := hx (-x)
-    simp at this
-    apply this
-    simp[upper]
-    intro y z hz q hq hzq
-    simp[negate,set_negate,lower,upper] at hq
     sorry
 
-  . sorry
+theorem add_inv {A : Real} {hninf : A ≠ top} {hnninf : A ≠ bot}
+  : A - A = ofRat (0:ℚ) := by
+
+  simp[ofRat,neg_inst,hsub_inst,sub,hadd_inst,
+       add,DM.make]
+
+  simp[set_sum]
+  rw[←DM.down_is_dm]
+  congr!
+  ext x
+  constructor
+
+  . intro ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, hyz ⟩ ⟩ ⟩ ⟩
+    simp[down] at hy ⊢
+    have h1 := hz (-y) (by
+      simp[upper]
+      intro a ha
+      have := ha y hy
+      linarith
+    )
+    linarith
+
+  . intro hx
+    simp[down] at hx
+    simp
+
+    by_cases h : (negate A).val ⊆ A.val
+
+    . have : ofRat (0:ℚ) ≤ A := by
+        simp[ofRat,DM.make,DM,le_inst,Poset.le,down]
+
+
+        sorry
+      sorry
+
+
+    . sorry
+
+
 
 theorem neg_neg {x : Real} : - -x = x := by
 
@@ -263,12 +328,6 @@ theorem sum_bot_right {x : Real} : x + bot = bot := by
   rw[add_comm]
   exact sum_bot_left
 
-theorem not_bot_to_exists {x : Real} : x ≠ bot → ∃ v, v ∈ x.val := by
-  intro h
-  apply Set.nonempty_iff_ne_empty.mpr
-  intro hxb
-  exact h (DM.ext hxb)
-
 theorem sum_top_left {x : Real} (hx : x ≠ bot): top + x = top := by
   simp[hadd_inst,add,top,bot]
   apply Set.eq_of_subset_of_subset
@@ -285,10 +344,10 @@ theorem sum_top_right {x : Real} (hx : x ≠ bot): x + top = top := by
   rw[add_comm]
   exact sum_top_left hx
 
-theorem not_top_is_bounded (x:Real) : x ≠ top → ∃ y ≠ top, x ≤ y := by
-  intro h
-  use x
-  exact ⟨ h, Poset.refl x⟩
+-- theorem not_top_is_bounded (x:Real) : x ≠ top → ∃ y ≠ top, x ≤ y := by
+--   intro h
+--   use x
+--   exact ⟨ h, Poset.refl x⟩
 
 theorem not_top_is_bounded' (x:Real) : x ≠ top → ∃ q, ∀ v ∈ x.val, v ≤ q := by
   intro h
@@ -326,12 +385,12 @@ theorem neg_top_eq_bot : -top = bot := by
     exact False.elim hq
 
 theorem neg_bot_eq_top : -bot = top := by
-  rw[←@neg_neg top]
-  rw[neg_top_eq_bot]
+  rw[←@neg_neg top,neg_top_eq_bot]
+
+
+
 
 /- #### Addition is Associative -/
-
-
 
 theorem add_assoc (S T U : Real) : (S+T)+U = S+(T+U) := by
 
@@ -350,6 +409,9 @@ theorem add_assoc (S T U : Real) : (S+T)+U = S+(T+U) := by
 
   . intro ⟨ s, ⟨ hs, ⟨ tu, ⟨ htu, hq ⟩ ⟩ ⟩ ⟩
     sorry
+
+
+
 
 
 
@@ -456,29 +518,11 @@ example (q : ℚ) : ofRat q - ofRat q = ofRat 0 := by
         linarith
       . linarith
 
-example (x : Real) : x ≠ top → ∃ q : ℚ, x ≤ ofRat q := by
+def join (A : Real) : Real := ⟨
+    (DM.join {A}).val,
+    by apply DM.union_in_dm
+  ⟩
 
-  intro ht
-  simp[top] at ht
-
-  have h1 : x.val ≠ Set.univ := by
-    by_contra h
-    exact ht (DM.ext h)
-
-  have ⟨ q, hq ⟩ : ∃ q, q ∈ Set.univ \ x.val := by
-    by_contra h
-    simp at h
-    exact h1 (Set.eq_univ_iff_forall.mpr h)
-
-  have h2 : ¬q ∈ x.val := by exact Set.not_mem_of_mem_diff hq
-
-  rw[←x.h] at h2
-  simp[upper,lower] at h2
-  obtain ⟨ r, ⟨ hr, hrq ⟩ ⟩ := h2
-
-  use r
-  simp[ofRat,DM.make,down,le_inst,Poset.le]
-
-  intro y hy
+example (A : Real) : A ≤ join A := by
+  apply DM.join_ub
   simp
-  exact hr y hy

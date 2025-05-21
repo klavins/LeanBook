@@ -1,4 +1,6 @@
 import Mathlib
+
+import LeanBook.Chapters.Appendix
 import LeanBook.Chapters.Ordering.Definition
 import LeanBook.Chapters.Ordering.Properties
 import LeanBook.Chapters.Ordering.Maps
@@ -10,16 +12,16 @@ open LeanBook
 
 /- # The Dedekind-MacNeille Completion
 
-A completion is an embedding of a poset into a complete lattice. In this chapter we describe one such completion, the Dedekind-MacNeille Completion, which is a generalization of the Dedekind cuts method of constructing the real numbers from the rational numbers. We define `DM P` for any poset. If `P=ℚ`, the result is isomorphic to the reals with `-∞` and `∞`.
+A **completion** is an embedding of a partially ordered set into a complete lattice. In this chapter we describe one such completion, the Dedekind-MacNeille (DM) Completion, which is a generalization of the Dedekind cuts method of constructing the real numbers from the rational numbers. In particular, we define `DM P` for any poset `P`. If `P=ℚ`, the result is isomorphic to the reals with `-∞` and `∞`, but the approach works for any poset.
 
-We first define `DM P` to be the family of subsets of `S ⊆ P` such that `lower (upper P) = P`. We could use Lean's subset notation, but that complicates the process of instantiating classes. So instead we use a structure.  -/
+Formally, the Dedekind-MacNeille completion `DM P` is defined to be the family of subsets of `S ⊆ P` that are closed with respect to the closure operator `λ P ↦ lower (upper P)`.  -/
 
 @[ext]
 structure DM (P : Type u) [Poset P] where
   val : Set P
   h : lower (upper val) = val
 
-/- We can easily show that `DM P` is a poset under the usual `⊆` ordering.  -/
+/- Our goal is to show that `DM P` is a complete lattice for any `P`. We can easily show that `DM P` is a poset under the usual `⊆` ordering.  -/
 
 instance DM.poset {P : Type u} [Poset P] : Poset (DM P) :=
   ⟨
@@ -36,23 +38,29 @@ instance DM.poset {P : Type u} [Poset P] : Poset (DM P) :=
       exact Set.Subset.trans h1 h2
   ⟩
 
-/- The `DM` structure forms what Davey and Priestly call a topped intersection structure, which is a Complete Lattice with a particular definition for the meet and join that we define next. -/
+/- In fact, the `DM` structure forms what Davey and Priestly call a _topped intersection structure_, which we will show is a Complete Lattice with a particular definition for the meet and join that we define next. -/
 
 
 /- ## The Meet
 
-We define a meet for `DM P`, which is just set-intersection taken over a subset of `DM P`. We have to show such an intersection still satisfies the `upper-lower` condition. First we define the intersection. -/
+We define a _meet_ for `DM P`, which is just set-intersection taken over a subset of `DM P`.
+
+$$
+\mathrm{meet}(S) = \bigcap_{A ∈ S} A.
+$$
+
+To prove this definition of _meet_ gives `DM P` a semilattice structure, we have to show the result of such an intersection satisfies the `upper-lower` condition. First we define the intersection of a subset of `DM P` (i.e. of a set of sets taken from `DM P`). -/
 
 def DM.inter {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∀ T ∈ S, x ∈ T.val }
 
-/- We will need to use the fact that the interection of a family ot sets is a subset of every member of the family. -/
+/- We will need to use the simple fact that the interection of a family ot sets is a subset of every member of the family. -/
 
 theorem DM.inter_sub {P : Type u} [Poset P] {S : Set (DM P)}
   : ∀ T ∈ S, inter S ⊆ T.val := by
   intro T hT x hx
   exact hx T hT
 
-/- Now we can show the intersection is the meet. -/
+/- Using this fact, we can show the intersection preserves the `lower-upper` property required of elements of `DM P`. -/
 
 theorem DM.inter_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
   : lower (upper (inter S)) = inter S := by
@@ -62,10 +70,12 @@ theorem DM.inter_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
       exact sub_low (sub_up (inter_sub T hT)) hx
     . exact sub_lu (inter S)
 
+/- And with this theorem we can finally define the _meet_ as a function from `Set (DM P)` into `DM P`. Recall, that to do so we need to not only supply the operation `inter` on `S`, but also proof that `inter S` is in `DM P`. -/
+
 def DM.meet {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
   ⟨ inter S, inter_in_dm ⟩
 
-/- To show that `DM P` is a Complete Semilattice, we need to show that this definition of `meet` is indeed a greatest lower bound. -/
+/- To show that `DM P` is a Complete Semilattice, we need to show that this definition of `meet` is indeed a greatest lower bound. We do so in two steps, first showing the `meet S` is a lower bound of `S` and second showing it is a greatest lower bound of `S`. -/
 
 theorem DM.meet_lb {P : Type u} [Poset P] :
   ∀ S : Set (DM P), IsLB S (meet S) := by
@@ -87,18 +97,24 @@ instance DM.csl {P : Type u} [Poset P] : CompleteSemilattice (DM P) :=
 
 /- ## The Join
 
-Next we define a join, which is the intersection of sets containing the union. First we define the union. -/
+Next we define a join. It would be nice to simply define the join of `S` to be the union of all sets in `S`, but the result would in general not be closed with respect to the `lower-upper` operator used to define `DM P`. To get around this, the join for `DM P` is defined to be the intersection of sets containing the union.
+
+$$
+\mathrm{join}(S) = \bigcap \left \\{ B \in DM(P) \\;|\\; \bigcup_{A ∈ S} A \subseteq B \right \\}
+$$
+
+First we define the union. -/
 
 def DM.union {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∃ T ∈ S, x ∈ T.val }
 
-/- Next we have an intermediate theorem analogous to the intersection theorem proved for the meet. -/
+/- We will need an intermediate theorem analogous to the intersection theorem proved for the meet. This one shows that the intersection of a set of sets is contained in each set. -/
 
 theorem DM.inter_union_dm {P : Type u} [Poset P] {S : Set (DM P)}
   : ∀ C ∈ {C : DM P| union S ⊆ C.val}, inter {C | union S ⊆ C.val} ⊆ C.val := by
     intro C hC x hx
     exact hx C hC
 
-/- Next we show the intersection of sets containing the union is in `DM P`. -/
+/- We use this theorem to show the meet is closed. -/
 
 theorem DM.union_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
   : lower (upper (inter {C | union S ⊆ C.val})) = inter {C | union S ⊆ C.val} := by
@@ -108,7 +124,7 @@ theorem DM.union_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
     exact sub_low (sub_up (inter_union_dm T hT)) hx
   . apply sub_lu
 
-/- The join is then defined as follows. -/
+/- The join operator is then be defined as follows. -/
 
 def DM.join {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
   ⟨ inter { C | union S ⊆ C.val }, union_in_dm ⟩
@@ -134,7 +150,9 @@ instance DM.lattice {P : Type u} [Poset P] : CompleteLattice (DM P) :=
   ⟨ join, join_ub, join_least ⟩
 
 
-/- ## Completion Map -/
+/- ## Completion Map
+
+The mapping from `P` into `DM P` is defined implicitly in the construction of `DM P`. Explicitly, the embedding is definition by the `down` operator.  That is, the map `λ x ↦ down x` is the ordering embedding that wintesses the completion. To show this, we prove that `down x` is closed under the `lower-upper` closure operator. -/
 
 theorem DM.down_is_dm {P : Type u} [Poset P] {x : P}
   : lower (upper (down x)) = down x :=
@@ -145,7 +163,11 @@ theorem DM.down_is_dm {P : Type u} [Poset P] {x : P}
     . intro a ha
       simp_all[upper,lower]
 
+/- This theorem then allows us to formally define the embedded. We call it `make`, because it allows us to _make_ an element of `DM P` out of any element `x ∈ P`. -/
+
 def DM.make {P : Type u} [Poset P] (x : P) : DM P := ⟨ down x, down_is_dm ⟩
+
+/- Finally, we prove that `make` is an order embeddeding (as defined in [Maps](./Maps.md)). -/
 
 theorem DM.make_embed {P : Type u} [Poset P]
   : OrderEmbedding (make : P → DM P) := by
@@ -157,16 +179,68 @@ theorem DM.make_embed {P : Type u} [Poset P]
     simp[make,down,le_inst,Poset.le] at h
     exact h x (Poset.refl x)
 
--- example {P : Type u} [Poset P] (A : DM P) (hne : A.val ≠ ∅)
---   : A.val ≠ Set.univ → ∃ p : P, A ≤ DM.make p := by
---   intro h
---   simp[DM.make,down,le_inst,Poset.le]
---   by_contra hn
---   simp[Set.not_subset] at hn
 
---   sorry
 
-/- ## Example -/
+
+/- ## Completion of a Total Order
+
+If `P` is a totally ordered set, then its completion ought to be totally ordered as well. We show that here. We start with a useful theorem stating the fact that all elements of `DM P` are downward closed. -/
+
+theorem dm_down_close {P : Type u} [Poset P] {X : DM P}
+  : ∀ y, ∀ x ∈ X.val, y ≤ x → y ∈ X.val := by
+  intro y x hx hyx
+  rw[←X.h] at hx ⊢
+  intro z hz
+  apply Poset.trans y x z hyx (hx z hz)
+
+/- Now we show the main result. -/
+
+theorem dm_total_order {P : Type u} [TotalOrder P]
+  : ∀ (x y : DM P), Comparable x y := by
+
+  intro X Y
+  by_cases h : X.val ⊆ Y.val
+
+  . exact Or.inl h
+
+  . -- Obtain an x in X - Y
+    obtain ⟨ x, ⟨ hx, hxny ⟩ ⟩ := Set.not_subset.mp h
+
+    -- Show y ≤ x using the fact that Y is closed
+    rw[←Y.h] at hxny
+    simp[lower] at hxny
+    obtain ⟨ y, ⟨ hy, hcomp ⟩ ⟩ := hxny
+    have hyx : y ≤ x := by
+      apply Or.elim (TotalOrder.comp x y)
+      . intro h
+        exact False.elim (hcomp h)
+      . exact id
+
+    -- Show Y ⊆ down x using transitivity of ≤ in P
+    have hYdx : Y.val ⊆ down x := by
+      intro b hb
+      exact Poset.trans b y x (hy b hb) hyx
+
+    -- Show down x ⊆ X using the helper theorem above
+    have hdxX: down x ⊆ X.val := by
+      intro b hb
+      exact dm_down_close b x hx hb
+
+    -- Show Y ⊆ X using transitivity of ⊆
+    apply Or.inr
+    intro q hq
+    exact hdxX (hYdx hq)
+
+/- Using this theorem, we can instantiate the total order class for `DM P` for any totally ordered `P`. -/
+
+instance {P : Type u} [TotalOrder P] : TotalOrder (DM P) := ⟨ dm_total_order ⟩
+
+
+/- ## Examples
+
+### A Finite Example
+
+-/
 
 namespace Temp
 
@@ -219,3 +293,12 @@ example : ∃ b : DM MyPoset, ∀ x, b ≤ x := by
   exact False.elim hy
 
 end Temp
+
+
+/- ## Exercises -/
+
+/- 1) Show that Non-Top Elements of DM are Bounded -/
+
+example {P : Type u} [Poset P] (A : DM P) (hne : A.val ≠ ∅)
+  : A.val ≠ Set.univ → ∃ p : P, A ≤ DM.make p :=
+  sorry
