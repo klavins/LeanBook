@@ -2833,7 +2833,7 @@ example (x y z : Int) : x+y+z = x+z+y := by
 </code></pre>
 <h2 id="exercises-1"><a class="header" href="#exercises-1">Exercises</a></h2>
 <h2 id="references-4"><a class="header" href="#references-4">References</a></h2>
-<p>The construction here is defined in a number of Algebra textbooks. For and early example, see the Nicolas Bourbaki collective's book <em>Algebra Part I</em>, 1943. The English translation of that book from 1974 has the relevant material on page 20.</p>
+<p>The construction here is defined in a number of Algebra textbooks. For an early example, see the Nicolas Bourbaki collective's book <em>Algebra Part I</em>, 1943. The English translation of that book from 1974 has the relevant material on page 20.</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 <div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
@@ -3612,8 +3612,8 @@ Copyright © 2025 Eric Klavins
 </code></pre>
 <h2 id="up-sets-and-down-sets"><a class="header" href="#up-sets-and-down-sets">Up Sets and Down Sets</a></h2>
 <p>The set of all elements above (below) a given element <code>x:P</code> is called the up (down) set of <code>x</code>.</p>
-<pre><code class="language-lean">def up {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; x ≤ y
-def down {P : Type u} [Poset P] (x : P) : Set P := λ y =&gt; y ≤ x
+<pre><code class="language-lean">def up {P : Type u} [Poset P] (x : P) : Set P := { y | x ≤ y }
+def down {P : Type u} [Poset P] (x : P) : Set P := { y | y ≤ x }
 </code></pre>
 <p>A set that is upwardly (downwardly) closed is called an Up (Down) set. We define predicates on subsets of a Poset to capture these properties. These are a bit tricky to read. The first one says that if <code>x</code> is any element and there is a <code>y</code> in some upward closed set <code>S</code> that is less than or equal to it, then <code>x</code> must also be in <code>S</code>. The second statement about downward closed sets is similar.</p>
 <pre><code class="language-lean">def UpSet {P : Type u} [Poset P] (S : Set P) := ∀ x, (∃ y ∈ S, y ≤ x) → x ∈ S
@@ -3638,6 +3638,59 @@ theorem down_is_down {P : Type u} [Poset P] (x : P) : DownSet (down x) := by
     exact Or.inl (trans x z w h3 h2)
   . intro h3
     apply Or.inr (trans y z w h3 h2)
+</code></pre>
+<h2 id="lower-and-upper-sets"><a class="header" href="#lower-and-upper-sets">Lower and Upper Sets</a></h2>
+<pre><code class="language-lean">def upper {P : Type u} [Poset P] (A : Set P) : Set P :=
+ { x | ∀ a ∈ A, a ≤ x }
+
+def lower {P : Type u} [Poset P] (A : Set P) : Set P :=
+ { x | ∀ a ∈ A, x ≤ a }
+
+-- 1
+theorem sub_ul {P : Type u} [Poset P] (A : Set P)
+  : A ⊆ upper (lower A) := by
+  intro x hx a ha
+  exact ha x hx
+
+theorem sub_lu {P : Type u} [Poset P] (A : Set P)
+  : A ⊆ lower (upper A) := by
+  intro x hx a ha
+  exact ha x hx
+
+theorem eq_to_sub {P : Type u} [Poset P] (A : Set P)
+  : lower (upper A) ⊆ A → lower (upper A) = A := by
+  intro h
+  exact Set.eq_of_subset_of_subset h (sub_lu A)
+
+-- 2
+theorem sub_up {P : Type u} [Poset P] {A B : Set P}
+  : A ⊆ B → upper B ⊆ upper A := by
+  intro h b hb a ha
+  exact hb a (h ha)
+
+-- 3
+theorem sub_low {P : Type u} [Poset P] {A B : Set P}
+  : A ⊆ B → lower B ⊆ lower A := by
+  intro h b hb a ha
+  exact hb a (h ha)
+
+-- 4
+theorem up_ulu {P : Type u} [Poset P] {A : Set P}
+ : upper A = upper (lower (upper A)) := by
+ apply Set.eq_of_subset_of_subset
+ . intro a ha b hb
+   exact hb a ha
+ . intro a ha b hb
+   exact ha b fun a a ↦ a b hb
+
+-- 5
+theorem low_lul {P : Type u} [Poset P] {A : Set P}
+ : lower A = lower (upper (lower A)) := by
+ apply Set.eq_of_subset_of_subset
+ . intro a ha b hb
+   exact hb a ha
+ . intro a ha b hb
+   exact ha b fun a a ↦ a b hb
 </code></pre>
 <h2 id="minimal-and-maximal-elements"><a class="header" href="#minimal-and-maximal-elements">Minimal and Maximal Elements</a></h2>
 <p>A <strong>minimal</strong> element of a set <code>S ⊆ P</code> is one for which no other elements of <code>S</code> are smaller.</p>
@@ -3695,6 +3748,17 @@ example : AntiChain my_anti_chain := by
     rw[←hsm,←hsn] at h
     rw[←hsm,←hsn] at hmn
     exact id (Ne.symm hmn) (congrArg singleton (h rfl))
+</code></pre>
+<h2 id="exercises-2"><a class="header" href="#exercises-2">Exercises</a></h2>
+<ol>
+<li>Show the rational numbers ℚ with the natural order ≤ form a Poset</li>
+</ol>
+<pre><code class="language-lean">instance : Poset ℚ := ⟨ λ x y =&gt; x ≤ y, sorry, sorry, sorry ⟩
+</code></pre>
+<ol start="2">
+<li>Show the upper set (0,1) is [1,∞)</li>
+</ol>
+<pre><code class="language-lean">example : upper {x:ℚ | 0 &lt; x ∧ x &lt; 1} = { x | 1 ≤ x } := sorry
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -4054,6 +4118,804 @@ instance info_semilattice {A : Type u} {B : Type v} [DecidableEq B] : Semilattic
   ⟩
 
 end PartialFunction
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Completions.lean'>Code</a> for this chapter</span></p>
+<h1 id="the-dedekind-macneille-completion"><a class="header" href="#the-dedekind-macneille-completion">The Dedekind-MacNeille Completion</a></h1>
+<p>A <strong>completion</strong> is an embedding of a partially ordered set into a complete lattice. It allows one to "fill in the gaps" in an ordered set so that, for example, limit points exist. The real numbers, for example, are the completion of the rational numbers.</p>
+<p>In this chapter we describe the the Dedekind-MacNeille (DM) Completion, which is a generalization of the Dedekind cuts method of constructing the reals to the case of any ordered set. In particular, we define <code>DM P</code> for any poset <code>P</code>. If <code>P=ℚ</code>, the result is isomorphic to the reals with <code>-∞</code> and <code>∞</code>, but the approach works for any poset.</p>
+<p>Formally, the Dedekind-MacNeille completion <code>DM P</code> is defined to be the family of subsets of <code>S ⊆ P</code> that are closed with respect to the closure operator <code>λ P ↦ lower (upper P)</code>.</p>
+<pre><code class="language-lean">@[ext]
+structure DM (P : Type u) [Poset P] where
+  val : Set P
+  h : lower (upper val) = val
+</code></pre>
+<p>Our goal is to show that <code>DM P</code> is a complete lattice for any <code>P</code>. We can easily show that <code>DM P</code> is a poset under the usual <code>⊆</code> ordering.</p>
+<pre><code class="language-lean">instance DM.poset {P : Type u} [Poset P] : Poset (DM P) :=
+  ⟨
+    λ ⟨ A, hA ⟩ ⟨ B, hB ⟩ =&gt; A ⊆ B,
+    by
+      intro ⟨ A, _ ⟩
+      exact Set.Subset.refl A,
+    by
+      intro ⟨ A, hA ⟩ ⟨ B, hB ⟩ h1 h2
+      simp_all
+      exact Set.Subset.antisymm h1 h2,
+    by
+      intro ⟨ A, hA ⟩ ⟨ B, hB ⟩ ⟨ C, hC ⟩ h1 h2
+      exact Set.Subset.trans h1 h2
+  ⟩
+</code></pre>
+<p>In fact, the <code>DM</code> structure forms what Davey and Priestly call a <em>topped intersection structure</em>, which we will show is a Complete Lattice with a particular definition for the meet and join that we define next.</p>
+<h2 id="the-meet"><a class="header" href="#the-meet">The Meet</a></h2>
+<p>We define a <em>meet</em> for <code>DM P</code>, which is just set-intersection taken over a subset of <code>DM P</code>.</p>
+<p>$$
+\mathrm{meet}(S) = \bigcap_{A ∈ S} A.
+$$</p>
+<p>To prove this definition of <em>meet</em> gives <code>DM P</code> a semilattice structure, we have to show the result of such an intersection satisfies the <code>upper-lower</code> condition. First we define the intersection of a subset of <code>DM P</code> (i.e. of a set of sets taken from <code>DM P</code>).</p>
+<pre><code class="language-lean">def DM.inter {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∀ T ∈ S, x ∈ T.val }
+</code></pre>
+<p>We will need to use the simple fact that the interection of a family ot sets is a subset of every member of the family.</p>
+<pre><code class="language-lean">theorem DM.inter_sub {P : Type u} [Poset P] {S : Set (DM P)}
+  : ∀ T ∈ S, inter S ⊆ T.val := by
+  intro T hT x hx
+  exact hx T hT
+</code></pre>
+<p>Using this fact, we can show the intersection preserves the <code>lower-upper</code> property required of elements of <code>DM P</code>.</p>
+<pre><code class="language-lean">theorem DM.inter_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : lower (upper (inter S)) = inter S := by
+    apply Set.eq_of_subset_of_subset
+    . intro x hx T hT
+      rw[←T.h]
+      exact sub_low (sub_up (inter_sub T hT)) hx
+    . exact sub_lu (inter S)
+</code></pre>
+<p>And with this theorem we can finally define the <em>meet</em> as a function from <code>Set (DM P)</code> into <code>DM P</code>. Recall, that to do so we need to not only supply the operation <code>inter</code> on <code>S</code>, but also proof that <code>inter S</code> is in <code>DM P</code>.</p>
+<pre><code class="language-lean">def DM.meet {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
+  ⟨ inter S, inter_in_dm ⟩
+</code></pre>
+<p>To show that <code>DM P</code> is a Complete Semilattice, we need to show that this definition of <code>meet</code> is indeed a greatest lower bound. We do so in two steps, first showing the <code>meet S</code> is a lower bound of <code>S</code> and second showing it is a greatest lower bound of <code>S</code>.</p>
+<pre><code class="language-lean">theorem DM.meet_lb {P : Type u} [Poset P] :
+  ∀ S : Set (DM P), IsLB S (meet S) := by
+  intro S T hT
+  apply DM.inter_sub
+  exact hT
+
+theorem DM.meet_greatest {P : Type u} [Poset P]
+  : ∀ S : Set (DM P), ∀ w, (IsLB S w) → w ≤ meet S := by
+  intro S W h
+  intro x hx T hT
+  exact h T hT hx
+</code></pre>
+<p>Now we have everything we need to instantiate the Complete Semilattice class.</p>
+<pre><code class="language-lean">instance DM.csl {P : Type u} [Poset P] : CompleteSemilattice (DM P) :=
+  ⟨ meet, meet_lb, meet_greatest ⟩
+</code></pre>
+<h2 id="the-join"><a class="header" href="#the-join">The Join</a></h2>
+<p>Next we define a join. It would be nice to simply define the join of <code>S</code> to be the union of all sets in <code>S</code>, but the result would in general not be closed with respect to the <code>lower-upper</code> operator used to define <code>DM P</code>. To get around this, the join for <code>DM P</code> is defined to be the intersection of sets containing the union.</p>
+<p>$$
+\mathrm{join}(S) = \bigcap \left \{ B \in DM(P) \;|\; \bigcup_{A ∈ S} A \subseteq B \right \}
+$$</p>
+<p>First we define the union.</p>
+<pre><code class="language-lean">def DM.union {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∃ T ∈ S, x ∈ T.val }
+</code></pre>
+<p>We will need an intermediate theorem analogous to the intersection theorem proved for the meet. This one shows that the intersection of a set of sets is contained in each set.</p>
+<pre><code class="language-lean">theorem DM.inter_union_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : ∀ C ∈ {C : DM P| union S ⊆ C.val}, inter {C | union S ⊆ C.val} ⊆ C.val := by
+    intro C hC x hx
+    exact hx C hC
+</code></pre>
+<p>We use this theorem to show the meet is closed.</p>
+<pre><code class="language-lean">theorem DM.union_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : lower (upper (inter {C | union S ⊆ C.val})) = inter {C | union S ⊆ C.val} := by
+  apply Set.eq_of_subset_of_subset
+  . intro x hx T hT
+    rw[←T.h]
+    exact sub_low (sub_up (inter_union_dm T hT)) hx
+  . apply sub_lu
+</code></pre>
+<p>The join operator is then be defined as follows.</p>
+<pre><code class="language-lean">def DM.join {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
+  ⟨ inter { C | union S ⊆ C.val }, union_in_dm ⟩
+</code></pre>
+<p>To show <code>DM P</code> is a Complete Lattice, we need to show the join is a least upper bound, which we do in two steps.</p>
+<pre><code class="language-lean">theorem DM.join_ub {P : Type u} [Poset P] :
+  ∀ S : Set (DM P), IsUB S (join S) := by
+  intro S T hT x hx W hW
+  simp[union,Set.subset_def] at hW
+  exact hW x T hT hx
+
+theorem DM.join_least {P : Type u} [Poset P]
+  : ∀ S : Set (DM P), ∀ W, (IsUB S W) → join S ≤ W := by
+  intro S W h x hx
+  apply hx W
+  intro y ⟨ Q, ⟨ h1, h2 ⟩ ⟩
+  exact h Q h1 h2
+</code></pre>
+<p>Now we have everything we need to show <code>DM P</code> is a Complete Lattice.</p>
+<pre><code class="language-lean">instance DM.lattice {P : Type u} [Poset P] : CompleteLattice (DM P) :=
+  ⟨ join, join_ub, join_least ⟩
+</code></pre>
+<h2 id="completion-map"><a class="header" href="#completion-map">Completion Map</a></h2>
+<p>The mapping from <code>P</code> into <code>DM P</code> is defined implicitly in the construction of <code>DM P</code>. Explicitly, the embedding is definition by the <code>down</code> operator.  That is, the map <code>λ x ↦ down x</code> is the ordering embedding that wintesses the completion. To show this, we prove that <code>down x</code> is closed under the <code>lower-upper</code> closure operator.</p>
+<pre><code class="language-lean">theorem DM.down_is_dm {P : Type u} [Poset P] {x : P}
+  : lower (upper (down x)) = down x :=
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro y hy
+      exact hy x fun a a ↦ a
+    . intro a ha
+      simp_all[upper,lower]
+</code></pre>
+<p>This theorem then allows us to formally define the embedded. We call it <code>make</code>, because it allows us to <em>make</em> an element of <code>DM P</code> out of any element <code>x ∈ P</code>.</p>
+<pre><code class="language-lean">def DM.make {P : Type u} [Poset P] (x : P) : DM P := ⟨ down x, down_is_dm ⟩
+</code></pre>
+<p>Finally, we prove that <code>make</code> is an order embeddeding (as defined in <a href="Ordering/./Maps.html">Maps</a>).</p>
+<pre><code class="language-lean">theorem DM.make_embed {P : Type u} [Poset P]
+  : OrderEmbedding (make : P → DM P) := by
+  intro x y
+  constructor
+  . intro h z hz
+    exact Poset.trans z x y hz h
+  . intro h
+    simp[make,down,le_inst,Poset.le] at h
+    exact h x (Poset.refl x)
+</code></pre>
+<h2 id="completion-of-a-total-order"><a class="header" href="#completion-of-a-total-order">Completion of a Total Order</a></h2>
+<p>If <code>P</code> is a totally ordered set, then its completion ought to be totally ordered as well. We show that here. We start with a useful theorem stating the fact that all elements of <code>DM P</code> are downward closed.</p>
+<pre><code class="language-lean">theorem dm_down_close {P : Type u} [Poset P] {X : DM P}
+  : ∀ y, ∀ x ∈ X.val, y ≤ x → y ∈ X.val := by
+  intro y x hx hyx
+  rw[←X.h] at hx ⊢
+  intro z hz
+  apply Poset.trans y x z hyx (hx z hz)
+</code></pre>
+<p>Now we show the main result.</p>
+<pre><code class="language-lean">theorem dm_total_order {P : Type u} [TotalOrder P]
+  : ∀ (x y : DM P), Comparable x y := by
+
+  intro X Y
+  by_cases h : X.val ⊆ Y.val
+
+  . exact Or.inl h
+
+  . -- Obtain an x in X - Y
+    obtain ⟨ x, ⟨ hx, hxny ⟩ ⟩ := Set.not_subset.mp h
+
+    -- Show y ≤ x using the fact that Y is closed
+    rw[←Y.h] at hxny
+    simp[lower] at hxny
+    obtain ⟨ y, ⟨ hy, hcomp ⟩ ⟩ := hxny
+    have hyx : y ≤ x := by
+      apply Or.elim (TotalOrder.comp x y)
+      . intro h
+        exact False.elim (hcomp h)
+      . exact id
+
+    -- Show Y ⊆ down x using transitivity of ≤ in P
+    have hYdx : Y.val ⊆ down x := by
+      intro b hb
+      exact Poset.trans b y x (hy b hb) hyx
+
+    -- Show down x ⊆ X using the helper theorem above
+    have hdxX: down x ⊆ X.val := by
+      intro b hb
+      exact dm_down_close b x hx hb
+
+    -- Show Y ⊆ X using transitivity of ⊆
+    apply Or.inr
+    intro q hq
+    exact hdxX (hYdx hq)
+</code></pre>
+<p>Using this theorem, we can instantiate the total order class for <code>DM P</code> for any totally ordered <code>P</code>.</p>
+<pre><code class="language-lean">instance {P : Type u} [TotalOrder P] : TotalOrder (DM P) := ⟨ dm_total_order ⟩
+</code></pre>
+<h2 id="examples-2"><a class="header" href="#examples-2">Examples</a></h2>
+<h3 id="a-finite-example"><a class="header" href="#a-finite-example">A Finite Example</a></h3>
+<pre><code class="language-lean">namespace Temp
+
+inductive MyPoset where
+  | a : MyPoset
+  | b : MyPoset
+
+open MyPoset
+
+def myle (x y : MyPoset) := x = y
+
+instance : Poset MyPoset :=
+  ⟨ myle, by simp[myle], by simp[myle], by simp[myle] ⟩
+
+theorem my_poset_all {x : MyPoset} : x ∈ ({a, b}: Set MyPoset) := by
+  match x with
+  | a =&gt; exact Set.mem_insert a {b}
+  | b =&gt; exact Set.mem_insert_of_mem a rfl
+
+def top : DM MyPoset := ⟨
+  { a, b },
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro x h
+      exact my_poset_all
+    . intro x hx
+      simp[lower,upper]
+      intro y h1 h2
+      match x with
+      | a =&gt; exact h1
+      | b =&gt; exact h2
+  ⟩
+
+def bot : DM MyPoset := ⟨
+  ∅,
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro x hx
+      simp[lower,upper] at hx
+      have h1 := hx a
+      have h2 := hx b
+      rw[h1] at h2
+      apply noConfusion h2
+    . exact Set.empty_subset (lower (upper ∅))
+⟩
+
+example : ∃ b : DM MyPoset, ∀ x, b ≤ x := by
+  use bot
+  intro S y hy
+  exact False.elim hy
+
+end Temp
+</code></pre>
+<h2 id="exercises-3"><a class="header" href="#exercises-3">Exercises</a></h2>
+<ol>
+<li>Show <code>DM ℕ</code> is isomorphic to <code>ℕ ∪ {∞}</code> where <code>x ≤ ∞</code> for all <code>x</code>.</li>
+</ol>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Reals.lean'>Code</a> for this chapter</span></p>
+<h2 id="the-dedekind-macnielle-reals"><a class="header" href="#the-dedekind-macnielle-reals">The Dedekind-MacNielle Reals</a></h2>
+<pre><code class="language-lean">instance rat_poset : Poset ℚ :=
+  ⟨ λ x y =&gt; x ≤ y,
+    by simp,
+    by intro x y h1 h2; linarith,
+    by intro x y z h1 h2; linarith ⟩
+
+instance rat_total_order : TotalOrder ℚ := ⟨ @Rat.le_total ⟩
+
+abbrev Real := DM ℚ
+</code></pre>
+<h3 id="making-numbers"><a class="header" href="#making-numbers">Making Numbers</a></h3>
+<pre><code class="language-lean">def ofRat (q : ℚ) : Real := DM.make q
+
+instance real_zero : Zero Real := ⟨ ofRat (0:ℚ) ⟩
+
+instance real_one : One Real := ⟨ ofRat 1 ⟩
+</code></pre>
+<h3 id="top-and-bottom"><a class="header" href="#top-and-bottom">Top and Bottom</a></h3>
+<pre><code class="language-lean">def bot : Real := ⟨ ∅, by
+  simp[lower,upper]
+  ext x
+  constructor
+  . intro h
+    simp at h
+    have := h (x-1)
+    linarith
+  . intro h
+    exact False.elim h
+  ⟩
+
+def top : Real := ⟨ Set.univ, by
+  simp[lower,upper]
+  ext x
+  constructor
+  . intro _
+    exact trivial
+  . intro h y hy
+    exact hy x
+  ⟩
+
+theorem neginf_le (S : Real) : bot ≤ S := by
+  simp[le_inst,Poset.le,bot]
+
+theorem posinf_ge (S : Real) : S ≤ top := by
+  simp[le_inst,Poset.le,top]
+
+
+theorem not_top_is_bounded {x : Real} : x ≠ top → ∃ q : ℚ, x ≤ ofRat q := by
+
+  intro ht
+  simp[top] at ht
+
+  have h1 : x.val ≠ Set.univ := by
+    by_contra h
+    exact ht (DM.ext h)
+
+  have ⟨ q, hq ⟩ : ∃ q, q ∈ Set.univ \ x.val := by
+    by_contra h
+    simp at h
+    exact h1 (Set.eq_univ_iff_forall.mpr h)
+
+  have h2 : ¬q ∈ x.val := by exact Set.not_mem_of_mem_diff hq
+
+  rw[←x.h] at h2
+  simp[upper,lower] at h2
+  obtain ⟨ r, ⟨ hr, hrq ⟩ ⟩ := h2
+
+  use r
+  simp[ofRat,DM.make,down,le_inst,Poset.le]
+
+  intro y hy
+  simp
+  exact hr y hy
+
+theorem not_bot_to_exists {x : Real} : x ≠ bot → ∃ v, v ∈ x.val := by
+  intro h
+  apply Set.nonempty_iff_ne_empty.mpr
+  intro hxb
+  exact h (DM.ext hxb)
+</code></pre>
+<h3 id="addition"><a class="header" href="#addition">Addition</a></h3>
+<pre><code class="language-lean">def set_sum (A B : Set ℚ) : Set ℚ :=
+  lower ( upper { c : ℚ | ∃ x ∈ A, ∃ y ∈ B, c = x + y })
+
+theorem set_sum_lu (A B : Set ℚ)
+  : lower (upper (set_sum A B)) = set_sum A B := by
+  simp[set_sum]
+  rw[←up_ulu]
+
+def add (A B : Real) : Real :=
+ ⟨ set_sum A.val B.val, set_sum_lu A.val B.val ⟩
+
+instance hadd_inst : HAdd Real Real Real := ⟨ add ⟩
+
+instance add_inst : Add Real := ⟨ add ⟩
+</code></pre>
+<h4 id="addtiion-is-commutative"><a class="header" href="#addtiion-is-commutative">Addtiion is Commutative</a></h4>
+<pre><code class="language-lean">theorem set_sum_comm_aux {A B : Set ℚ}
+  : {c | ∃ x ∈ A, ∃ y ∈ B, c = x + y} = {c | ∃ x ∈ B, ∃ y ∈ A, c = x + y} := by
+  ext q
+  simp
+  constructor
+  repeat
+  . intro ⟨ a, ⟨ ha, ⟨ b, ⟨ hb, hq ⟩ ⟩ ⟩ ⟩
+    use b
+    simp[hb]
+    use a
+    simp[ha]
+    linarith
+
+theorem set_sum_comm {A B : Set ℚ} : set_sum A B = set_sum B A := by
+  simp_all[set_sum,set_sum_comm_aux]
+
+theorem add_comm {x y : Real} : x + y = y + x := by
+  simp[hadd_inst,add]
+  apply set_sum_comm
+
+instance add_comm_inst : AddCommMagma Real := ⟨ @add_comm ⟩
+</code></pre>
+<h4 id="zero-is-an-additive-identity"><a class="header" href="#zero-is-an-additive-identity">Zero is an Additive Identity</a></h4>
+<pre><code class="language-lean">theorem add_zero_right {X : Real} : X + 0 = X := by
+  obtain ⟨ S, h ⟩ := X
+  simp[hadd_inst,add,set_sum]
+  rw[←h]
+  congr!
+  ext c; constructor
+  . intro ⟨ s, ⟨ hs, ⟨ t, ⟨ ht, hst ⟩ ⟩ ⟩ ⟩
+    have ht' : t ≤ 0 := ht
+    rw[←h]
+    intro a ha
+    have := hs a ha
+    linarith
+  . intro hc; rw[←h] at hc
+    use c; constructor
+    . exact hc
+    . use 0
+      exact ⟨ rfl, Eq.symm (Rat.add_zero c) ⟩
+
+theorem add_zero_left {X : Real} : 0 + X = X := by
+  rw[add_comm,add_zero_right]
+
+instance add_zero_inst : AddZeroClass Real :=
+  ⟨ @add_zero_left, @add_zero_right ⟩
+
+example : (ofRat 1) + (ofRat 1) = (ofRat 2) := by
+  simp[hadd_inst,ofRat,DM.make,add,set_sum]
+  nth_rewrite 3 [←DM.down_is_dm]
+  congr!
+  ext x
+  constructor
+  . simp
+    intro a ha b hb hab
+    simp_all[down]
+    linarith
+  . intro hx
+    simp_all
+    use (x-1)
+    apply And.intro
+    . simp_all[down]
+      linarith
+    . use 1
+      simp_all[down]
+
+example (x y z : ℚ) (h: x + y = z) : (ofRat x) + (ofRat y) = (ofRat z) := by
+
+  simp[hadd_inst,ofRat,DM.make,add,set_sum]
+  nth_rewrite 3 [←DM.down_is_dm]
+  congr!
+  ext s
+  simp_all[down]
+
+  constructor
+
+  . simp
+    intro a ha b hb hab
+    linarith
+
+  . intro hq
+    rw[←h] at hq
+    use x-(z-s)
+    apply And.intro
+    . simp_all
+    . use y
+      apply And.intro
+      . simp
+      . linarith
+
+theorem add_op {x y x' y': Real} : x ≤ x' → y ≤ y' → x+y ≤ x'+y' := by
+  intro hxx hyy
+  simp_all[hadd_inst,add,le_inst,Poset.le,set_sum]
+  apply sub_low
+  apply sub_up
+  simp
+  intro z a ha b hb hab
+  use a
+  apply And.intro
+  . exact hxx ha
+  . use b
+    exact ⟨ hyy hb, hab ⟩
+</code></pre>
+<h3 id="negation-and-subtraction"><a class="header" href="#negation-and-subtraction">Negation and Subtraction</a></h3>
+<pre><code class="language-lean">def set_negate (A : Set ℚ) : Set ℚ :=
+  lower ( upper { b : ℚ | -b ∈ (upper A) } )
+
+theorem set_negate_lu (A: Set ℚ)
+  : lower (upper (set_negate A)) = set_negate A := by
+  simp[set_negate]
+  rw[←up_ulu]
+
+def negate (A : Real) : Real:=
+ ⟨ set_negate A.val, set_negate_lu A.val ⟩
+
+instance neg_inst : Neg Real := ⟨ negate ⟩
+
+def sub (A B : Real) : Real := A + (-B)
+
+instance hsub_inst : HSub Real Real Real:= ⟨ sub ⟩
+
+instance sub_inst : Sub Real := ⟨ sub ⟩
+
+instance dmq_total_order : TotalOrder (DM ℚ) :=
+  ⟨ by apply dm_total_order ⟩
+
+
+
+
+theorem add_inv {A : Real} {hninf : A ≠ top} {hnninf : A ≠ bot}
+  : A - A = ofRat (0:ℚ) := by
+
+  simp[hsub_inst,sub,hadd_inst,add,
+       set_sum,ofRat,DM.make]
+
+  apply Set.eq_of_subset_of_subset
+
+  . rw[←DM.down_is_dm]
+    apply sub_low
+    apply sub_up
+    intro q hq
+    obtain ⟨ a, ⟨ ha, ⟨ b, ⟨ hb, hqab ⟩ ⟩ ⟩ ⟩ := hq
+    simp[down]
+    have : b = q-a := by linarith
+    rw[this] at hb
+    simp[neg_inst,negate,set_negate,lower] at hb
+    have := hb (-a) ?h
+    . linarith
+    . intro x hx
+      apply le_neg_of_le_neg
+      exact hx a ha
+
+  . sorry
+</code></pre>
+<h3 id="negation-is-an-order-preserving-involution"><a class="header" href="#negation-is-an-order-preserving-involution">Negation is an Order-Preserving Involution</a></h3>
+<pre><code class="language-lean">theorem neg_neg {x : Real} : - -x = x := by
+
+  simp[neg_inst]
+  apply DM.ext
+  nth_rewrite 1 [negate]
+  simp[set_negate]
+  rw[←x.h]
+  congr!
+
+  ext q
+  constructor
+
+  . intro hq
+    simp at hq
+    simp[negate,set_negate] at hq
+    rw[←up_ulu] at hq
+    nth_rewrite 1 [upper] at hq
+    simp at hq
+    rw[←x.h]
+    intro y hy
+    have := hq (-y)
+    simp at this
+    exact this hy
+
+  . intro hq
+    simp
+    intro y hqy
+    simp[negate,set_negate] at hqy
+    nth_rewrite 2 [upper] at hqy
+    simp at hqy
+    apply hqy (-q)
+    simp[upper]
+    intro z hz
+    have := hz q hq
+    linarith
+
+example (x y : Real) : x ≤ y → -y ≤ -x := by
+  intro h
+  apply sub_low
+  apply sub_up
+  intro q h1
+  intro r hr
+  exact h1 r (h hr)
+</code></pre>
+<h3 id="addition-with-top-and-bot"><a class="header" href="#addition-with-top-and-bot">Addition with Top and Bot</a></h3>
+<pre><code class="language-lean">theorem sum_bot_left {x : Real} : bot + x = bot := by
+  simp[hadd_inst,add,bot]
+  simp[set_sum,lower,upper]
+  apply Set.eq_of_subset_of_subset
+  . intro y hy
+    simp at hy
+    have := hy (y-1)
+    linarith
+  . exact Set.empty_subset {x | ∀ (a : ℚ), x ≤ a}
+
+theorem sum_bot_right {x : Real} : x + bot = bot := by
+  rw[add_comm]
+  exact sum_bot_left
+
+theorem sum_top_left {x : Real} (hx : x ≠ bot): top + x = top := by
+  simp[hadd_inst,add,top,bot]
+  apply Set.eq_of_subset_of_subset
+  . intro _ _
+    exact trivial
+  . intro y hy
+    simp[set_sum,lower,upper]
+    intro q hq
+    obtain ⟨ v, hv ⟩ := not_bot_to_exists hx
+    have := hq y (y-v) v hv
+    simp_all
+
+theorem sum_top_right {x : Real} (hx : x ≠ bot): x + top = top := by
+  rw[add_comm]
+  exact sum_top_left hx
+
+-- theorem not_top_is_bounded (x:Real) : x ≠ top → ∃ y ≠ top, x ≤ y := by
+--   intro h
+--   use x
+--   exact ⟨ h, Poset.refl x⟩
+
+theorem not_top_is_bounded' (x:Real) : x ≠ top → ∃ q, ∀ v ∈ x.val, v ≤ q := by
+  intro h
+  by_contra h'
+  simp at h'
+  have : x.val = Set.univ := by
+    apply Set.eq_of_subset_of_subset
+    . intro q hq
+      trivial
+    . intro q hq
+      have ⟨ v, ⟨ hv, hqv ⟩  ⟩ := h' q
+      rw[←x.h]
+      simp[lower,upper]
+      intro a ha
+      have := ha v hv
+      linarith
+  have : x = top := by exact DM.ext this
+  exact h this
+
+theorem neg_top_eq_bot : -top = bot := by
+
+  simp[top,bot,neg_inst,negate,set_negate]
+  apply Set.eq_of_subset_of_subset
+
+  . intro q hq
+    simp[lower,upper] at hq
+    have := hq (q-1) (by
+      intro x hx
+      have := hx (-q+1)
+      linarith
+    )
+    linarith
+
+  . intro q hq
+    exact False.elim hq
+
+theorem neg_bot_eq_top : -bot = top := by
+  rw[←@neg_neg top,neg_top_eq_bot]
+</code></pre>
+<h4 id="addition-is-associative"><a class="header" href="#addition-is-associative">Addition is Associative</a></h4>
+<pre><code class="language-lean">theorem add_assoc (S T U : Real) : (S+T)+U = S+(T+U) := by
+
+  simp_all[hadd_inst,add]
+  nth_rw 1 [set_sum]
+  nth_rw 2 [set_sum]
+  apply congr rfl
+  apply congr rfl
+  ext q
+  simp
+
+  constructor
+
+  . intro ⟨ st, ⟨ hst, ⟨ u, ⟨ hu, hq ⟩ ⟩ ⟩  ⟩
+    sorry
+
+  . intro ⟨ s, ⟨ hs, ⟨ tu, ⟨ htu, hq ⟩ ⟩ ⟩ ⟩
+    sorry
+</code></pre>
+<h2 id="exercises-4"><a class="header" href="#exercises-4">Exercises</a></h2>
+<pre><code class="language-lean">example : set_negate (down 0) = down 0 := by
+
+  simp[set_negate]
+  nth_rewrite 2 [←DM.down_is_dm]
+  congr!
+
+  apply Set.eq_of_subset_of_subset
+
+  . intro x hx
+    simp_all[down,lower,upper]
+    exact neg_nonneg.mp (hx 0 rfl)
+
+  . intro x hx y hy
+    simp_all[down]
+    linarith
+
+example : -(ofRat 0) = ofRat 0 := by
+
+  simp[hadd_inst,add,neg_inst,ofRat,DM.make,negate]
+  simp[set_negate]
+  nth_rewrite 2 [←DM.down_is_dm]
+  congr!
+
+  apply Set.eq_of_subset_of_subset
+
+  . intro x hx
+    simp_all[down,lower,upper]
+    exact neg_nonneg.mp (hx 0 rfl)
+
+  . intro x hx y hy
+    simp_all[down]
+    linarith
+
+
+example : -ofRat 1 = ofRat (-1) := by
+  simp[ofRat,neg_inst,DM.make,negate,set_negate]
+  nth_rewrite 2 [←DM.down_is_dm]
+  congr!
+  ext x
+  simp_all[down,upper]
+  constructor
+
+  . intro h
+    have := h 1 (by exact rfl)
+    exact le_neg_of_le_neg (h 1 rfl)
+
+  . intro hx a ha
+    linarith
+
+example (q : ℚ) : -ofRat q = ofRat (-q) := by
+  simp[ofRat,neg_inst,DM.make,negate,set_negate]
+  nth_rewrite 2 [←DM.down_is_dm]
+  congr!
+  ext x
+  simp_all[down,upper]
+  constructor
+
+  . intro h
+    have := h q (by exact Poset.refl q)
+    exact le_neg_of_le_neg this
+
+  . intro hx a ha
+    linarith
+
+example (q : ℚ) : ofRat q - ofRat q = ofRat 0 := by
+
+  simp[ofRat,neg_inst,hsub_inst,sub,hadd_inst,add,DM.make,negate,set_negate]
+
+  simp[set_sum]
+  nth_rewrite 3 [←DM.down_is_dm]
+  congr!
+  ext x
+  constructor
+
+  . intro ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, hyz ⟩ ⟩ ⟩ ⟩
+    simp[down] at hy ⊢
+    have h1 : z ≤ -q := by
+      simp[lower,upper] at hz
+      apply hz (-q)
+      intro a ha
+      have := ha q (by simp[down])
+      linarith
+    linarith
+
+  . intro hx
+    use q
+    apply And.intro
+    . simp[down]
+    . simp[down] at hx
+      use x-q
+      apply And.intro
+      . simp[lower]
+        intro a ha
+        have := ha (x-q)
+        simp at this
+        apply this
+        simp[upper,down]
+        intro b hb
+        linarith
+      . linarith
+
+def join (A : Real) : Real := ⟨
+    (DM.join {A}).val,
+    by apply DM.union_in_dm
+  ⟩
+
+example (A : Real) : A ≤ join A := by
+  apply DM.join_ub
+  simp
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Appendix.lean'>Code</a> for this chapter</span></p>
+<h1 id="useful-theorems"><a class="header" href="#useful-theorems">Useful Theorems</a></h1>
+<pre><code class="language-lean">theorem not_empty_to_exists {A : Type u} {S : Set A} : S ≠ ∅ → ∃ x, x ∈ S := by
+   intro h
+   by_contra h'
+   simp at h'
+   exact h (Set.eq_empty_iff_forall_not_mem.mpr h')
+
+theorem not_empty_set_diff {A : Type u} {X Y : Set A} (h : ¬X ⊆ Y)
+  : X \ Y ≠ ∅ := by
+  simp[Set.instSDiff,Set.diff]
+  by_contra hx
+  simp at hx
+  exact h hx
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

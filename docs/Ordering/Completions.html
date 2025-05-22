@@ -1,0 +1,492 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Completions - Foundations of Lean</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A light introduction to the foundations of mathematics and proof checking with Lean">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../lean-book.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Foundations of Lean</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/klavins/LeanBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Ordering/Completions.lean'>Code</a> for this chapter</span></p>
+<h1 id="the-dedekind-macneille-completion"><a class="header" href="#the-dedekind-macneille-completion">The Dedekind-MacNeille Completion</a></h1>
+<p>A <strong>completion</strong> is an embedding of a partially ordered set into a complete lattice. It allows one to "fill in the gaps" in an ordered set so that, for example, limit points exist. The real numbers, for example, are the completion of the rational numbers.</p>
+<p>In this chapter we describe the the Dedekind-MacNeille (DM) Completion, which is a generalization of the Dedekind cuts method of constructing the reals to the case of any ordered set. In particular, we define <code>DM P</code> for any poset <code>P</code>. If <code>P=ℚ</code>, the result is isomorphic to the reals with <code>-∞</code> and <code>∞</code>, but the approach works for any poset.</p>
+<p>Formally, the Dedekind-MacNeille completion <code>DM P</code> is defined to be the family of subsets of <code>S ⊆ P</code> that are closed with respect to the closure operator <code>λ P ↦ lower (upper P)</code>.</p>
+<pre><code class="language-lean">@[ext]
+structure DM (P : Type u) [Poset P] where
+  val : Set P
+  h : lower (upper val) = val
+</code></pre>
+<p>Our goal is to show that <code>DM P</code> is a complete lattice for any <code>P</code>. We can easily show that <code>DM P</code> is a poset under the usual <code>⊆</code> ordering.</p>
+<pre><code class="language-lean">instance DM.poset {P : Type u} [Poset P] : Poset (DM P) :=
+  ⟨
+    λ ⟨ A, hA ⟩ ⟨ B, hB ⟩ =&gt; A ⊆ B,
+    by
+      intro ⟨ A, _ ⟩
+      exact Set.Subset.refl A,
+    by
+      intro ⟨ A, hA ⟩ ⟨ B, hB ⟩ h1 h2
+      simp_all
+      exact Set.Subset.antisymm h1 h2,
+    by
+      intro ⟨ A, hA ⟩ ⟨ B, hB ⟩ ⟨ C, hC ⟩ h1 h2
+      exact Set.Subset.trans h1 h2
+  ⟩
+</code></pre>
+<p>In fact, the <code>DM</code> structure forms what Davey and Priestly call a <em>topped intersection structure</em>, which we will show is a Complete Lattice with a particular definition for the meet and join that we define next.</p>
+<h2 id="the-meet"><a class="header" href="#the-meet">The Meet</a></h2>
+<p>We define a <em>meet</em> for <code>DM P</code>, which is just set-intersection taken over a subset of <code>DM P</code>.</p>
+<p>$$
+\mathrm{meet}(S) = \bigcap_{A ∈ S} A.
+$$</p>
+<p>To prove this definition of <em>meet</em> gives <code>DM P</code> a semilattice structure, we have to show the result of such an intersection satisfies the <code>upper-lower</code> condition. First we define the intersection of a subset of <code>DM P</code> (i.e. of a set of sets taken from <code>DM P</code>).</p>
+<pre><code class="language-lean">def DM.inter {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∀ T ∈ S, x ∈ T.val }
+</code></pre>
+<p>We will need to use the simple fact that the interection of a family ot sets is a subset of every member of the family.</p>
+<pre><code class="language-lean">theorem DM.inter_sub {P : Type u} [Poset P] {S : Set (DM P)}
+  : ∀ T ∈ S, inter S ⊆ T.val := by
+  intro T hT x hx
+  exact hx T hT
+</code></pre>
+<p>Using this fact, we can show the intersection preserves the <code>lower-upper</code> property required of elements of <code>DM P</code>.</p>
+<pre><code class="language-lean">theorem DM.inter_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : lower (upper (inter S)) = inter S := by
+    apply Set.eq_of_subset_of_subset
+    . intro x hx T hT
+      rw[←T.h]
+      exact sub_low (sub_up (inter_sub T hT)) hx
+    . exact sub_lu (inter S)
+</code></pre>
+<p>And with this theorem we can finally define the <em>meet</em> as a function from <code>Set (DM P)</code> into <code>DM P</code>. Recall, that to do so we need to not only supply the operation <code>inter</code> on <code>S</code>, but also proof that <code>inter S</code> is in <code>DM P</code>.</p>
+<pre><code class="language-lean">def DM.meet {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
+  ⟨ inter S, inter_in_dm ⟩
+</code></pre>
+<p>To show that <code>DM P</code> is a Complete Semilattice, we need to show that this definition of <code>meet</code> is indeed a greatest lower bound. We do so in two steps, first showing the <code>meet S</code> is a lower bound of <code>S</code> and second showing it is a greatest lower bound of <code>S</code>.</p>
+<pre><code class="language-lean">theorem DM.meet_lb {P : Type u} [Poset P] :
+  ∀ S : Set (DM P), IsLB S (meet S) := by
+  intro S T hT
+  apply DM.inter_sub
+  exact hT
+
+theorem DM.meet_greatest {P : Type u} [Poset P]
+  : ∀ S : Set (DM P), ∀ w, (IsLB S w) → w ≤ meet S := by
+  intro S W h
+  intro x hx T hT
+  exact h T hT hx
+</code></pre>
+<p>Now we have everything we need to instantiate the Complete Semilattice class.</p>
+<pre><code class="language-lean">instance DM.csl {P : Type u} [Poset P] : CompleteSemilattice (DM P) :=
+  ⟨ meet, meet_lb, meet_greatest ⟩
+</code></pre>
+<h2 id="the-join"><a class="header" href="#the-join">The Join</a></h2>
+<p>Next we define a join. It would be nice to simply define the join of <code>S</code> to be the union of all sets in <code>S</code>, but the result would in general not be closed with respect to the <code>lower-upper</code> operator used to define <code>DM P</code>. To get around this, the join for <code>DM P</code> is defined to be the intersection of sets containing the union.</p>
+<p>$$
+\mathrm{join}(S) = \bigcap \left \{ B \in DM(P) \;|\; \bigcup_{A ∈ S} A \subseteq B \right \}
+$$</p>
+<p>First we define the union.</p>
+<pre><code class="language-lean">def DM.union {P : Type u} [Poset P] (S : Set (DM P)) := { x | ∃ T ∈ S, x ∈ T.val }
+</code></pre>
+<p>We will need an intermediate theorem analogous to the intersection theorem proved for the meet. This one shows that the intersection of a set of sets is contained in each set.</p>
+<pre><code class="language-lean">theorem DM.inter_union_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : ∀ C ∈ {C : DM P| union S ⊆ C.val}, inter {C | union S ⊆ C.val} ⊆ C.val := by
+    intro C hC x hx
+    exact hx C hC
+</code></pre>
+<p>We use this theorem to show the meet is closed.</p>
+<pre><code class="language-lean">theorem DM.union_in_dm {P : Type u} [Poset P] {S : Set (DM P)}
+  : lower (upper (inter {C | union S ⊆ C.val})) = inter {C | union S ⊆ C.val} := by
+  apply Set.eq_of_subset_of_subset
+  . intro x hx T hT
+    rw[←T.h]
+    exact sub_low (sub_up (inter_union_dm T hT)) hx
+  . apply sub_lu
+</code></pre>
+<p>The join operator is then be defined as follows.</p>
+<pre><code class="language-lean">def DM.join {P : Type u} [Poset P] (S : Set (DM P)) : DM P :=
+  ⟨ inter { C | union S ⊆ C.val }, union_in_dm ⟩
+</code></pre>
+<p>To show <code>DM P</code> is a Complete Lattice, we need to show the join is a least upper bound, which we do in two steps.</p>
+<pre><code class="language-lean">theorem DM.join_ub {P : Type u} [Poset P] :
+  ∀ S : Set (DM P), IsUB S (join S) := by
+  intro S T hT x hx W hW
+  simp[union,Set.subset_def] at hW
+  exact hW x T hT hx
+
+theorem DM.join_least {P : Type u} [Poset P]
+  : ∀ S : Set (DM P), ∀ W, (IsUB S W) → join S ≤ W := by
+  intro S W h x hx
+  apply hx W
+  intro y ⟨ Q, ⟨ h1, h2 ⟩ ⟩
+  exact h Q h1 h2
+</code></pre>
+<p>Now we have everything we need to show <code>DM P</code> is a Complete Lattice.</p>
+<pre><code class="language-lean">instance DM.lattice {P : Type u} [Poset P] : CompleteLattice (DM P) :=
+  ⟨ join, join_ub, join_least ⟩
+</code></pre>
+<h2 id="completion-map"><a class="header" href="#completion-map">Completion Map</a></h2>
+<p>The mapping from <code>P</code> into <code>DM P</code> is defined implicitly in the construction of <code>DM P</code>. Explicitly, the embedding is definition by the <code>down</code> operator.  That is, the map <code>λ x ↦ down x</code> is the ordering embedding that wintesses the completion. To show this, we prove that <code>down x</code> is closed under the <code>lower-upper</code> closure operator.</p>
+<pre><code class="language-lean">theorem DM.down_is_dm {P : Type u} [Poset P] {x : P}
+  : lower (upper (down x)) = down x :=
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro y hy
+      exact hy x fun a a ↦ a
+    . intro a ha
+      simp_all[upper,lower]
+</code></pre>
+<p>This theorem then allows us to formally define the embedded. We call it <code>make</code>, because it allows us to <em>make</em> an element of <code>DM P</code> out of any element <code>x ∈ P</code>.</p>
+<pre><code class="language-lean">def DM.make {P : Type u} [Poset P] (x : P) : DM P := ⟨ down x, down_is_dm ⟩
+</code></pre>
+<p>Finally, we prove that <code>make</code> is an order embeddeding (as defined in <a href="./Maps.html">Maps</a>).</p>
+<pre><code class="language-lean">theorem DM.make_embed {P : Type u} [Poset P]
+  : OrderEmbedding (make : P → DM P) := by
+  intro x y
+  constructor
+  . intro h z hz
+    exact Poset.trans z x y hz h
+  . intro h
+    simp[make,down,le_inst,Poset.le] at h
+    exact h x (Poset.refl x)
+</code></pre>
+<h2 id="completion-of-a-total-order"><a class="header" href="#completion-of-a-total-order">Completion of a Total Order</a></h2>
+<p>If <code>P</code> is a totally ordered set, then its completion ought to be totally ordered as well. We show that here. We start with a useful theorem stating the fact that all elements of <code>DM P</code> are downward closed.</p>
+<pre><code class="language-lean">theorem dm_down_close {P : Type u} [Poset P] {X : DM P}
+  : ∀ y, ∀ x ∈ X.val, y ≤ x → y ∈ X.val := by
+  intro y x hx hyx
+  rw[←X.h] at hx ⊢
+  intro z hz
+  apply Poset.trans y x z hyx (hx z hz)
+</code></pre>
+<p>Now we show the main result.</p>
+<pre><code class="language-lean">theorem dm_total_order {P : Type u} [TotalOrder P]
+  : ∀ (x y : DM P), Comparable x y := by
+
+  intro X Y
+  by_cases h : X.val ⊆ Y.val
+
+  . exact Or.inl h
+
+  . -- Obtain an x in X - Y
+    obtain ⟨ x, ⟨ hx, hxny ⟩ ⟩ := Set.not_subset.mp h
+
+    -- Show y ≤ x using the fact that Y is closed
+    rw[←Y.h] at hxny
+    simp[lower] at hxny
+    obtain ⟨ y, ⟨ hy, hcomp ⟩ ⟩ := hxny
+    have hyx : y ≤ x := by
+      apply Or.elim (TotalOrder.comp x y)
+      . intro h
+        exact False.elim (hcomp h)
+      . exact id
+
+    -- Show Y ⊆ down x using transitivity of ≤ in P
+    have hYdx : Y.val ⊆ down x := by
+      intro b hb
+      exact Poset.trans b y x (hy b hb) hyx
+
+    -- Show down x ⊆ X using the helper theorem above
+    have hdxX: down x ⊆ X.val := by
+      intro b hb
+      exact dm_down_close b x hx hb
+
+    -- Show Y ⊆ X using transitivity of ⊆
+    apply Or.inr
+    intro q hq
+    exact hdxX (hYdx hq)
+</code></pre>
+<p>Using this theorem, we can instantiate the total order class for <code>DM P</code> for any totally ordered <code>P</code>.</p>
+<pre><code class="language-lean">instance {P : Type u} [TotalOrder P] : TotalOrder (DM P) := ⟨ dm_total_order ⟩
+</code></pre>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="a-finite-example"><a class="header" href="#a-finite-example">A Finite Example</a></h3>
+<pre><code class="language-lean">namespace Temp
+
+inductive MyPoset where
+  | a : MyPoset
+  | b : MyPoset
+
+open MyPoset
+
+def myle (x y : MyPoset) := x = y
+
+instance : Poset MyPoset :=
+  ⟨ myle, by simp[myle], by simp[myle], by simp[myle] ⟩
+
+theorem my_poset_all {x : MyPoset} : x ∈ ({a, b}: Set MyPoset) := by
+  match x with
+  | a =&gt; exact Set.mem_insert a {b}
+  | b =&gt; exact Set.mem_insert_of_mem a rfl
+
+def top : DM MyPoset := ⟨
+  { a, b },
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro x h
+      exact my_poset_all
+    . intro x hx
+      simp[lower,upper]
+      intro y h1 h2
+      match x with
+      | a =&gt; exact h1
+      | b =&gt; exact h2
+  ⟩
+
+def bot : DM MyPoset := ⟨
+  ∅,
+  by
+    apply Set.eq_of_subset_of_subset
+    . intro x hx
+      simp[lower,upper] at hx
+      have h1 := hx a
+      have h2 := hx b
+      rw[h1] at h2
+      apply noConfusion h2
+    . exact Set.empty_subset (lower (upper ∅))
+⟩
+
+example : ∃ b : DM MyPoset, ∀ x, b ≤ x := by
+  use bot
+  intro S y hy
+  exact False.elim hy
+
+end Temp
+</code></pre>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>Show <code>DM ℕ</code> is isomorphic to <code>ℕ ∪ {∞}</code> where <code>x ≤ ∞</code> for all <code>x</code>.</li>
+</ol>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Ordering/Information.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Ordering/Reals.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Ordering/Information.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Ordering/Reals.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../highlight.js"></script>
+        <script src="../lean-book.js"></script>
+
+
+    </div>
+    </body>
+</html>

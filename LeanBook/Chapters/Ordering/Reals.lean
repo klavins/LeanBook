@@ -216,6 +216,8 @@ theorem add_op {x y x' y': Real} : x ≤ x' → y ≤ y' → x+y ≤ x'+y' := by
   . use b
     exact ⟨ hyy hb, hab ⟩
 
+
+
 /- ### Negation and Subtraction -/
 
 def set_negate (A : Set ℚ) : Set ℚ :=
@@ -240,6 +242,9 @@ instance sub_inst : Sub Real := ⟨ sub ⟩
 instance dmq_total_order : TotalOrder (DM ℚ) :=
   ⟨ by apply dm_total_order ⟩
 
+
+
+
 theorem add_inv {A : Real} {hninf : A ≠ top} {hnninf : A ≠ bot}
   : A - A = ofRat (0:ℚ) := by
 
@@ -263,41 +268,28 @@ theorem add_inv {A : Real} {hninf : A ≠ top} {hnninf : A ≠ bot}
       apply le_neg_of_le_neg
       exact hx a ha
 
-  . apply Or.elim (TotalOrder.comp (-A) A)
+  . have h : down 0 ⊆ {c | ∃ x ∈ A.val, ∃ y ∈ (-A).val, c = x + y} := by
+      intro c hc
+      simp_all[down]
+      obtain ⟨ b, hb ⟩ := not_top_is_bounded hninf
+      simp[le_inst,Poset.le,ofRat,DM.make,down] at hb
+      have : b ∈ (-A).val := sorry
+      use (c-b)
+      apply And.intro
+      . simp[neg_inst,negate,set_negate] at this
+        by_cases hc0 : c = 0
+        . simp_all[hc0]
+          sorry
+        . sorry
+      . use b
+        apply And.intro
+        . exact this
+        . linarith
 
-    . intro h              -- Can I use -A ⊆ down 0, down 0 ⊆ A?
-                           -- Note: Can't use sub_low/sub_up because
-                           -- when q=0 and A ≠ down x it doesn't work
+    have := sub_low (sub_up h)
+    rw[DM.down_is_dm] at this
+    exact this
 
-      intro q hq
-      simp[down] at hq
-      simp[lower]
-      intro ab hab
-      simp[upper] at hab
-
-      have hqinA : q ∈ A.val := sorry
-      have hza : 0 ∈ A.val := sorry
-
-      have hab' := hab q
-
-
-      by_cases hqma : q ∈ (-A).val
-      . have := hab q 0 hza q hqma (by linarith)
-        exact this
-      . have hw : q ∈ A.val \ (-A).val := by
-          exact Set.mem_diff_of_mem hqinA hqma
-        obtain ⟨ h1, h2 ⟩ := hw
-        simp[neg_inst,negate,set_negate] at h2
-
-        have := hab q
-        sorry
-
-      apply hab q (q-ab) ?_ ab ?_ (by linarith)
-
-
-      sorry
-
-    . sorry
 
 /- ### Negation is an Order-Preserving Involution -/
 
