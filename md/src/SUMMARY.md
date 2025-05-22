@@ -31,7 +31,7 @@
 - [First Order Logic](./FirstOrderLogic.md)
 - [Tactics](./Tactics.md)
 - [Equality](./Equality.md)
-- [Relations](./Relations.md)
+- [Sets and Relations](./Relations.md)
 
 # Numbers
 
@@ -45,7 +45,7 @@
 - [Rational Numbers](./Numbers.md)
 - [Real Numbers](./Reals.md)
 
-# Ordering
+# Partial Orders
 
 - [Definitions](./Ordering/Definition.md)
 - [Properties](./Ordering/Properties.md)
@@ -53,11 +53,14 @@
 - [Strings](./Ordering/Strings.md)
 - [Information](./Ordering/Information.md)
 - [Completions](./Ordering/Completions.md)
-- [Dedekind-MacNeille Reals](./Ordering/Reals.md)
 
-# Extra Matrial
+# Reals Revisited
 
-- [Appendix](./Appendix.md)
+- [Dedekind-MacNeille](./Ordering/Reals.md)
+
+# Appendix
+
+- [Helpers](./Appendix.md)
 
 
 

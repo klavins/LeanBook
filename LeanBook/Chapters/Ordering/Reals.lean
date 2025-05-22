@@ -14,6 +14,8 @@ instance rat_poset : Poset ℚ :=
     by intro x y h1 h2; linarith,
     by intro x y z h1 h2; linarith ⟩
 
+instance rat_total_order : TotalOrder ℚ := ⟨ @Rat.le_total ⟩
+
 abbrev Real := DM ℚ
 
 /- ### Making Numbers -/
@@ -201,6 +203,18 @@ example (x y z : ℚ) (h: x + y = z) : (ofRat x) + (ofRat y) = (ofRat z) := by
       . simp
       . linarith
 
+theorem add_op {x y x' y': Real} : x ≤ x' → y ≤ y' → x+y ≤ x'+y' := by
+  intro hxx hyy
+  simp_all[hadd_inst,add,le_inst,Poset.le,set_sum]
+  apply sub_low
+  apply sub_up
+  simp
+  intro z a ha b hb hab
+  use a
+  apply And.intro
+  . exact hxx ha
+  . use b
+    exact ⟨ hyy hb, hab ⟩
 
 /- ### Negation and Subtraction -/
 
@@ -223,56 +237,69 @@ instance hsub_inst : HSub Real Real Real:= ⟨ sub ⟩
 
 instance sub_inst : Sub Real := ⟨ sub ⟩
 
-theorem neg_order {A : Real} : -A ≤ A ∨ A ≤ -A := by
-  by_cases h : -A ≤ A
-  . exact Or.inl h
-  . apply Or.inr
-    simp_all[le_inst,Poset.le,neg_inst,negate,set_negate]
-    intro x hx
-    simp[Set.not_subset] at h
-    obtain ⟨ q, ⟨ hq, hnq ⟩ ⟩ := h
-
-    sorry
+instance dmq_total_order : TotalOrder (DM ℚ) :=
+  ⟨ by apply dm_total_order ⟩
 
 theorem add_inv {A : Real} {hninf : A ≠ top} {hnninf : A ≠ bot}
   : A - A = ofRat (0:ℚ) := by
 
-  simp[ofRat,neg_inst,hsub_inst,sub,hadd_inst,
-       add,DM.make]
+  simp[hsub_inst,sub,hadd_inst,add,
+       set_sum,ofRat,DM.make]
 
-  simp[set_sum]
-  rw[←DM.down_is_dm]
-  congr!
-  ext x
-  constructor
+  apply Set.eq_of_subset_of_subset
 
-  . intro ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, hyz ⟩ ⟩ ⟩ ⟩
-    simp[down] at hy ⊢
-    have h1 := hz (-y) (by
-      simp[upper]
-      intro a ha
-      have := ha y hy
-      linarith
-    )
-    linarith
+  . rw[←DM.down_is_dm]
+    apply sub_low
+    apply sub_up
+    intro q hq
+    obtain ⟨ a, ⟨ ha, ⟨ b, ⟨ hb, hqab ⟩ ⟩ ⟩ ⟩ := hq
+    simp[down]
+    have : b = q-a := by linarith
+    rw[this] at hb
+    simp[neg_inst,negate,set_negate,lower] at hb
+    have := hb (-a) ?h
+    . linarith
+    . intro x hx
+      apply le_neg_of_le_neg
+      exact hx a ha
 
-  . intro hx
-    simp[down] at hx
-    simp
+  . apply Or.elim (TotalOrder.comp (-A) A)
 
-    by_cases h : (negate A).val ⊆ A.val
+    . intro h              -- Can I use -A ⊆ down 0, down 0 ⊆ A?
+                           -- Note: Can't use sub_low/sub_up because
+                           -- when q=0 and A ≠ down x it doesn't work
 
-    . have : ofRat (0:ℚ) ≤ A := by
-        simp[ofRat,DM.make,DM,le_inst,Poset.le,down]
+      intro q hq
+      simp[down] at hq
+      simp[lower]
+      intro ab hab
+      simp[upper] at hab
+
+      have hqinA : q ∈ A.val := sorry
+      have hza : 0 ∈ A.val := sorry
+
+      have hab' := hab q
 
 
+      by_cases hqma : q ∈ (-A).val
+      . have := hab q 0 hza q hqma (by linarith)
+        exact this
+      . have hw : q ∈ A.val \ (-A).val := by
+          exact Set.mem_diff_of_mem hqinA hqma
+        obtain ⟨ h1, h2 ⟩ := hw
+        simp[neg_inst,negate,set_negate] at h2
+
+        have := hab q
         sorry
-      sorry
 
+      apply hab q (q-ab) ?_ ab ?_ (by linarith)
+
+
+      sorry
 
     . sorry
 
-
+/- ### Negation is an Order-Preserving Involution -/
 
 theorem neg_neg {x : Real} : - -x = x := by
 
@@ -310,6 +337,13 @@ theorem neg_neg {x : Real} : - -x = x := by
     have := hz q hq
     linarith
 
+example (x y : Real) : x ≤ y → -y ≤ -x := by
+  intro h
+  apply sub_low
+  apply sub_up
+  intro q h1
+  intro r hr
+  exact h1 r (h hr)
 
 
 /- ### Addition with Top and Bot -/

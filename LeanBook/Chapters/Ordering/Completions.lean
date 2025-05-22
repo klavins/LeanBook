@@ -12,7 +12,9 @@ open LeanBook
 
 /- # The Dedekind-MacNeille Completion
 
-A **completion** is an embedding of a partially ordered set into a complete lattice. In this chapter we describe one such completion, the Dedekind-MacNeille (DM) Completion, which is a generalization of the Dedekind cuts method of constructing the real numbers from the rational numbers. In particular, we define `DM P` for any poset `P`. If `P=ℚ`, the result is isomorphic to the reals with `-∞` and `∞`, but the approach works for any poset.
+A **completion** is an embedding of a partially ordered set into a complete lattice. It allows one to "fill in the gaps" in an ordered set so that, for example, limit points exist. The real numbers, for example, are the completion of the rational numbers.
+
+In this chapter we describe the the Dedekind-MacNeille (DM) Completion, which is a generalization of the Dedekind cuts method of constructing the reals to the case of any ordered set. In particular, we define `DM P` for any poset `P`. If `P=ℚ`, the result is isomorphic to the reals with `-∞` and `∞`, but the approach works for any poset.
 
 Formally, the Dedekind-MacNeille completion `DM P` is defined to be the family of subsets of `S ⊆ P` that are closed with respect to the closure operator `λ P ↦ lower (upper P)`.  -/
 
@@ -294,11 +296,6 @@ example : ∃ b : DM MyPoset, ∀ x, b ≤ x := by
 
 end Temp
 
+/- ## Exercises
 
-/- ## Exercises -/
-
-/- 1) Show that Non-Top Elements of DM are Bounded -/
-
-example {P : Type u} [Poset P] (A : DM P) (hne : A.val ≠ ∅)
-  : A.val ≠ Set.univ → ∃ p : P, A ≤ DM.make p :=
-  sorry
+1) Show `DM ℕ` is isomorphic to `ℕ ∪ {∞}` where `x ≤ ∞` for all `x`. -/
