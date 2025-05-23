@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Completions - Foundations of Lean</title>
+        <title>The D.M. Completion - Foundations of Lean</title>
 
 
         <!-- Custom HTML head -->
@@ -359,6 +359,54 @@ theorem DM.join_least {P : Type u} [Poset P]
 </code></pre>
 <p>Using this theorem, we can instantiate the total order class for <code>DM P</code> for any totally ordered <code>P</code>.</p>
 <pre><code class="language-lean">instance {P : Type u} [TotalOrder P] : TotalOrder (DM P) := ⟨ dm_total_order ⟩
+</code></pre>
+<p>We can show a useful theorem stating that every element besides top has a principal upper bound.</p>
+<pre><code class="language-lean">theorem DM.not_top_is_bounded {P : Type u} [Poset P] {x : DM P}
+  : x ≠ CompleteLattice.top → ∃ q : P, x ≤ DM.make q := by
+  intro h
+
+  have h1 : x.val ≠ Set.univ := by
+    by_contra h2
+    simp[CompleteLattice.top,CompleteSemilattice.inf,DM.meet,DM.inter,DM.ext] at h
+    apply h (DM.ext h2)
+
+  have ⟨ q, hq ⟩ : ∃ q, q ∈ Set.univ \ x.val := by
+    by_contra h
+    simp at h
+    exact h1 (Set.eq_univ_iff_forall.mpr h)
+
+  have h2 : ¬q ∈ x.val := by exact Set.not_mem_of_mem_diff hq
+
+  rw[←x.h] at h2
+  simp[upper,lower] at h2
+  obtain ⟨ r, ⟨ hr, hrq ⟩ ⟩ := h2
+
+  use r
+  simp[DM.make,down,le_inst,Poset.le]
+
+  intro y hy
+  simp
+  exact hr y hy
+</code></pre>
+<p>We can also show that every element besides <code>bot</code> is non-empty.</p>
+<pre><code class="language-lean">theorem DM.not_bot_to_exists {P : Type u} [Poset P] {x : DM P}
+  : x ≠ CompleteLattice.bot → ∃ v, v ∈ x.val := by
+  intro h
+  apply Set.nonempty_iff_ne_empty.mpr
+  intro hxb
+  simp[CompleteLattice.bot,CompleteLattice.sup,DM.join,DM.inter,DM.union] at h
+  have : {x | ∀ (T : DM P), x ∈ T.val} = ∅ := by
+    ext q
+    constructor
+    . simp
+      by_contra hn
+      simp at hn
+      have := hn x
+      simp_all[Set.mem_empty_iff_false]
+    . simp
+
+  simp[this] at h
+  exact h (DM.ext hxb)
 </code></pre>
 <h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <h3 id="a-finite-example"><a class="header" href="#a-finite-example">A Finite Example</a></h3>

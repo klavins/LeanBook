@@ -181,6 +181,8 @@ example : AntiChain my_anti_chain := by
 
 
 
+
+
 /- ## Exercises -/
 
 /- 1) Show the rational numbers ℚ with the natural order ≤ form a Poset -/

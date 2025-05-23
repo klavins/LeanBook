@@ -6,7 +6,6 @@
 --  (at your option) any later version.
 
 import Mathlib
-import LeanBook.Chapters.Relations
 
 universe u v
 
@@ -254,19 +253,29 @@ instance set_cl {A : Type u}: CompleteLattice (Set A) :=
 
 Notice that in the definition of `inf` the condition `(IsLB S w)` in  `(IsLB S w)→ w ≤ inf S` is trivially satisfied if `S = ∅`. Therefore, `w ≤ inf ∅` for all `w`, meaning that `inf ∅` is a top element. Similarly, `sup ∅` is a bottom element. We can conclude that every Complete Lattice is bounded, as shown by the next two theorems.  -/
 
-theorem CompleteLattice.has_bot {L : Type u} [CompleteLattice L]
-  : ∃ bot : L, ∀ x, bot ≤ x := by
-  use sup (∅:Set L)
+
+@[simp]
+def CompleteLattice.bot {L : Type u} [CompleteLattice L] : L :=
+  sup (∅:Set L)
+
+@[simp]
+def CompleteLattice.top {L : Type u} [CompleteLattice L] : L :=
+  CompleteSemilattice.inf (∅:Set L)
+
+theorem CompleteLattice.is_bot {L : Type u} [CompleteLattice L]
+  : ∀ x : L, bot ≤ x := by
   intro x
   apply CompleteLattice.least ∅ x
   simp[IsUB]
 
-theorem CompleteLattice.has_top {L : Type u} [CompleteLattice L]
-  : ∃ top : L, ∀ x, x ≤ top := by
-  use CompleteSemilattice.inf (∅:Set L)
+theorem CompleteLattice.is_top {L : Type u} [CompleteLattice L]
+  : ∀ x : L, x ≤ top := by
   intro x
   apply CompleteSemilattice.greatest ∅ x
   simp[IsLB]
+
+
+
 
 /- ## Complete Lattices are Lattices
 

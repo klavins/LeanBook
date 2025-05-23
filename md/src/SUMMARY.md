@@ -52,11 +52,13 @@
 - [Maps](./Ordering/Maps.md)
 - [Strings](./Ordering/Strings.md)
 - [Information](./Ordering/Information.md)
-- [Completions](./Ordering/Completions.md)
 
 # Reals Revisited
 
-- [Dedekind-MacNeille](./Ordering/Reals.md)
+- [The D.M. Completion](./Ordering/Completions.md)
+- [The Completion of ℚ](./Ordering/Reals.md)
+- [Addition](./Ordering/RealAdd.md)
+- [Negation](./Ordering/RealNeg.md)
 
 # Appendix
 

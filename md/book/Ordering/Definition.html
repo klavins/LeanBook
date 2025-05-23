@@ -377,16 +377,22 @@ instance set_cl {A : Type u}: CompleteLattice (Set A) :=
 </code></pre>
 <h2 id="complete-lattices-are-bounded"><a class="header" href="#complete-lattices-are-bounded">Complete Lattices are Bounded</a></h2>
 <p>Notice that in the definition of <code>inf</code> the condition <code>(IsLB S w)</code> in  <code>(IsLB S w)→ w ≤ inf S</code> is trivially satisfied if <code>S = ∅</code>. Therefore, <code>w ≤ inf ∅</code> for all <code>w</code>, meaning that <code>inf ∅</code> is a top element. Similarly, <code>sup ∅</code> is a bottom element. We can conclude that every Complete Lattice is bounded, as shown by the next two theorems.</p>
-<pre><code class="language-lean">theorem CompleteLattice.has_bot {L : Type u} [CompleteLattice L]
-  : ∃ bot : L, ∀ x, bot ≤ x := by
-  use sup (∅:Set L)
+<pre><code class="language-lean">@[simp]
+def CompleteLattice.bot {L : Type u} [CompleteLattice L] : L :=
+  sup (∅:Set L)
+
+@[simp]
+def CompleteLattice.top {L : Type u} [CompleteLattice L] : L :=
+  CompleteSemilattice.inf (∅:Set L)
+
+theorem CompleteLattice.is_bot {L : Type u} [CompleteLattice L]
+  : ∀ x : L, bot ≤ x := by
   intro x
   apply CompleteLattice.least ∅ x
   simp[IsUB]
 
-theorem CompleteLattice.has_top {L : Type u} [CompleteLattice L]
-  : ∃ top : L, ∀ x, x ≤ top := by
-  use CompleteSemilattice.inf (∅:Set L)
+theorem CompleteLattice.is_top {L : Type u} [CompleteLattice L]
+  : ∀ x : L, x ≤ top := by
   intro x
   apply CompleteSemilattice.greatest ∅ x
   simp[IsLB]
