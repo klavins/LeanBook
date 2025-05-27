@@ -65,6 +65,23 @@ theorem add_inv_le_zero {A : Real} : A - A ≤ ofRat (0:ℚ) := by
   . linarith
   . exact ha
 
+
+/- Putting it all together is hard. I need more information about negation and A-A. Are there auxillary things I could prove about negation?
+
+know
+  - -A = set_negate A = { b : ℚ | -b ∈ (upper A) }
+  - lu set_negate A = set_negate A
+  - A - A ≤ 0
+  - -A is downward closed (since everything in DM Q is downward closed)
+  -
+
+-/
+
+example (A : Real) : ∀ x ∈ A.val, ∃ y, y ≤ x := by
+  intro x hx
+  use (x-1)
+  simp
+
 theorem add_inv {A : Real} {hninf : A ≠ top} {hnninf : A ≠ bot}
   : A - A = ofRat (0:ℚ) := by
 
@@ -72,17 +89,10 @@ theorem add_inv {A : Real} {hninf : A ≠ top} {hnninf : A ≠ bot}
   apply Set.eq_of_subset_of_subset
   . apply add_inv_le_zero
 
-  . have h : down 0 ⊆ {c | ∃ x ∈ A.val, ∃ y ∈ (-A).val, c = x + y} := by
-      intro c hc
-      simp_all[down]
-      rw[←top_simp] at hninf -- next line needs top expressed in terms of Semilattice
-      obtain ⟨ b, hb ⟩ := DM.not_top_is_bounded hninf
-      simp[le_inst,Poset.le,ofRat,DM.make,down] at hb
-      sorry
+  . simp_all[down,neg_inst]
+    intro q hq
 
-    have := sub_low (sub_up h)
-    rw[DM.down_is_dm] at this
-    exact this
+    sorry
 
 
 

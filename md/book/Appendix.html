@@ -178,6 +178,11 @@
    simp at h'
    exact h (Set.eq_empty_iff_forall_not_mem.mpr h')
 
+theorem not_full_to_not_exists {A : Type u} {S : Set A}
+  : S ≠ Set.univ → ∃ x, x ∉ S := by
+  intro h
+  exact (Set.ne_univ_iff_exists_not_mem S).mp h
+
 theorem not_empty_set_diff {A : Type u} {X Y : Set A} (h : ¬X ⊆ Y)
   : X \ Y ≠ ∅ := by
   simp[Set.instSDiff,Set.diff]
@@ -192,7 +197,7 @@ Copyright © 2025 Eric Klavins
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="Ordering/RealNeg.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="Ordering/Completions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -203,7 +208,7 @@ Copyright © 2025 Eric Klavins
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="Ordering/RealNeg.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="Ordering/Completions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

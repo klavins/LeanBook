@@ -10,6 +10,11 @@ theorem not_empty_to_exists {A : Type u} {S : Set A} : S ≠ ∅ → ∃ x, x �
    simp at h'
    exact h (Set.eq_empty_iff_forall_not_mem.mpr h')
 
+theorem not_full_to_not_exists {A : Type u} {S : Set A}
+  : S ≠ Set.univ → ∃ x, x ∉ S := by
+  intro h
+  exact (Set.ne_univ_iff_exists_not_mem S).mp h
+
 theorem not_empty_set_diff {A : Type u} {X Y : Set A} (h : ¬X ⊆ Y)
   : X \ Y ≠ ∅ := by
   simp[Set.instSDiff,Set.diff]

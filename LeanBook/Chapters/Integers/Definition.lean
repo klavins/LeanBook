@@ -9,8 +9,6 @@ import Mathlib
 
 /- # From Pairs to Integers
 
-
-
 As usual when defining a type with the same name as something in the standard library or in Mathlib, we open a namespace to avoid naming conflicts. The `Int` type we define in this section has the fully qualified name `LeanBook.Int`, and is a totally different type than Lean's `Int` type. -/
 
 namespace LeanBook
