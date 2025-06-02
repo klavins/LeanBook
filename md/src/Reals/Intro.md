@@ -9,7 +9,7 @@
 </div>
 
 <span style='color: orange'>***UNDER CONSTRUCTION***</span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals.lean'>Code</a> for this chapter</span>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Intro.lean'>Code</a> for this chapter</span>
  # WHAT IS A REAL NUMBER?
 
 <div style='background: yellow'>TODO: This chapter needs to be clean up. Any maybe, just for pedagogical purposes, it should use a construction that is different from Mathlib's.

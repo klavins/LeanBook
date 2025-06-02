@@ -28,7 +28,7 @@
 - [Equality](./Equality.md)
 - [Sets and Relations](./Relations.md)
 
-# Numbers
+# Basic Numbers
 
 - [Natural Numbers](./Naturals/Intro.md)
     - [Definition](./Naturals/Definition.md)
@@ -38,7 +38,11 @@
     - [Operators](./Integers/Operators.md)
     - [Properties](./Integers/Properties.md)
 - [Rational Numbers](./Numbers.md)
-- [Real Numbers](./Reals.md)
+
+# Real Numbers
+
+- [Overview](./Reals/Intro.md)
+    - [Dedekind Cuts](./Reals/Dedekind.md)
 
 # Partial Orders
 

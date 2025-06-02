@@ -2326,7 +2326,7 @@ Copyright © 2025 Eric Klavins
 <h1 id="relations-1"><a class="header" href="#relations-1">Relations</a></h1>
 <p>As described previously, a relation is a propositionally valued predicate of two arguments. Generally speaking, that is about all you can say about predicates. However, when we restrict our attention to predicates having specific properties, we can say much more.</p>
 <p>In this chapter we will build up some of the theory behind relations and give several examples of each type of relation.</p>
-<p>Note that Mathlib has many definitions involved relations. In particular, <code>Rel</code> is the general type of relations. We will not use that infrastructure in this chapter, as our goal is to build up the theory from scratch for the purposes of understanding it better, which in turn should make Mathlib more comprehensible.</p>
+<p>Note that Mathlib has many definitions involving relations. In particular, <code>Rel</code> is the general type of relations. We will not use that infrastructure in this chapter, as our goal is to build up the theory from scratch for the purposes of understanding it better, which in turn should make Mathlib more comprehensible.</p>
 <h1 id="definitions"><a class="header" href="#definitions">Definitions</a></h1>
 <p>First, we define a general type for relations:</p>
 <pre><code class="language-lean">abbrev Relation (A : Type u) (B : Type v) := A → B → Prop
@@ -2986,7 +2986,7 @@ Copyright © 2025 Eric Klavins
 --  (at your option) any later version.   
 </div>
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals.lean'>Code</a> for this chapter</span></p>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Intro.lean'>Code</a> for this chapter</span></p>
 <h1 id="what-is-a-real-number"><a class="header" href="#what-is-a-real-number">WHAT IS A REAL NUMBER?</a></h1>
 <div style='background: yellow'>TODO: This chapter needs to be clean up. Any maybe, just for pedagogical purposes, it should use a construction that is different from Mathlib's.
 <p>Sequences should appear in their own section or chapter as well. </div></p>
@@ -3323,6 +3323,478 @@ This is the only</p>
 <p>A nice description of the Cauchy Completion: https://mathweb.ucsd.edu/~tkemp/140A/Construction.of.R.pdf</p>
 <p>A book that describes the Cauchy Completion:  Rudin, W.: Principles of Mathematical Analysis. Third Edition. International Series in Pure and Applied Mathematics. McGraw-Hill Book Co., New York – Aukland – Dusseldorf, 1976.ß</p>
 <p>A real analysis book in which ℝ is constructed from decimal expansions of the form f : ℕ → ℤ with f(0) being the integer part and f(n) ∈ {0, ..., 9} for n ≥ 1. https://docs.ufpr.br/%7Ehigidio/Ensino/Seminario/Davidson-Donsig-2010-Real%20Analysis%20and%20Aplications.pdf</p>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Dedekind.lean'>Code</a> for this chapter</span></p>
+<h1 id="the-dedekind-reals"><a class="header" href="#the-dedekind-reals">The Dedekind Reals</a></h1>
+<p>We have seen that te natural numbers may be defined inductively, that the integers can be constructed from the natural numbers, and that this rational numbers can be constructed from the natural numbers and the real numbers. Here, we construct the real numbers from the rational numbers. There are several methods of doing this. For example, Mathlib defines the real numbers as a quotient space of Cauchy Sequences. As an exercise, we provde an alternative definition using Dedekind cuts.</p>
+<p>Dedekind's representation of a real number <code>r</code> is as a pair <code>(A,B)</code> where <code>A ⊆ ℚ</code> is the set of all rational numbers less than <code>r</code> and <code>B = ℚ \ A</code>. The idea is that <code>A</code> approximates <code>r</code> from below and <code>B</code> approximates <code>r</code> from above. In the case that <code>r ∈ ℚ</code>, then <code>A = (∞,r)</code> and <code>B = [r,∞)</code>. Since <code>A</code> completely determines the cut, we work mainly with it, only occasionally referring to <code>B</code>.</p>
+<p>That this definition satisfies the properties of the real numbers needs to be proved, which is what this chapter is about. Specifically, we will prove that</p>
+<ul>
+<li>The set of cuts is totally ordered</li>
+<li>The set of cuts form a <em>field</em></li>
+<li>Every bounded, non-empty set of cuts has a least upper bound</li>
+</ul>
+<p>The last property distinguishes the real numbers from the rationals.</p>
+<h2 id="definition"><a class="header" href="#definition">Definition</a></h2>
+<p>First, we define a structure to capture the precise definition of a cut <code>A ⊆ ℚ</code>. We require that A is nonempty, that it is not ℚ, that it is downward closed, and that is interval.</p>
+<pre><code class="language-lean">@[ext]
+structure DCut where
+  A : Set ℚ
+  ne : ∃ q, q ∈ A                   -- not empty
+  nf : ∃ q, q ∉ A                   -- not ℚ
+  dc : ∀ x y, x ≤ y ∧ y ∈ A → x ∈ A -- downward closed
+  op : ∀ x ∈ A, ∃ y ∈ A, x &lt; y      -- open
+
+open DCut
+
+def DCut.B (c : DCut) : Set ℚ := Set.univ \ c.A
+</code></pre>
+<h2 id="making-rationals-into-reals"><a class="header" href="#making-rationals-into-reals">Making Rationals into Reals</a></h2>
+<p>All rational numbers are also real numbers via the map that identifies a rational <code>q</code> with the intergal <code>(∞,q)</code> of all rationals less than <code>q</code>. We call this set <code>odown q</code>, where <code>odown</code> is meant to abbreviate <code>open, downward closed</code>.</p>
+<pre><code class="language-lean">def odown (q : ℚ) : Set ℚ := { y | y &lt; q }
+</code></pre>
+<p>To prove that <code>odown q</code> is a Dedekind cut requires we show it is nonempty, not <code>ℚ</code> itself, downward closed, and open. For the first two theorems we use use the facts that <code>q-1 ∈ (∞,q)</code> and <code>q+1 ∉ (∞,q)</code>.</p>
+<pre><code class="language-lean">theorem odown_ne {q : ℚ} : ∃ x, x ∈ odown q := by
+  use q-1
+  simp[odown]
+
+theorem odown_nf {q : ℚ} : ∃ x, x ∉ odown q := by
+  use q+1
+  simp[odown]
+</code></pre>
+<p>That <code>odown</code> q is downward closed follows from the definitions.</p>
+<pre><code class="language-lean">theorem odown_dc {q : ℚ} : ∀ x y, x ≤ y ∧ y ∈ odown q → x ∈ odown q := by
+  intro x y ⟨ hx, hy ⟩
+  simp_all[odown]
+  linarith
+</code></pre>
+<p>To prove <code>odown q</code> is open, we are given <code>x ∈ odown</code> and need supply <code>y ∈ odown q</code> with <code>x &lt; y</code>. Since <code>q</code> is the least upper bound of <code>odown q</code>, we can simply choose <code>(x+q)/2</code>.</p>
+<pre><code class="language-lean">theorem odown_op {q : ℚ} : ∀ x ∈ odown q, ∃ y ∈ odown q, x &lt; y:= by
+  intro x hx
+  use (x+q)/2
+  simp_all[odown]
+  apply And.intro
+  repeat linarith
+</code></pre>
+<p>With these theorems we can then define a map <code>ofRat : ℚ → DCut</code> that embeds the rationals into the Dedekind cuts.</p>
+<pre><code class="language-lean">def ofRat (q : ℚ ) : DCut :=
+  ⟨ odown q, odown_ne, odown_nf, odown_dc, odown_op ⟩
+</code></pre>
+<p>With this map we can define 0 and 1.</p>
+<pre><code class="language-lean">instance zero_inst : Zero DCut := ⟨ ofRat 0 ⟩
+instance one_inst : One DCut := ⟨ ofRat 1 ⟩
+
+theorem b_gt_a {c : DCut} {x y : ℚ}: x ∈ c.A → y ∈ c.B → x &lt; y := by
+  intro hx hy
+  simp[B] at hy
+  have hdc := c.dc
+  by_contra h
+  simp at h
+  exact  hy (hdc y x ⟨ h, hx ⟩)
+
+theorem not_in_a_in_b {c :DCut} {q : ℚ} : q ∉ c.A → q ∈ c.B := by
+  simp[B]
+
+theorem not_in_a_gt {c : DCut} {a b: ℚ} : a ∉ c.A → a ≤ b → b ∉ c.A := by
+  intro h1 h2 h3
+  have := c.dc a b ⟨ h2, h3 ⟩
+  exact h1 this
+
+theorem not_in_a {c :DCut} {q : ℚ} : q ∉ c.A → ∀ a ∈ c.A, a &lt; q := by
+  intro hq a ha
+  by_contra haq
+  have haq' : q ≤ a := by exact Rat.not_lt.mp haq
+  have := not_in_a_gt hq haq'
+  exact this ha
+
+theorem a_lt_b {c : DCut} {x y : ℚ }: x ∈ c.A → y ∉ c.A → x &lt; y := by
+  intro hx hy
+  by_contra h
+  exact hy (c.dc y x ⟨ by linarith, hx ⟩ )
+</code></pre>
+<h2 id="ordering-1"><a class="header" href="#ordering-1">Ordering</a></h2>
+<pre><code class="language-lean">def le (x y: DCut) : Prop := x.A ⊆ y.A
+
+example {x y : ℚ}: x ≤ y → le (ofRat x) (ofRat y) := by
+  intro h a ha
+  simp_all[ofRat,odown]
+  linarith
+
+instance lt_inst : LT DCut := ⟨ λ x y =&gt; x ≠ y ∧ le x y ⟩
+instance le_inst : LE DCut := ⟨ le ⟩
+
+theorem DCut.lt_of_le {x y: DCut} : x &lt; y ↔ x ≠ y ∧ x ≤ y := by
+  exact Eq.to_iff rfl
+
+theorem DCut.le_of_lt {x y: DCut} : x ≤ y ↔ x = y ∨ x &lt; y := by
+  constructor
+  . intro h
+    simp_all[le_inst,le,lt_inst]
+    apply Classical.em (x=y)
+  . simp_all[le_inst,le,lt_inst]
+    intro h
+    apply Or.elim h
+    intro h
+    . exact Eq.subset (congrArg A h)
+    . intro h1
+      exact h1.right
+
+example {x y : ℚ} : x = y → (ofRat x) ≤ (ofRat y) := by
+  intro h
+  simp_all[ofRat,odown,le_inst,le]
+
+theorem total {x y : DCut} : x ≤ y ∨ y ≤ x := by
+  by_cases h : x ≤ y
+  . exact Or.inl h
+  . apply Or.inr
+    simp_all[le_inst,le]
+    intro b hb
+    rw[Set.subset_def] at h
+    simp at h
+    obtain ⟨ a, ⟨ ha1, ha2 ⟩ ⟩ := h
+    exact x.dc b a ⟨ le_of_lt (a_lt_b hb ha2), ha1 ⟩
+
+def isPos (x : DCut) : Prop := 0 &lt; x
+def isNeg (x : DCut) : Prop := x &lt; 0
+
+theorem trichotomy (x : DCut) : isPos x ∨ x = (ofRat 0) ∨ isNeg x := by
+  simp[isPos,isNeg]
+  apply Or.elim (@total x (ofRat 0))
+  . intro h
+    rw[DCut.le_of_lt] at h
+    exact Or.symm (Or.intro_left (0 &lt; x) h)
+  . intro h
+    rw[DCut.le_of_lt] at h
+    apply Or.elim h
+    . intro h1
+      apply Or.inr (Or.inl (Eq.symm h1))
+    . intro h1
+      apply Or.inl h1
+</code></pre>
+<h2 id="addition"><a class="header" href="#addition">Addition</a></h2>
+<pre><code class="language-lean">def presum (a b : DCut) :=  { z | ∃ x ∈ a.A, ∃ y ∈ b.A, x+y=z }
+
+theorem presum_ne {a b : DCut} :  ∃ q, q ∈ presum a b := by
+  obtain ⟨ x, hx ⟩ := a.ne
+  obtain ⟨ y, hy ⟩ := b.ne
+  exact ⟨ x+y, ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, by linarith ⟩ ⟩ ⟩ ⟩ ⟩
+
+theorem presum_nf {a b : DCut} : ∃ q, q ∉ presum a b := by
+    obtain ⟨ x, hx ⟩ := a.nf
+    obtain ⟨ y, hy ⟩ := b.nf
+    use x+y
+    intro h
+    obtain ⟨ s, ⟨ hs, ⟨ t, ⟨ ht, hst ⟩ ⟩ ⟩ ⟩ := h
+    have hs' := b_gt_a hs (not_in_a_in_b hx)
+    have ht' := b_gt_a ht (not_in_a_in_b hy)
+    linarith
+
+theorem presum_op {a b : DCut}
+  : ∀ x ∈ presum a b, ∃ y ∈ presum a b, x &lt; y := by
+  intro c hc
+  simp_all[presum]
+  obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩ := hc
+  have hao := a.op
+  have hbo := b.op
+  obtain ⟨ x', hx', hxx' ⟩ := hao x hx
+  obtain ⟨ y', hy', hyy' ⟩ := hbo y hy
+  use x'
+  apply And.intro
+  . exact hx'
+  . use y'
+    apply And.intro
+    . exact hy'
+    . linarith
+
+theorem presum_dc {a b : DCut }
+  : ∀ (x y : ℚ), x ≤ y ∧ y ∈ presum a b → x ∈ presum a b := by
+  intro s t ⟨ h1, h2 ⟩
+  simp_all[presum]
+  obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩ := h2
+
+  have hyts : y - (t - s) ∈ b.A := by
+    have h3 : 0 ≤ t-s := by linarith
+    have h4 : y - (t-s) ≤ y := by linarith
+    exact b.dc (y-(t-s)) y ⟨h4,hy⟩
+
+  exact ⟨ x, ⟨ hx, ⟨ y - (t-s), ⟨ hyts, by linarith ⟩ ⟩ ⟩ ⟩
+
+def sum (a b : DCut) : DCut :=
+  ⟨ presum a b, presum_ne, presum_nf, presum_dc, presum_op ⟩
+
+instance hadd_inst : HAdd DCut DCut DCut:= ⟨ sum ⟩
+
+instance add_inst : Add DCut := ⟨ sum ⟩
+</code></pre>
+<h2 id="associative-property-of-addition"><a class="header" href="#associative-property-of-addition">Associative Property Of Addition</a></h2>
+<pre><code class="language-lean">theorem sum_assoc {a b c : DCut} : (a+b)+c = a + (b+c) := by
+  simp[hadd_inst,sum]
+  ext q
+  constructor
+  . intro hq
+    simp_all[presum]
+    obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, hsum ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ := hq
+    exact ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  . intro hq
+    simp_all[presum]
+    obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, hsum ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ := hq
+    exact ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+
+instance addsemigroup_inst : AddSemigroup DCut := ⟨ @sum_assoc ⟩
+</code></pre>
+<h2 id="commutativity"><a class="header" href="#commutativity">Commutativity</a></h2>
+<pre><code class="language-lean">theorem sum_comm {a b : DCut} : a + b = b + a := by
+  simp[hadd_inst,sum]
+  ext q
+  constructor
+  repeat
+  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩
+    exact ⟨ y, ⟨ hy, ⟨ x, ⟨ hx, by linarith ⟩ ⟩ ⟩ ⟩
+</code></pre>
+<h2 id="adding-zero"><a class="header" href="#adding-zero">Adding Zero</a></h2>
+<pre><code class="language-lean">theorem sum_zero_left {a : DCut} : 0 + a = a := by
+  ext c
+  simp[hadd_inst,sum,zero_inst]
+  constructor
+  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩
+    have : x &lt; 0 := hx
+    apply a.dc c y
+    apply And.intro
+    . linarith
+    . exact hy
+  . intro h
+    obtain ⟨ x, ⟨ hx1, hx2 ⟩ ⟩ := a.op c h
+    have h1 : c-x &lt; 0 := by linarith
+    exact ⟨ c-x, ⟨ h1, ⟨ x, ⟨ hx1, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem sum_zero_right {a : DCut} : a + 0 = a := by
+  rw[sum_comm,sum_zero_left]
+
+instance add_zero_inst : AddZeroClass DCut :=
+  ⟨ @sum_zero_left, @sum_zero_right ⟩
+</code></pre>
+<h2 id="subtraction"><a class="header" href="#subtraction">Subtraction</a></h2>
+<pre><code class="language-lean">def preneg (c : DCut) : Set ℚ := { x | ∃ a &lt; 0, ∃ b ∉ c.A, x = a-b }
+
+theorem preneg_rat {p : ℚ} : preneg (ofRat p) = (ofRat (-p)).A := by
+  simp[preneg,ofRat,odown]
+  ext q
+  constructor
+  . simp_all
+    intro a ha x hx hq
+    linarith
+  . simp_all
+    intro hq
+    exact ⟨ q+p, ⟨ by linarith, ⟨ p, ⟨ by linarith, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem predeg_ne {c : DCut} : ∃ q, q ∈ preneg c := by
+  simp[preneg]
+  have ⟨ q, hq ⟩ := c.nf
+  use -q-2
+  have h1 : q + 1 ∉ c.A := by
+    apply not_in_a_gt hq
+    linarith
+  exact  ⟨ -1, ⟨ by linarith, ⟨ q+1, ⟨ h1, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem predeg_nf {c : DCut} : ∃ q, q ∉ preneg c := by
+  simp[preneg]
+  have ⟨ q, hq ⟩ := c.ne
+  use -q
+  intro x hx y hy h
+  have h2 : y ≤ q := by linarith
+  have h3 : q ∉ c.A := by
+    intro h1
+    exact not_in_a_gt hy h2 hq
+  exact h3 hq
+
+theorem predeg_dc {c : DCut}
+  : ∀ (x y : ℚ), x ≤ y ∧ y ∈ preneg c → x ∈ preneg c := by
+  intro x y ⟨ hxy, ⟨ a, ⟨ ha, ⟨ b, ⟨ hb, h ⟩ ⟩ ⟩ ⟩ ⟩
+  exact ⟨ a - (y-x), ⟨ by linarith, ⟨ b, ⟨ hb, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem predeg_op {c : DCut}
+  : ∀ x ∈ preneg c, ∃ y ∈ preneg c, x &lt; y := by
+  simp[preneg]
+  intro q x hx y hy hxy
+  have := c.op
+  use q-x/2
+  apply And.intro
+  . simp[hxy]
+    exact ⟨ x/2, ⟨ by linarith, ⟨ y, ⟨ hy, by linarith ⟩ ⟩ ⟩ ⟩
+  . linarith
+
+def neg (c : DCut) : DCut :=
+  ⟨ preneg c, predeg_ne, predeg_nf, predeg_dc, predeg_op ⟩
+
+instance neg_inst : Neg DCut := ⟨ neg ⟩
+
+theorem neg_rat {p : ℚ} : -ofRat p = ofRat (-p) := by
+  simp[neg_inst,neg]
+  apply DCut.ext
+  simp
+  rw[preneg_rat]
+</code></pre>
+<h2 id="negation-1"><a class="header" href="#negation-1">Negation</a></h2>
+<pre><code class="language-lean">def sub (a b : DCut) : DCut := a + (-b)
+
+instance hsub_inst : HSub DCut DCut DCut := ⟨ sub ⟩
+
+instance sub_inst : Sub DCut := ⟨ sub ⟩
+
+theorem add_neg (a b : DCut) : a + -b = a - b := by
+  simp[hsub_inst,sub]
+</code></pre>
+<p>Let's check this definition works for rationals. The forward direction is easy. For the reverse direction, we are given q &lt; 0. We need to choose x and y so that</p>
+<ul>
+<li>x &lt; 1</li>
+<li>y &lt; -1</li>
+<li>x + y = q</li>
+</ul>
+<p>Since q &lt; 0, we know q-1 &lt; -1. For y, we take the point halfway between q-1 and -1, which is y = ((q-1) + (-1))/2 = (q-2)/2.</p>
+<p>Then x = q-y = (q+2)/2 will work as long as x &lt; 1. We have</p>
+<pre><code>  q &lt; 0
+  q+2 &lt; 2
+  (q+2)/2 &lt; 1
+</code></pre>
+<p>If -1 ≥ q, the situation looks like this</p>
+<pre><code> ((-∞    q-1    y    -1]     q    0     x    1]
+</code></pre>
+<p>If q &lt; -1, the situation looks like this</p>
+<pre><code> ((-∞    q-1  q     y      -1]    0     x    1]
+         -4  -3            -1
+                  -5/2                -1/2
+</code></pre>
+<p>or</p>
+<pre><code>((-∞    q-1    y      q      -1]    0     x    1]
+        -2           -1      -1
+             -3/2
+</code></pre>
+<pre><code class="language-lean">example : ofRat 1 - ofRat 1 = ofRat 0 := by
+  simp[hsub_inst,sub,neg_rat]
+  ext q
+  simp[hadd_inst,sum,ofRat,presum,odown]
+  constructor
+  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩
+    linarith
+  . intro hq
+    exact ⟨ (q+2)/2, ⟨ by linarith, ⟨ (q-2)/2, ⟨ by linarith, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem cut_element (c : DCut) (s t : ℚ) (hs : s &lt; 0)
+  : ∃ n : ℕ, t + n * s ∈ c.A := by
+  obtain ⟨q, hq⟩ := c.ne
+  let n := ⌈(q-t)/s⌉₊
+  use n
+  have hdiv : (q-t)/s ≤ n := Nat.le_ceil ((q - t) / s)
+  have hcalc : t + n * s ≤ q := by
+    have : (q-t) ≥ n * s := (div_le_iff_of_neg hs).mp hdiv
+    simp_all
+    linarith
+  exact c.dc _ q ⟨hcalc, hq⟩
+
+def Svals (c : DCut) (s t : ℚ) : Set ℕ := {n : ℕ | t + n * s ∈ c.A}
+
+noncomputable
+instance s_dec {c : DCut} {s t : ℚ}  : DecidablePred (· ∈ Svals c s t) := by
+    intro n
+    apply Classical.propDecidable
+
+theorem min_element (S : Set ℕ) [DecidablePred (· ∈ S)] (h : ∃ x, x ∈ S)
+  : ∃ m, m ∈ S ∧ (∀ k &lt; m, k ∉ S) := by
+  have hsne : S.Nonempty := h
+  let m := Nat.find hsne
+  have hm : m ∈ S := Nat.find_spec hsne
+  have hm_min : ∀ k &lt; m, k ∉ S := λ k =&gt; Nat.find_min hsne
+  exact ⟨ m, hm, hm_min ⟩
+
+theorem archimedean {c : DCut} {s t : ℚ} (ht : t ∉ c.A) (hs : s &lt; 0)
+  : ∃ n : ℤ, t+n*s ∉ c.A ∧ t+(n+1)*s ∈ c.A := by
+
+  let S := Svals c s t
+  have ⟨ m, hm, hm_min ⟩ := min_element S (cut_element c s t hs)
+
+  by_cases h : m = 0
+
+  · simp [h, S, Svals] at hm
+    contradiction
+
+  · use m - 1
+    have hm' : m &gt; 0 := Nat.zero_lt_of_ne_zero h
+
+    apply And.intro
+    · have := hm_min (m-1) (Nat.sub_one_lt_of_lt hm')
+      simp_all[S,Svals]
+    · simp
+      assumption
+</code></pre>
+<p>These don't work directly because of the edge case where c is a principal cut
+-c.A                 b        c.A   -a
+)    q    0    t + (n+1)q    )   t + nq
+-2   -1         4-3=1         2   4-2=2</p>
+<p>But we can find z greater than t + (n+1)q and which is still in c.A
+)    q    0    t + (n+1)q     )   t + nq
+∧
+z</p>
+<p>And then take ε = z - (t + (n+1)q) to get
+a            -c.A                b         c.A
+-t - nq - ε     )    q    0    t + (n+1)q+ε  )   t + nq + ε
+-2.5           -2   -1         1.5           2   2.5</p>
+<pre><code class="language-lean">theorem neg_add_cancel_right {c : DCut} : c - c = 0 := by
+
+  ext q
+  constructor
+
+  . simp[hsub_inst,neg_inst,neg,sub,hadd_inst,sum,preneg]
+    intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, hxy ⟩ ⟩ ⟩ ⟩
+    obtain ⟨ a, ⟨ ha, ⟨ b, ⟨ hb, hab ⟩ ⟩ ⟩ ⟩ := hy
+    have h1 : q ∈ A 0 ↔ q &lt; 0 := Set.mem_def
+    simp[h1]
+    have h2 := a_lt_b hx hb
+    linarith
+
+  . intro hq
+    have hq : q &lt; 0 := hq
+    obtain ⟨ t, ht ⟩ := c.nf
+    obtain ⟨ n, ⟨ hn1, hn2 ⟩ ⟩ := archimedean ht hq
+
+    let b' := t + (n+1)*q
+    let a' := -n*q-t
+
+    obtain ⟨ z, ⟨ hz, hbz ⟩ ⟩ := c.op b' hn2
+    let ε := z - b'
+    have hε : 0 &lt; ε := by simp[ε]; linarith
+
+    let b := z
+    let a := -n*q-t-ε
+
+    have hab : z+a = q := by
+      simp[a,a',b,b',ε]
+      linarith
+
+    have ha : a ∈ (-c).A := by
+      use -ε
+      apply And.intro
+      . linarith
+      . use -a-ε
+        apply And.intro
+        . simp[a]
+          exact hn1
+        . linarith
+
+    exact ⟨ z, ⟨ hz, ⟨ a, ⟨ ha, hab ⟩ ⟩ ⟩ ⟩
+
+theorem neg_add_cancel_left {c : DCut} : -c + c = 0 := by
+ rw[sum_comm,add_neg,neg_add_cancel_right]
+</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 <div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
