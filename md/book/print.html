@@ -3345,6 +3345,7 @@ Copyright © 2025 Eric Klavins
 <li>Every bounded, non-empty set of cuts has a least upper bound</li>
 </ul>
 <p>The last property distinguishes the real numbers from the rationals.</p>
+<p>A standard reference for Dedekind cuts is Rudin's Principles of Mathematics. In the 3rd edition, cuts are defined on pages 17-21.</p>
 <h2 id="definition"><a class="header" href="#definition">Definition</a></h2>
 <p>First, we define a structure to capture the precise definition of a cut <code>A ⊆ ℚ</code>. We require that A is nonempty, that it is not ℚ, that it is downward closed, and that is interval.</p>
 <pre><code class="language-lean">@[ext]
@@ -3358,9 +3359,11 @@ structure DCut where
 open DCut
 
 def DCut.B (c : DCut) : Set ℚ := Set.univ \ c.A
+
+theorem not_in_a_in_b {c :DCut} {q : ℚ} : q ∉ c.A → q ∈ c.B := by simp[B]
 </code></pre>
 <h2 id="making-rationals-into-reals"><a class="header" href="#making-rationals-into-reals">Making Rationals into Reals</a></h2>
-<p>All rational numbers are also real numbers via the map that identifies a rational <code>q</code> with the intergal <code>(∞,q)</code> of all rationals less than <code>q</code>. We call this set <code>odown q</code>, where <code>odown</code> is meant to abbreviate <code>open, downward closed</code>.</p>
+<p>All rational numbers are also real numbers via the map that identifies a rational <code>q</code> with the interval <code>(∞,q)</code> of all rationals less than <code>q</code>. We call this set <code>odown q</code>, where <code>odown</code> is meant to abbreviate <code>open, downward closed</code>.</p>
 <pre><code class="language-lean">def odown (q : ℚ) : Set ℚ := { y | y &lt; q }
 </code></pre>
 <p>To prove that <code>odown q</code> is a Dedekind cut requires we show it is nonempty, not <code>ℚ</code> itself, downward closed, and open. For the first two theorems we use use the facts that <code>q-1 ∈ (∞,q)</code> and <code>q+1 ∉ (∞,q)</code>.</p>
@@ -3378,7 +3381,7 @@ theorem odown_nf {q : ℚ} : ∃ x, x ∉ odown q := by
   simp_all[odown]
   linarith
 </code></pre>
-<p>To prove <code>odown q</code> is open, we are given <code>x ∈ odown</code> and need supply <code>y ∈ odown q</code> with <code>x &lt; y</code>. Since <code>q</code> is the least upper bound of <code>odown q</code>, we can simply choose <code>(x+q)/2</code>.</p>
+<p>To prove <code>odown q</code> is open, we are given <code>x ∈ odown</code> and need to supply <code>y ∈ odown q</code> with <code>x &lt; y</code>. Since <code>q</code> is the least upper bound of <code>odown q</code>, we choose <code>(x+q)/2</code>.</p>
 <pre><code class="language-lean">theorem odown_op {q : ℚ} : ∀ x ∈ odown q, ∃ y ∈ odown q, x &lt; y:= by
   intro x hx
   use (x+q)/2
@@ -3386,102 +3389,176 @@ theorem odown_nf {q : ℚ} : ∃ x, x ∉ odown q := by
   apply And.intro
   repeat linarith
 </code></pre>
-<p>With these theorems we can then define a map <code>ofRat : ℚ → DCut</code> that embeds the rationals into the Dedekind cuts.</p>
-<pre><code class="language-lean">def ofRat (q : ℚ ) : DCut :=
+<p>With these theorems we define the map <code>ofRat : ℚ → DCut</code> that embeds the rationals into the Dedekind cuts.</p>
+<pre><code class="language-lean">def ofRat (q : ℚ) : DCut :=
   ⟨ odown q, odown_ne, odown_nf, odown_dc, odown_op ⟩
 </code></pre>
 <p>With this map we can define 0 and 1.</p>
 <pre><code class="language-lean">instance zero_inst : Zero DCut := ⟨ ofRat 0 ⟩
 instance one_inst : One DCut := ⟨ ofRat 1 ⟩
 
-theorem b_gt_a {c : DCut} {x y : ℚ}: x ∈ c.A → y ∈ c.B → x &lt; y := by
+theorem zero_rw : A 0 = odown 0 := by rfl
+
+theorem one_rw : A 1 = odown 1 := by rfl
+</code></pre>
+<h2 id="simple-properties-of-cuts"><a class="header" href="#simple-properties-of-cuts">Simple Properties of Cuts</a></h2>
+<p>Here we define some simple properties that wil make subsequent proofs less cumbersome. The first says for <code>x in A</code> and <code>y in B</code>, that <code>x &lt; y</code>.</p>
+<pre><code class="language-lean">theorem b_gt_a {c : DCut} {x y : ℚ} : x ∈ c.A → y ∈ c.B → x &lt; y := by
   intro hx hy
   simp[B] at hy
-  have hdc := c.dc
   by_contra h
-  simp at h
-  exact  hy (hdc y x ⟨ h, hx ⟩)
-
-theorem not_in_a_in_b {c :DCut} {q : ℚ} : q ∉ c.A → q ∈ c.B := by
-  simp[B]
-
-theorem not_in_a_gt {c : DCut} {a b: ℚ} : a ∉ c.A → a ≤ b → b ∉ c.A := by
-  intro h1 h2 h3
-  have := c.dc a b ⟨ h2, h3 ⟩
-  exact h1 this
-
-theorem not_in_a {c :DCut} {q : ℚ} : q ∉ c.A → ∀ a ∈ c.A, a &lt; q := by
-  intro hq a ha
-  by_contra haq
-  have haq' : q ≤ a := by exact Rat.not_lt.mp haq
-  have := not_in_a_gt hq haq'
-  exact this ha
-
-theorem a_lt_b {c : DCut} {x y : ℚ }: x ∈ c.A → y ∉ c.A → x &lt; y := by
+  exact  hy (c.dc y x ⟨ Rat.not_lt.mp h, hx ⟩)
+</code></pre>
+<p>An alternate for of this same theorem, in which <code>B</code> is characterized as <code>ℚ \ A</code> is also useful.</p>
+<pre><code class="language-lean">theorem a_lt_b {c : DCut} {x y : ℚ }: x ∈ c.A → y ∉ c.A → x &lt; y := by
   intro hx hy
-  by_contra h
-  exact hy (c.dc y x ⟨ by linarith, hx ⟩ )
+  exact b_gt_a hx (not_in_a_in_b hy)
+</code></pre>
+<p>Since <code>A</code> is downward closed, one can easily show <code>B</code> is upward closed.</p>
+<pre><code class="language-lean">theorem not_in_a_gt {c : DCut} {a b: ℚ} : a ∉ c.A → a ≤ b → b ∉ c.A := by
+  intro h1 h2 h3
+  exact h1 (c.dc a b ⟨ h2, h3 ⟩)
 </code></pre>
 <h2 id="ordering-1"><a class="header" href="#ordering-1">Ordering</a></h2>
-<pre><code class="language-lean">def le (x y: DCut) : Prop := x.A ⊆ y.A
-
-example {x y : ℚ}: x ≤ y → le (ofRat x) (ofRat y) := by
-  intro h a ha
-  simp_all[ofRat,odown]
-  linarith
-
-instance lt_inst : LT DCut := ⟨ λ x y =&gt; x ≠ y ∧ le x y ⟩
-instance le_inst : LE DCut := ⟨ le ⟩
-
-theorem DCut.lt_of_le {x y: DCut} : x &lt; y ↔ x ≠ y ∧ x ≤ y := by
+<p>Next we show that cuts are totally ordered by the subset relation. First, we define and instantiate the less than and less than or equal relations on cuts.</p>
+<pre><code class="language-lean">instance lt_inst : LT DCut := ⟨ λ x y =&gt; x ≠ y ∧ x.A ⊆ y.A ⟩
+instance le_inst : LE DCut := ⟨ λ x y =&gt; x.A ⊆ y.A ⟩
+</code></pre>
+<p>To check these definitions make sense, we verify them with rational numbers.</p>
+<pre><code class="language-lean">example {x y : ℚ} : x = y → (ofRat x) ≤ (ofRat y) := by
+  intro h
+  simp_all[ofRat,odown,le_inst]
+</code></pre>
+<p>It is useful to be able to rewrite the less than relation <code>&lt;</code> in terms of inequality and <code>≤</code>, and to rewrite <code>≤</code> in terms of equality and <code>&lt;</code>.</p>
+<pre><code class="language-lean">theorem DCut.lt_of_le {x y: DCut} : x &lt; y ↔ x ≠ y ∧ x ≤ y := by
   exact Eq.to_iff rfl
 
 theorem DCut.le_of_lt {x y: DCut} : x ≤ y ↔ x = y ∨ x &lt; y := by
+  simp_all[le_inst,lt_inst]
   constructor
   . intro h
-    simp_all[le_inst,le,lt_inst]
-    apply Classical.em (x=y)
-  . simp_all[le_inst,le,lt_inst]
-    intro h
-    apply Or.elim h
-    intro h
-    . exact Eq.subset (congrArg A h)
-    . intro h1
-      exact h1.right
-
-example {x y : ℚ} : x = y → (ofRat x) ≤ (ofRat y) := by
-  intro h
-  simp_all[ofRat,odown,le_inst,le]
-
-theorem total {x y : DCut} : x ≤ y ∨ y ≤ x := by
+    simp[h]
+    exact Classical.em (x=y)
+  . intro h
+    cases h with
+    | inl h1 =&gt; exact Eq.subset (congrArg A h1)
+    | inr h1 =&gt; exact h1.right
+</code></pre>
+<p>Next we prove that cuts form a total order, and instantiate this fact with the TotalOrder class from Mathlib.</p>
+<pre><code class="language-lean">theorem total {x y : DCut} : x ≤ y ∨ y ≤ x := by
   by_cases h : x ≤ y
   . exact Or.inl h
   . apply Or.inr
-    simp_all[le_inst,le]
+    simp_all[le_inst]
     intro b hb
     rw[Set.subset_def] at h
     simp at h
     obtain ⟨ a, ⟨ ha1, ha2 ⟩ ⟩ := h
     exact x.dc b a ⟨ le_of_lt (a_lt_b hb ha2), ha1 ⟩
 
-def isPos (x : DCut) : Prop := 0 &lt; x
-def isNeg (x : DCut) : Prop := x &lt; 0
-
-theorem trichotomy (x : DCut) : isPos x ∨ x = (ofRat 0) ∨ isNeg x := by
-  simp[isPos,isNeg]
-  apply Or.elim (@total x (ofRat 0))
-  . intro h
-    rw[DCut.le_of_lt] at h
-    exact Or.symm (Or.intro_left (0 &lt; x) h)
-  . intro h
-    rw[DCut.le_of_lt] at h
-    apply Or.elim h
-    . intro h1
-      apply Or.inr (Or.inl (Eq.symm h1))
-    . intro h1
-      apply Or.inl h1
+instance total_inst : IsTotal DCut (· ≤ ·) := ⟨ @total ⟩
 </code></pre>
-<h2 id="addition"><a class="header" href="#addition">Addition</a></h2>
+<p>The total order property allows crisply define positive and negative numbers.</p>
+<pre><code class="language-lean">def isPos (x : DCut) : Prop := 0 &lt; x
+def isNeg (x : DCut) : Prop := x &lt; 0
+</code></pre>
+<p>We can also use the total order property to prove that <code>DCut</code> is <em>Trichotomous</em>, that is, that for all <code>x</code> and <code>y</code>, either <code>x ≤ y</code>, <code>y ≤ x</code>, or <code>x=y</code>.</p>
+<pre><code class="language-lean">theorem trichotomy (x y: DCut) : x ≤ y ∨ x = y ∨ y ≤ x := by
+  apply Or.elim (@total x y)
+  . intro h
+    rw[DCut.le_of_lt] at h
+    cases h with
+    | inl h1 =&gt; exact Or.inr (Or.inl h1)
+    | inr h1 =&gt;
+      rw[DCut.lt_of_le] at h1
+      exact Or.inl (h1.right)
+  . intro h
+    exact Or.inr (Or.inr h)
+
+theorem trichotomy_lt (x y: DCut) : x &lt; y ∨ x = y ∨ y &lt; x := by
+  have := trichotomy x y
+  simp[le_of_lt] at this
+  aesop
+
+instance trichotomous_inst : IsTrichotomous DCut (· ≤ ·) := ⟨ trichotomy ⟩
+
+theorem zero_in_pos {a : DCut} (ha : 0 &lt; a) : 0 ∈ a.A := by
+  obtain ⟨ h1, h2 ⟩ := ha
+  simp at h1
+  rw[DCut.ext_iff] at h1
+  have h21 := Set.ssubset_iff_subset_ne.mpr ⟨h2, h1⟩
+  have ⟨ x, ⟨ hx1, hx2 ⟩ ⟩ := (Set.ssubset_iff_of_subset h2).mp h21
+  simp[zero_rw,odown] at hx2
+  exact a.dc 0 x ⟨ hx2, hx1 ⟩
+
+theorem non_neg_in_pos {a : DCut} (ha : 0 &lt; a) : ∃ x ∈ a.A, 0 &lt; x := by
+  have h0 := zero_in_pos ha
+  exact a.op 0 h0
+
+theorem zero_notin_neg {a : DCut} (ha : a &lt; 0) : 0 ∉ a.A := by
+  intro h
+  simp[lt_inst] at ha
+  have ⟨ h1, h2 ⟩ := ha
+  have : 0 ∈ A 0 := h2 h
+  simp[zero_rw,odown] at this
+
+@[simp]
+theorem zero_lt_one : (0:DCut) &lt; 1 := by
+  simp[lt_inst]
+  apply And.intro
+  . intro h
+    simp[DCut.ext_iff,zero_rw,one_rw,odown,Set.ext_iff] at h
+    have := h 0
+    simp_all
+  . intro q hq
+    simp_all[zero_rw,one_rw,odown]
+    linarith
+
+@[simp]
+theorem zero_le_one : (0:DCut) ≤ 1 := by
+  simp[le_inst]
+  intro q hq
+  simp_all[zero_rw,one_rw,odown]
+  linarith
+
+theorem not_gt_to_le {a : DCut} : ¬0&lt;a ↔ a ≤ 0 := by
+  constructor
+  . have := trichotomy_lt 0 a
+    apply Or.elim this
+    . intro h1 h2
+      simp_all
+    . intro h1 h2
+      simp_all
+      apply le_of_lt.mpr
+      rw[Eq.comm]
+      exact h1
+  . intro h1 h2
+    apply le_of_lt.mp at h1
+    simp_all[DCut.ext_iff,lt_inst]
+    have ⟨ h3, h4 ⟩ := h2
+    simp_all
+    apply Or.elim h1
+    . intro h
+      exact h3 (id (Eq.symm h))
+    . intro ⟨ h5, h6 ⟩
+      have : A 0 = a.A := by exact Set.Subset.antisymm h4 h6
+      exact h3 this
+</code></pre>
+<p>TODO : Instantiate as a partial order
+<strong>Exercise</strong>: Show that <code>ofRat</code> is indeed an order embedding, that is <code>x ≤ y → ofRat x ≤ ofRat y</code> for all rational numbers <code>x</code> and <code>y</code>.</p>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Add.lean'>Code</a> for this chapter</span></p>
+<h1 id="addition"><a class="header" href="#addition">Addition</a></h1>
 <pre><code class="language-lean">def presum (a b : DCut) :=  { z | ∃ x ∈ a.A, ∃ y ∈ b.A, x+y=z }
 
 theorem presum_ne {a b : DCut} :  ∃ q, q ∈ presum a b := by
@@ -3536,7 +3613,7 @@ instance hadd_inst : HAdd DCut DCut DCut:= ⟨ sum ⟩
 
 instance add_inst : Add DCut := ⟨ sum ⟩
 </code></pre>
-<h2 id="associative-property-of-addition"><a class="header" href="#associative-property-of-addition">Associative Property Of Addition</a></h2>
+<h3 id="the-associative-property-of-addition"><a class="header" href="#the-associative-property-of-addition">The Associative Property Of Addition</a></h3>
 <pre><code class="language-lean">theorem sum_assoc {a b c : DCut} : (a+b)+c = a + (b+c) := by
   simp[hadd_inst,sum]
   ext q
@@ -3552,7 +3629,7 @@ instance add_inst : Add DCut := ⟨ sum ⟩
 
 instance addsemigroup_inst : AddSemigroup DCut := ⟨ @sum_assoc ⟩
 </code></pre>
-<h2 id="commutativity"><a class="header" href="#commutativity">Commutativity</a></h2>
+<h3 id="commutativity-of-addition"><a class="header" href="#commutativity-of-addition">Commutativity of Addition</a></h3>
 <pre><code class="language-lean">theorem sum_comm {a b : DCut} : a + b = b + a := by
   simp[hadd_inst,sum]
   ext q
@@ -3560,8 +3637,10 @@ instance addsemigroup_inst : AddSemigroup DCut := ⟨ @sum_assoc ⟩
   repeat
   . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩
     exact ⟨ y, ⟨ hy, ⟨ x, ⟨ hx, by linarith ⟩ ⟩ ⟩ ⟩
+
+instance addcommsemigroup_inst : AddCommSemigroup DCut := ⟨ @sum_comm ⟩
 </code></pre>
-<h2 id="adding-zero"><a class="header" href="#adding-zero">Adding Zero</a></h2>
+<h3 id="adding-zero"><a class="header" href="#adding-zero">Adding Zero</a></h3>
 <pre><code class="language-lean">theorem sum_zero_left {a : DCut} : 0 + a = a := by
   ext c
   simp[hadd_inst,sum,zero_inst]
@@ -3583,7 +3662,19 @@ theorem sum_zero_right {a : DCut} : a + 0 = a := by
 instance add_zero_inst : AddZeroClass DCut :=
   ⟨ @sum_zero_left, @sum_zero_right ⟩
 </code></pre>
-<h2 id="subtraction"><a class="header" href="#subtraction">Subtraction</a></h2>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Subtract.lean'>Code</a> for this chapter</span></p>
+<h1 id="negation-1"><a class="header" href="#negation-1">Negation</a></h1>
 <pre><code class="language-lean">def preneg (c : DCut) : Set ℚ := { x | ∃ a &lt; 0, ∃ b ∉ c.A, x = a-b }
 
 theorem preneg_rat {p : ℚ} : preneg (ofRat p) = (ofRat (-p)).A := by
@@ -3644,7 +3735,7 @@ theorem neg_rat {p : ℚ} : -ofRat p = ofRat (-p) := by
   simp
   rw[preneg_rat]
 </code></pre>
-<h2 id="negation-1"><a class="header" href="#negation-1">Negation</a></h2>
+<h2 id="subtraction"><a class="header" href="#subtraction">Subtraction</a></h2>
 <pre><code class="language-lean">def sub (a b : DCut) : DCut := a + (-b)
 
 instance hsub_inst : HSub DCut DCut DCut := ⟨ sub ⟩
@@ -3654,31 +3745,13 @@ instance sub_inst : Sub DCut := ⟨ sub ⟩
 theorem add_neg (a b : DCut) : a + -b = a - b := by
   simp[hsub_inst,sub]
 </code></pre>
-<p>Let's check this definition works for rationals. The forward direction is easy. For the reverse direction, we are given q &lt; 0. We need to choose x and y so that</p>
+<p>Let's check this definition works for the simple example <code>1-1=0</code>. The forward direction is easy. For the reverse direction, we need to choose x and y so that</p>
 <ul>
-<li>x &lt; 1</li>
-<li>y &lt; -1</li>
-<li>x + y = q</li>
+<li><code>x &lt; 1</code></li>
+<li><code>y &lt; -1</code></li>
+<li><code>x + y = q</code></li>
 </ul>
-<p>Since q &lt; 0, we know q-1 &lt; -1. For y, we take the point halfway between q-1 and -1, which is y = ((q-1) + (-1))/2 = (q-2)/2.</p>
-<p>Then x = q-y = (q+2)/2 will work as long as x &lt; 1. We have</p>
-<pre><code>  q &lt; 0
-  q+2 &lt; 2
-  (q+2)/2 &lt; 1
-</code></pre>
-<p>If -1 ≥ q, the situation looks like this</p>
-<pre><code> ((-∞    q-1    y    -1]     q    0     x    1]
-</code></pre>
-<p>If q &lt; -1, the situation looks like this</p>
-<pre><code> ((-∞    q-1  q     y      -1]    0     x    1]
-         -4  -3            -1
-                  -5/2                -1/2
-</code></pre>
-<p>or</p>
-<pre><code>((-∞    q-1    y      q      -1]    0     x    1]
-        -2           -1      -1
-             -3/2
-</code></pre>
+<p>Since q &lt; 0, we know q-1 &lt; -1. For y, we take the point halfway between q-1 and -1, which is <code>y = (q-2)/2</code>.</p>
 <pre><code class="language-lean">example : ofRat 1 - ofRat 1 = ofRat 0 := by
   simp[hsub_inst,sub,neg_rat]
   ext q
@@ -3688,8 +3761,27 @@ theorem add_neg (a b : DCut) : a + -b = a - b := by
     linarith
   . intro hq
     exact ⟨ (q+2)/2, ⟨ by linarith, ⟨ (q-2)/2, ⟨ by linarith, by linarith ⟩ ⟩ ⟩ ⟩
-
-theorem cut_element (c : DCut) (s t : ℚ) (hs : s &lt; 0)
+</code></pre>
+<p>More challenging is to show for any cut <code>c</code> that <code>c-c=0</code>. We are given <code>q&lt;0</code>. Since <code>c.A</code> is not <code>ℚ</code>, we can choose an element <code>t ∉ c.A</code>. We then want to find <code>a ∈ -c.A</code> and <code>b ∈ c.A</code> so that <code>a+b=q</code>. Using the Archimedean property of the rational numbers, we can find <code>n</code> such that <code>t + (n+1)q ∈ c.A</code> and <code>t + nq ∉ c.A</code>.</p>
+<p>These values do not work directly because of the edge case where <code>c</code> is a principal cut (representing a rational number). For example, the situation could look like the diagram below.</p>
+<pre><code>                -c.A                        b      c.A    -a
+       -t - nq             q       0   t + (n+1)q       t + nq
+  ←———————+———————)————————+———————+———————+————————)—————+————————————→
+                 -2       -1             4-3=1      2   4-2=2
+</code></pre>
+<p>But because <code>c.A</code> is open, we can find <code>z</code> greater than <code>t + (n+1)q</code> and which is still in c.A.</p>
+<pre><code>        -c.A                                              c.A
+                      q          0    t + (n+1)q                  t + nq
+  ←———————)———————————+——————————+————————+————————+———————)————————+————————————→
+                                                   z
+</code></pre>
+<p>And then take ε = z - (t + (n+1)q) to get the following situation, where <code>a</code> is completly inside <code>-c.A</code>.</p>
+<pre><code>          a    -c.A                        b          c.A
+  ←———————+———————)———————+———————+————————+———————————)———————+————————————→
+   -t - nq - ε            q       0    t + (n+1)q + ε       t + nq + ε
+</code></pre>
+<p>This proof outline takes some work to get done in Lean. First we need a result showing that given <code>t ∉ c.A</code> we can find an <code>n</code> so that <code>t + n s ∈ c.A</code>.</p>
+<pre><code class="language-lean">theorem cut_element (c : DCut) (s t : ℚ) (hs : s &lt; 0)
   : ∃ n : ℕ, t + n * s ∈ c.A := by
   obtain ⟨q, hq⟩ := c.ne
   let n := ⌈(q-t)/s⌉₊
@@ -3700,23 +3792,26 @@ theorem cut_element (c : DCut) (s t : ℚ) (hs : s &lt; 0)
     simp_all
     linarith
   exact c.dc _ q ⟨hcalc, hq⟩
-
-def Svals (c : DCut) (s t : ℚ) : Set ℕ := {n : ℕ | t + n * s ∈ c.A}
+</code></pre>
+<p>We then define the set of all <code>n</code> such that t + ns ∈ c.A. For subsequent steps to work, we need to instantiate this set as decidable. This can be done using Classical logic, in which propositions are considered decidable by default.</p>
+<pre><code class="language-lean">def Svals (c : DCut) (s t : ℚ) : Set ℕ := {n : ℕ | t + n * s ∈ c.A}
 
 noncomputable
 instance s_dec {c : DCut} {s t : ℚ}  : DecidablePred (· ∈ Svals c s t) := by
     intro n
     apply Classical.propDecidable
-
-theorem min_element (S : Set ℕ) [DecidablePred (· ∈ S)] (h : ∃ x, x ∈ S)
+</code></pre>
+<p>With <code>Svals</code> decidiable and nonempty, we can use <code>Nat.find</code> to show it has a minimal element. Note that <code>Nat.find</code> uses the Axiom of Choice.</p>
+<pre><code class="language-lean">theorem min_element (S : Set ℕ) [DecidablePred (· ∈ S)] (h : ∃ x, x ∈ S)
   : ∃ m, m ∈ S ∧ (∀ k &lt; m, k ∉ S) := by
   have hsne : S.Nonempty := h
   let m := Nat.find hsne
   have hm : m ∈ S := Nat.find_spec hsne
   have hm_min : ∀ k &lt; m, k ∉ S := λ k =&gt; Nat.find_min hsne
   exact ⟨ m, hm, hm_min ⟩
-
-theorem archimedean {c : DCut} {s t : ℚ} (ht : t ∉ c.A) (hs : s &lt; 0)
+</code></pre>
+<p>We use the minimal element to find <code>n</code> so that  <code>t + (n+1)q ∈ c.A</code> and <code>t + nq ∉ c.A</code>. as desired.</p>
+<pre><code class="language-lean">theorem archimedean {c : DCut} {s t : ℚ} (ht : t ∉ c.A) (hs : s &lt; 0)
   : ∃ n : ℤ, t+n*s ∉ c.A ∧ t+(n+1)*s ∈ c.A := by
 
   let S := Svals c s t
@@ -3736,18 +3831,7 @@ theorem archimedean {c : DCut} {s t : ℚ} (ht : t ∉ c.A) (hs : s &lt; 0)
     · simp
       assumption
 </code></pre>
-<p>These don't work directly because of the edge case where c is a principal cut
--c.A                 b        c.A   -a
-)    q    0    t + (n+1)q    )   t + nq
--2   -1         4-3=1         2   4-2=2</p>
-<p>But we can find z greater than t + (n+1)q and which is still in c.A
-)    q    0    t + (n+1)q     )   t + nq
-∧
-z</p>
-<p>And then take ε = z - (t + (n+1)q) to get
-a            -c.A                b         c.A
--t - nq - ε     )    q    0    t + (n+1)q+ε  )   t + nq + ε
--2.5           -2   -1         1.5           2   2.5</p>
+<p>Finally, we prove the desired theorem.</p>
 <pre><code class="language-lean">theorem neg_add_cancel_right {c : DCut} : c - c = 0 := by
 
   ext q
@@ -3791,9 +3875,468 @@ a            -c.A                b         c.A
         . linarith
 
     exact ⟨ z, ⟨ hz, ⟨ a, ⟨ ha, hab ⟩ ⟩ ⟩ ⟩
+</code></pre>
+<p>And by commutativity:</p>
+<pre><code class="language-lean">theorem neg_add_cancel_left {c : DCut} : -c + c = 0 := by
+  rw[sum_comm,add_neg,neg_add_cancel_right]
+</code></pre>
+<h2 id="additive-group-structure"><a class="header" href="#additive-group-structure">Additive Group Structure</a></h2>
+<pre><code class="language-lean">instance add_group_inst : AddGroup DCut
+  := AddGroup.ofLeftAxioms add_assoc @sum_zero_left @neg_add_cancel_left
 
-theorem neg_add_cancel_left {c : DCut} : -c + c = 0 := by
- rw[sum_comm,add_neg,neg_add_cancel_right]
+instance add_comm_group_inst : AddCommGroup DCut := ⟨ @sum_comm ⟩
+
+example (x y z : DCut) : x - y + z = z + x - y := by abel
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Max.lean'>Code</a> for this chapter</span></p>
+<h1 id="the-maximum-operator"><a class="header" href="#the-maximum-operator">The Maximum Operator</a></h1>
+<pre><code class="language-lean">theorem neg_gt_zero {a : DCut} (ha : a &lt; 0) : 0 &lt; -a := by
+
+  simp[lt_inst]
+  apply And.intro
+
+  . intro h
+    obtain ⟨ h1, h2 ⟩ := ha
+    exact h1 h
+
+  . intro q hq
+    simp[zero_rw,odown] at hq
+    simp[neg_inst,neg,preneg]
+    obtain ⟨ b, hb ⟩ := a.nf
+    exact ⟨ q, ⟨ hq, ⟨ 0, ⟨ zero_notin_neg ha, Eq.symm (sub_zero q) ⟩ ⟩ ⟩ ⟩
+
+theorem maximum_ne {a b : DCut} : ∃ q, q ∈ a.A ∪ b.A := by
+  obtain ⟨ x, hx ⟩ := a.ne
+  use x
+  exact Set.mem_union_left b.A hx
+
+theorem maximum_nf {a b : DCut} : ∃ q, q ∉ a.A ∪ b.A := by
+  obtain ⟨ x, hx ⟩ := a.nf
+  obtain ⟨ y, hy ⟩ := b.nf
+  apply Or.elim (trichotomy a b)
+  . intro h
+    simp_all
+    use y
+    apply And.intro
+    . intro h1
+      exact hy (h h1)
+    . exact hy
+  . intro h
+    apply Or.elim h
+    . intro h1
+      simp[h1]
+      use y
+    . intro h1
+      simp[h1]
+      use x
+      exact ⟨ hx, fun a ↦ hx (h1 a) ⟩
+
+theorem maximum_dc {a b : DCut} : ∀ (x y : ℚ), x ≤ y ∧ y ∈ a.A ∪ b.A → x ∈ a.A ∪ b.A := by
+  intro x y ⟨ hx, hy ⟩
+  apply Or.elim hy
+  . intro h
+    simp[h]
+    exact Or.inl (a.dc x y ⟨ hx, h ⟩)
+  . intro h
+    simp[h]
+    exact Or.inr (b.dc x y ⟨ hx, h ⟩)
+
+theorem maximum_op {a b : DCut} : ∀ x ∈ a.A ∪ b.A, ∃ y ∈ a.A ∪ b.A, x &lt; y:= by
+  intro x hx
+  apply Or.elim hx
+  . intro h
+    obtain ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := a.op x h
+    exact ⟨ q, ⟨ Set.mem_union_left b.A hq1, hq2 ⟩ ⟩
+  . intro h
+    obtain ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := b.op x h
+    exact ⟨ q, ⟨ Set.mem_union_right a.A hq1, hq2 ⟩ ⟩
+
+def maximum (a b : DCut) : DCut :=
+ ⟨ a.A ∪ b.A, maximum_ne, maximum_nf, maximum_dc, maximum_op ⟩
+
+theorem max_gz (a: DCut) : 0 ≤ maximum 0 a := by
+  simp_all[le_inst,zero_rw,odown,maximum]
+
+theorem max_sym {a b : DCut} : maximum a b = maximum b a := by
+  simp[maximum,Set.union_comm]
+
+theorem max_pos {a : DCut} : 0 ≤ a ↔ maximum 0 a = a := by
+  simp[maximum,le_inst,DCut.ext_iff]
+
+theorem max_neg {a : DCut} : a ≤ 0 ↔ maximum 0 a = 0 := by
+  simp[maximum,le_inst,DCut.ext_iff]
+
+theorem max_pos_lt {a : DCut} : 0 &lt; a → maximum 0 a = a := by
+   simp[maximum,lt_inst,DCut.ext_iff]
+
+theorem max_neg_lt {a : DCut} : a &lt; 0 → maximum 0 a = 0 := by
+   simp[maximum,lt_inst,DCut.ext_iff]
+
+theorem max_self {a : DCut} : maximum a a = a := by
+   simp[maximum,lt_inst,DCut.ext_iff]
+
+theorem max_pos_to_neg {a: DCut} (ha : 0 &lt; a) : maximum 0 (-a) = 0 := by
+  simp[maximum,lt_inst,DCut.ext_iff,neg_inst,neg,preneg,zero_rw,odown]
+  intro x y hy z hz hxyz
+  have ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := non_neg_in_pos ha
+  have := a_lt_b hq1 hz
+  linarith
+
+theorem neg_lt {a : DCut}: 0 &lt; a ↔ -a &lt; 0 := by
+  constructor
+  . simp_all[lt_inst]
+    intro h1 h2
+    apply And.intro
+    . intro h
+      exact h1 (Eq.symm h)
+    . intro x ⟨ q, ⟨ hq, ⟨ r, ⟨ hr, hqr ⟩ ⟩ ⟩ ⟩
+      have h4 := a_lt_b (h2 hq) hr
+      simp[zero_rw,odown]
+      linarith
+  . intro ⟨ h1, h2 ⟩
+    apply And.intro
+    . exact id (Ne.symm (neg_ne_zero.mp h1))
+    . by_contra h
+      have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := Set.not_subset.mp h
+      simp[neg_inst,neg,preneg,zero_rw,odown] at h2
+      have := h2 0 z hz1 z hz2 (by linarith)
+      simp at this
+
+theorem neg_le {a : DCut} : 0 ≤ a ↔ -a ≤ 0 := by
+  simp[le_of_lt,@neg_lt a,eq_comm]
+
+theorem neg_lt' {a : DCut} : a &lt; 0 ↔ 0 &lt; -a := by
+
+  constructor
+  . intro ⟨ h1, h2 ⟩
+    apply And.intro
+    . simp[DCut.ext_iff] at h1 ⊢
+      exact h1
+    . intro q hq
+      simp[neg_inst,neg,preneg]
+      simp[zero_rw,odown] at hq
+      have : 0 ∉ a.A := by
+        intro h
+        have := h2 h
+        simp[zero_rw,odown] at this
+      exact ⟨ q, ⟨ hq, ⟨ 0, ⟨ this, by linarith ⟩ ⟩ ⟩ ⟩
+  . simp[lt_inst]
+    intro ha h
+    apply And.intro
+    . exact ha
+    . by_contra hnq
+      have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := Set.not_subset.mp hnq
+      simp[neg_inst,neg,preneg,zero_rw,odown] at h hz2
+      have ⟨ s, ⟨ hs1, hs2 ⟩ ⟩ := a.op z hz1
+      have ⟨ q, ⟨ hq, ⟨ r, ⟨ hr1, hr2 ⟩ ⟩ ⟩ ⟩ := h (-s) (by linarith)
+      have : s &lt; r := by exact a_lt_b hs1 hr1
+      linarith
+
+theorem neg_le' {a : DCut} : a ≤ 0 ↔ 0 ≤ -a := by
+  simp[le_of_lt,@neg_lt' a,eq_comm]
+
+theorem pos_neg_sum {a : DCut} : a = maximum 0 a - maximum 0 (-a) := by
+  by_cases h : 0 &lt; a
+  . rw[max_pos.mp h.right]
+    rw[max_neg.mp (neg_le.mp h.right)]
+    exact Eq.symm (sub_zero a)
+  . have := trichotomy_lt 0 a
+    simp[not_gt_to_le] at h
+    apply Or.elim this
+    . intro h'
+      rw[max_pos_lt h']
+      have := neg_lt.mp h'
+      rw[max_neg_lt this]
+      simp
+    . intro h'
+      rw[max_neg.mp h]
+      have := neg_le'.mp h
+      rw[max_pos.mp this]
+      simp
+
+theorem neg_max_zero_neg {a : DCut} (ha : a ≤ 0) : -maximum 0 (-a) = a := by
+   have : 0 ≤ -a := by
+     rw[neg_le'] at ha
+     exact ha
+   simp[max_pos.mp,this]
+</code></pre>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Multiply.lean'>Code</a> for this chapter</span></p>
+<h1 id="multiplication"><a class="header" href="#multiplication">Multiplication</a></h1>
+<h2 id="multiplication-of-positive-reals"><a class="header" href="#multiplication-of-positive-reals">Multiplication of Positive Reals</a></h2>
+<pre><code class="language-lean">def pre_mul (a b : DCut) :=
+  { z | ∃ x ∈ a.A, ∃ y ∈ b.A, 0 &lt; x ∧ 0 &lt; y ∧ z &lt; x*y } -- Rudin's definition
+
+theorem pre_mul_ne {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) : ∃ q, q ∈ pre_mul a b := by
+
+  have ⟨ x, ⟨ hx1, hx2 ⟩ ⟩ := a.op 0 (zero_in_pos ha)
+  have ⟨ y, ⟨ hy1, hy2 ⟩ ⟩ := b.op 0 (zero_in_pos hb)
+  have hxy : 0 &lt; x * y := Left.mul_pos hx2 hy2
+  use -1
+  exact ⟨ x, ⟨ hx1, ⟨ y, ⟨ hy1, ⟨ hx2, ⟨ hy2, gt_of_gt_of_ge hxy rfl ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+
+theorem pre_mul_nf {a b : DCut} (ha : 0 &lt; a) (_ : 0 &lt; b)
+  : ∃ q, q ∉ pre_mul a b := by
+
+  obtain ⟨ x, hx ⟩ := a.nf
+  obtain ⟨ y, hy ⟩ := b.nf
+  use x*y
+
+  have hxpos : 0 &lt; x := a_lt_b (zero_in_pos ha) hx
+
+  have hx' : ∀ q ∈ a.A, q &lt; x := by intro q hq; exact a_lt_b hq hx
+  have hy' : ∀ q ∈ b.A, q &lt; y := by intro q hq; exact a_lt_b hq hy
+
+  simp[pre_mul]
+  intro s hs t ht hsp htp
+  apply @_root_.le_of_lt
+  exact mul_lt_mul_of_pos' (hx' s hs) (hy' t ht) htp hxpos
+
+theorem pre_mul_dc {a b : DCut} : ∀ x y, x ≤ y ∧ y ∈ (pre_mul a b) → x ∈ (pre_mul a b) := by
+  intro x y ⟨ hxy, hy ⟩
+  obtain ⟨ s, ⟨ hs, ⟨ t, ⟨ ht, ⟨ hsp, ⟨ htp, hyst ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ := hy
+  exact ⟨ s, ⟨ hs, ⟨ t, ⟨ ht, ⟨ hsp, ⟨ htp, lt_of_le_of_lt hxy hyst ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+
+theorem pre_mul_op {a b : DCut} : ∀ x ∈ (pre_mul a b), ∃ y ∈ (pre_mul a b), x &lt; y := by
+  intro x hx
+  obtain ⟨ s, ⟨ hs, ⟨ t, ⟨ ht, ⟨ hsp, ⟨ htp, hyst ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ := hx
+  have ⟨ s', ⟨ hs', hss' ⟩ ⟩ := a.op s hs
+  have ⟨ t', ⟨ ht', htt' ⟩ ⟩ := b.op t ht
+  have h: s*t &lt; s'*t' := mul_lt_mul_of_pos' hss' htt' htp (by linarith)
+  use s*t
+  apply And.intro
+  . exact ⟨ s', ⟨ hs', ⟨ t', ⟨ ht', ⟨ by linarith, ⟨ by linarith, h ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  . linarith
+
+def mul_pos (a b : DCut) (ha : 0 &lt; a) (hb : 0 &lt; b) : DCut :=
+  ⟨ pre_mul a b, pre_mul_ne ha hb, pre_mul_nf ha hb, pre_mul_dc, pre_mul_op ⟩
+</code></pre>
+<h2 id="properties"><a class="header" href="#properties">Properties</a></h2>
+<pre><code class="language-lean">theorem mul_is_pos {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) : 0 &lt; mul_pos a b ha hb := by
+  simp[lt_inst,mul_pos,DCut.ext_iff]
+  have ⟨ x, ⟨ hx1, hx2 ⟩ ⟩ := non_neg_in_pos ha
+  have ⟨ y, ⟨ hy1, hy2 ⟩ ⟩ := non_neg_in_pos hb
+  apply And.intro
+  . intro h
+    simp[Set.Subset.antisymm_iff] at h
+    have ⟨ h1, h2 ⟩ := h
+    simp[pre_mul,zero_rw,odown] at h2
+    have := h2 0 x hx1 y hy1 hx2 hy2 (Left.mul_pos hx2 hy2)
+    simp_all
+  . simp[pre_mul,zero_rw,odown]
+    intro q hq
+    have : q &lt; x*y := gt_trans (Left.mul_pos hx2 hy2) hq
+    exact ⟨ x, ⟨ hx1, ⟨ y, ⟨ hy1, ⟨ hx2, ⟨ hy2, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+
+theorem mul_pos_id_left {a : DCut} (ha: 0 &lt; a)
+  : mul_pos 1 a zero_lt_one ha = a := by
+  simp[DCut.ext_iff,mul_pos,pre_mul,one_rw,odown]
+  ext q
+  simp
+  constructor
+  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ hx0, ⟨ hy0, hqxy ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+    have hxy : x*y &lt; y := mul_lt_of_lt_one_left hy0 hx
+    have hxy' := a.dc (x*y) y ⟨ by linarith, hy ⟩
+    exact a.dc q (x*y) ⟨ by linarith, hxy' ⟩
+  . intro hq
+    by_cases h : 0 &lt; q
+    . have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
+      have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
+      use q/s
+      have hs3 : 0 &lt; s := by linarith
+      apply And.intro
+      . exact Bound.div_lt_one_of_pos_of_lt hs3 hs2
+      . use t
+        have hts : t/s &gt; 1 := (one_lt_div hs3).mpr ht2
+        have h1 : q*(t/s) &gt; q := (lt_mul_iff_one_lt_right h).mpr hts
+        have h2 : q*(t/s) = q / s * t := Eq.symm (mul_comm_div q s t)
+        exact ⟨ ht1, ⟨ div_pos h hs3, ⟨ by linarith, by linarith ⟩ ⟩ ⟩
+    . -- case q ≤ 0
+      have := zero_in_pos ha
+      have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op 0 this
+      use 1/2
+      apply And.intro
+      . linarith
+      . use s
+        exact ⟨ hs1, ⟨ by linarith, ⟨ hs2, by linarith ⟩ ⟩ ⟩
+
+theorem mul_pos_comm {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b)
+  : mul_pos a b ha hb = mul_pos b a hb ha  := by
+  ext q
+  constructor
+  repeat
+  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ h1, ⟨ h2, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+    exact ⟨ y, ⟨ hy, ⟨ x, ⟨ hx, ⟨ h2, ⟨ h1, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+
+theorem mul_pos_assoc {a b c : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) (hc : 0 &lt; c)
+  : mul_pos a (mul_pos b c hb hc) ha (mul_is_pos hb hc) =
+    mul_pos (mul_pos a b ha hb) c (mul_is_pos ha hb) hc  := by
+
+  simp[mul_pos,pre_mul]
+  ext q
+  simp
+  constructor
+
+  . intro ⟨ x, ⟨ hx, ⟨ yz, ⟨ ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, ⟨ hy0, ⟨ hz0, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hyz0, h2 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+    have hxyz' : x * yz &lt; x * (y*z) := by exact (mul_lt_mul_left hx0).mpr h3
+    have ⟨ x', ⟨ hx', hxx' ⟩  ⟩ := a.op x hx
+    have h : x * y &lt; x' * y := by exact (mul_lt_mul_iff_of_pos_right hy0).mpr hxx'
+    exact ⟨ x*y, ⟨ ⟨ x', ⟨ hx', ⟨ y, ⟨ hy, ⟨ by linarith, ⟨ hy0,h ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ z, ⟨ hz, ⟨ Left.mul_pos hx0 hy0, ⟨ hz0, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+
+  . rintro ⟨ xy, ⟨ x, hx, y, hy, hx0, hy0, hxy ⟩, z, hz, hxy', hz0, hxyz ⟩
+    have ⟨ z', ⟨ hz', hzz' ⟩ ⟩ := c.op z hz
+    have hxyz' : xy * z &lt; (x * y) * z := by exact (mul_lt_mul_iff_of_pos_right hz0).mpr hxy
+    have hxy0 : 0 &lt; y * z := by exact Left.mul_pos hy0 hz0
+    have hqxyz : q &lt; x * (y * z) := by linarith
+    have : y * z &lt; y * z' := by exact (mul_lt_mul_left hy0).mpr hzz'
+    exact ⟨ x, ⟨ hx, ⟨ y*z, ⟨ ⟨ y, ⟨ hy, ⟨ z', ⟨ hz', ⟨ hy0, ⟨ by linarith, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hxy0, hqxyz ⟩  ⟩ ⟩ ⟩ ⟩  ⟩
+</code></pre>
+<h2 id="mulitiplication-of-non-negative-reals"><a class="header" href="#mulitiplication-of-non-negative-reals">Mulitiplication of Non-negative Reals</a></h2>
+<pre><code class="language-lean">theorem zero_mul_empty (a b : DCut) (h : 0 = a ∨ 0 = b) : pre_mul a b = ∅ := by
+  apply Or.elim h
+  repeat
+  . intro h'
+    simp[DCut.ext_iff,zero_rw] at h'
+    simp[pre_mul,←h',odown]
+    ext q
+    simp
+    intro x hx y hy h1 h2
+    linarith
+
+theorem mul_nneg_ne {a b : DCut}
+  : ∃ q, q ∈ pre_mul a b ∪ odown 0 := by
+  use -1
+  apply Or.inr
+  simp[odown]
+
+theorem mul_nneg_nf {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
+  : ∃ q, q ∉ pre_mul a b ∪ odown 0 := by
+  by_cases h0 : 0 &lt; a ∧ 0 &lt; b
+  . have ⟨ q, hq ⟩ := pre_mul_nf h0.left h0.right
+    use q
+    intro h1
+    simp_all
+    exact hq ((mul_is_pos h0.left h0.right).right h1)
+  . have hab : 0 = a ∨ 0 = b := by
+      simp_all[lt_of_le]
+      exact Or.symm (or_iff_not_imp_right.mpr h0)
+    have := zero_mul_empty a b hab
+    simp[this,odown]
+    use 1
+    exact rfl
+
+theorem mul_nneg_dc {a b : DCut} {x y : ℚ}
+  : x ≤ y ∧ y ∈ pre_mul a b ∪ odown 0 → x ∈ pre_mul a b ∪ odown 0 := by
+  intro ⟨ h1, h2 ⟩
+  apply Or.elim h2
+  . intro hy
+    exact Or.inl (pre_mul_dc x y ⟨ h1, hy ⟩)
+  . intro hy
+    apply Or.inr
+    simp_all[odown]
+    linarith
+
+theorem mul_nneg_op {a b : DCut} (x : ℚ) :
+  x ∈ pre_mul a b ∪ odown 0 → ∃ y ∈ pre_mul a b ∪ odown 0, x &lt; y := by
+  intro h
+  apply Or.elim h
+  . intro hx
+    have ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := pre_mul_op x hx
+    exact ⟨ q, ⟨ Or.inl hq1, hq2 ⟩  ⟩
+  . intro hx
+    simp[odown] at hx ⊢
+    exact ⟨ x/2, ⟨ by apply Or.inr; linarith, by linarith ⟩ ⟩
+
+def mul_nneg (a b : DCut) (ha : 0 ≤ a) (hb : 0 ≤ b) : DCut :=
+  ⟨ pre_mul a b ∪ odown 0,
+    mul_nneg_ne,
+    mul_nneg_nf ha hb,
+    @mul_nneg_dc a b,
+    @mul_nneg_op a b ⟩
+
+theorem mul_nneg_comm {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
+  : mul_nneg a b ha hb = mul_nneg b a hb ha  := by
+  sorry
+
+theorem mul_nneg_id_left {a : DCut} (ha: 0 ≤ a)
+  : mul_nneg 1 a zero_le_one ha = a := by sorry -- use mul_pos_id_left
+
+theorem mul_nneg_id_right {a : DCut} (ha: 0 ≤ a)
+  : mul_nneg a 1 ha zero_le_one = a := by sorry -- use mul_pos_id_left
+
+theorem mul_nneg_zero_left {a : DCut} (ha: 0 ≤ a)
+  : mul_nneg 0 a (λ _ a =&gt; a) ha = 0 := by
+  simp[mul_nneg,DCut.ext_iff,pre_mul,zero_rw]
+  intro q hq
+  simp_all[odown]
+  obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩ := hq
+  linarith
+
+theorem mul_nneg_zero_right {a : DCut} (ha: 0 ≤ a)
+  : mul_nneg a 0 ha (λ _ a =&gt; a) = 0 := by
+  simp[mul_nneg,DCut.ext_iff,pre_mul,zero_rw]
+  intro q hq
+  simp_all[odown]
+  obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩ := hq
+  linarith
+
+theorem mul_is_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ mul_nneg a b ha hb := sorry
+
+theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
+  : mul_nneg a (mul_nneg b c hb hc) ha (mul_is_nneg hb hc) =
+    mul_nneg (mul_nneg a b ha hb) c (mul_is_nneg ha hb) hc := by sorry
+</code></pre>
+<h2 id="mulitiplication-of-arbitrary-reals"><a class="header" href="#mulitiplication-of-arbitrary-reals">Mulitiplication of Arbitrary Reals</a></h2>
+<pre><code class="language-lean">def mul (a b : DCut) : DCut :=
+  let ap := maximum 0 a
+  let an := maximum 0 (-a)
+  let bp := maximum 0 b
+  let bn := maximum 0 (-b)
+  (mul_nneg ap bp (max_gz _) (max_gz _)) +
+  (mul_nneg an bn (max_gz _) (max_gz _)) -
+  (mul_nneg ap bn (max_gz _) (max_gz _)) -
+  (mul_nneg an bp (max_gz _) (max_gz _))
+
+instance hmul_inst : HMul DCut DCut DCut := ⟨ mul ⟩
+
+instance mul_inst : Mul DCut := ⟨ mul ⟩
+
+theorem mul_assoc {a b c : DCut} : a * (b * c) = (a * b) * c := sorry
+
+theorem mul_comm {a b : DCut} : a*b = b*a := sorry
+
+theorem mul_id_left {a : DCut} : a * 1 = a := by
+  simp[hmul_inst,mul]
+  by_cases ha : 0 &lt; a
+  . simp[max_pos.mp]
+    simp[max_pos_to_neg, max_pos_lt, ha]
+    simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  . simp at ha
+    simp[max_pos_to_neg,zero_lt_one,max_pos.mp]
+    simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+    rw[not_gt_to_le] at ha
+    simp[max_neg.mp,neg_max_zero_neg,ha]
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

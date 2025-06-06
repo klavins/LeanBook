@@ -42,7 +42,11 @@
 # Real Numbers
 
 - [Overview](./Reals/Intro.md)
-    - [Dedekind Cuts](./Reals/Dedekind.md)
+- [Dedekind Cuts](./Reals/Dedekind.md)
+- [Addition](./Reals/Add.md)
+- [Subtraction](./Reals/Subtract.md)
+- [Maximum](./Reals/Max.md)
+- [Multiplication](./Reals/Multiply.md)
 
 # Partial Orders
 

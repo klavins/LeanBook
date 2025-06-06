@@ -11,4 +11,9 @@ import LeanBook.Chapters.Ordering.Properties
 import LeanBook.Chapters.Ordering.Completions
 import LeanBook.Chapters.Ordering.Maps
 
+import LeanBook.Chapters.Reals.Dedekind
+import LeanBook.Chapters.Reals.Add
+import LeanBook.Chapters.Reals.Subtract
+import LeanBook.Chapters.Reals.Max
+
 import LeanBook.Chapters.Appendix
