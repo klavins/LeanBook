@@ -30,7 +30,7 @@ theorem predeg_ne {c : DCut} : ∃ q, q ∈ preneg c := by
   have ⟨ q, hq ⟩ := c.nf
   use -q-2
   have h1 : q + 1 ∉ c.A := by
-    apply not_in_a_gt hq
+    apply b_up_closed hq
     linarith
   exact  ⟨ -1, ⟨ by linarith, ⟨ q+1, ⟨ h1, by linarith ⟩ ⟩ ⟩ ⟩
 
@@ -42,7 +42,7 @@ theorem predeg_nf {c : DCut} : ∃ q, q ∉ preneg c := by
   have h2 : y ≤ q := by linarith
   have h3 : q ∉ c.A := by
     intro h1
-    exact not_in_a_gt hy h2 hq
+    exact b_up_closed hy h2 hq
   exact h3 hq
 
 theorem predeg_dc {c : DCut}

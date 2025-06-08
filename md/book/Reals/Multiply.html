@@ -172,6 +172,19 @@
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Multiply.lean'>Code</a> for this chapter</span></p>
 <h1 id="multiplication"><a class="header" href="#multiplication">Multiplication</a></h1>
+<p>Multiplication of Dedekind cuts is straightfoward, but also fairly involved, or as Rudin says: "bothersome". The issue is dealing with positive and negative cutes. Following Rudin, the development of the definitions proceeds as follows:</p>
+<ul>
+<li>Define multiplication on two positive cuts <code>0 &lt; x₁</code> and <code>0 &lt; x₂</code> as the set of points <code>c</code> such that for some <code>a ∈ x₁</code> and <code>b ∈ x₂</code>, <code>c &lt; ab</code>.</li>
+<li>Extend multiplciation on positive cuts to non-negative cuts <code>0 ≤ x₁</code> and <code>0 ≤ x₂</code> building on the previous step by handling the case in which either or both of the cuts is zero.</li>
+<li>Extend multiplication on non-negative cuts to all cuts. This step requires noting that every cut <code>x</code> can be written as the different <code>max 0 x - max 0 (-x)</code> between two non-negative cuts.</li>
+</ul>
+<p>For each of the above definitions of multiplication, we also prove the properties required to show that multiplication forms a commutiative group on cuts:</p>
+<ul>
+<li>0 is an identity: 0x = 0.</li>
+<li>Multiplication is commutative: xy = yx.</li>
+<li>Associativity: x(yz) = (xy)z
+The last property is particularly challenging. In priciple, one has to reason about 27 differen cases where each of x, y and z are either positive, negative or zero. Thus, along the way we will prove several intermediate results which allow us to make the proof more concise.</li>
+</ul>
 <h2 id="multiplication-of-positive-reals"><a class="header" href="#multiplication-of-positive-reals">Multiplication of Positive Reals</a></h2>
 <pre><code class="language-lean">def pre_mul (a b : DCut) :=
   { z | ∃ x ∈ a.A, ∃ y ∈ b.A, 0 &lt; x ∧ 0 &lt; y ∧ z &lt; x*y } -- Rudin's definition
@@ -363,16 +376,6 @@ def mul_nneg (a b : DCut) (ha : 0 ≤ a) (hb : 0 ≤ b) : DCut :=
     @mul_nneg_dc a b,
     @mul_nneg_op a b ⟩
 
-theorem mul_nneg_comm {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
-  : mul_nneg a b ha hb = mul_nneg b a hb ha  := by
-  sorry
-
-theorem mul_nneg_id_left {a : DCut} (ha: 0 ≤ a)
-  : mul_nneg 1 a zero_le_one ha = a := by sorry -- use mul_pos_id_left
-
-theorem mul_nneg_id_right {a : DCut} (ha: 0 ≤ a)
-  : mul_nneg a 1 ha zero_le_one = a := by sorry -- use mul_pos_id_left
-
 theorem mul_nneg_zero_left {a : DCut} (ha: 0 ≤ a)
   : mul_nneg 0 a (λ _ a =&gt; a) ha = 0 := by
   simp[mul_nneg,DCut.ext_iff,pre_mul,zero_rw]
@@ -389,11 +392,69 @@ theorem mul_nneg_zero_right {a : DCut} (ha: 0 ≤ a)
   obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩ := hq
   linarith
 
-theorem mul_is_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ mul_nneg a b ha hb := sorry
+theorem mul_nneg_comm {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
+  : mul_nneg a b ha hb = mul_nneg b a hb ha := by
+  by_cases h : 0 &lt; a ∧ 0 &lt; b
+  . simp[mul_nneg]
+    have := mul_pos_comm h.left h.right
+    simp_all[mul_pos]
+  . simp[lt_of_le] at h
+    by_cases hb0 : 0 = b
+    . simp[←hb0,mul_nneg_zero_right,mul_nneg_zero_left]
+    . simp_all
+      simp[←h,mul_nneg_zero_right,mul_nneg_zero_left]
+
+theorem mul_is_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
+  : 0 ≤ mul_nneg a b ha hb := by
+  by_cases h : 0 &lt; a ∧ 0 &lt; b
+  . have := mul_is_pos h.left h.right
+    simp[lt_inst,mul_pos] at this
+    have ⟨ h1, h2 ⟩ := this
+    simp[le_inst,mul_nneg]
+    exact Set.subset_union_right
+  . by_cases hb0 : 0 = a
+    . simp[←hb0,mul_nneg_zero_right,mul_nneg_zero_left]
+    . simp_all[lt_of_le]
+      simp[←h,mul_nneg_zero_right,mul_nneg_zero_left]
+
+theorem mul_nneg_id_left {a : DCut} (ha: 0 ≤ a)
+  : mul_nneg 1 a zero_le_one ha = a := by
+    rw[le_of_lt] at ha
+    apply Or.elim ha
+    intro ha0
+    . simp[←ha0,mul_nneg_zero_right]
+    . intro ha'
+      have := mul_pos_id_left ha'
+      simp_all[mul_pos,DCut.ext_iff,mul_nneg,DCut.ext_iff]
+      exact ha
+
+theorem mul_nneg_id_right {a : DCut} (ha: 0 ≤ a)
+  : mul_nneg a 1 ha zero_le_one = a := by
+  rw[mul_nneg_comm,mul_nneg_id_left]
 
 theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
   : mul_nneg a (mul_nneg b c hb hc) ha (mul_is_nneg hb hc) =
-    mul_nneg (mul_nneg a b ha hb) c (mul_is_nneg ha hb) hc := by sorry
+    mul_nneg (mul_nneg a b ha hb) c (mul_is_nneg ha hb) hc := by
+  by_cases h : 0 &lt; a ∧ 0 &lt; b ∧ 0 &lt; c
+  . have h1 := mul_pos_assoc h.left h.right.left h.right.right
+    simp[mul_pos] at h1
+    simp[mul_nneg]
+    have h2 : pre_mul b c ∪ odown 0 = pre_mul b c := by
+      have := mul_is_pos h.right.left h.right.right
+      simp[mul_pos,lt_inst,zero_rw] at this
+      simp_all
+    have h3 : pre_mul a b ∪ odown 0 = pre_mul a b := by
+      have := mul_is_pos h.left h.right.left
+      simp[mul_pos,lt_inst,zero_rw] at this
+      simp_all
+    simp[h1,h2,h3]
+  by_cases h1 : 0 = a
+  . simp[←h1,mul_nneg_zero_left]
+  by_cases h2 : 0 = b
+  . simp[←h2,mul_nneg_zero_right,mul_nneg_zero_left]
+  by_cases h3 : 0 = c
+  . simp[←h3,mul_nneg_zero_right,mul_nneg_zero_left]
+  . simp_all[lt_of_le]
 </code></pre>
 <h2 id="mulitiplication-of-arbitrary-reals"><a class="header" href="#mulitiplication-of-arbitrary-reals">Mulitiplication of Arbitrary Reals</a></h2>
 <pre><code class="language-lean">def mul (a b : DCut) : DCut :=
@@ -410,11 +471,7 @@ instance hmul_inst : HMul DCut DCut DCut := ⟨ mul ⟩
 
 instance mul_inst : Mul DCut := ⟨ mul ⟩
 
-theorem mul_assoc {a b c : DCut} : a * (b * c) = (a * b) * c := sorry
-
-theorem mul_comm {a b : DCut} : a*b = b*a := sorry
-
-theorem mul_id_left {a : DCut} : a * 1 = a := by
+theorem mul_id_right {a : DCut} : a * 1 = a := by
   simp[hmul_inst,mul]
   by_cases ha : 0 &lt; a
   . simp[max_pos.mp]
@@ -425,6 +482,232 @@ theorem mul_id_left {a : DCut} : a * 1 = a := by
     simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
     rw[not_gt_to_le] at ha
     simp[max_neg.mp,neg_max_zero_neg,ha]
+
+theorem mul_zero_left {a : DCut} : 0 * a = 0 := by
+  simp[hmul_inst,mul]
+
+theorem mul_zero_right {a : DCut} : a * 0 = 0 := by
+  simp[hmul_inst,mul]
+
+
+theorem mul_comm_pp {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) : a*b = b*a := by
+  have ha' : -a ≤ 0 := by exact neg_le.mp ha
+  have hb' : -b ≤ 0 := by exact neg_le.mp hb
+  simp[hmul_inst,mul]
+  simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb']
+  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  simp[mul_nneg_comm]
+
+theorem mul_comm_pn {a b : DCut} (ha : 0 ≤ a) (hb : b ≤ 0) : a*b = b*a := by
+  have ha' : -a ≤ 0 := by exact neg_le.mp ha
+  have hb' : 0 ≤ -b := by exact neg_le'.mp hb
+  simp[hmul_inst,mul]
+  simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb']
+  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  simp[mul_nneg_comm]
+
+theorem mul_comm_np {a b : DCut} (ha : a ≤ 0) (hb : 0 ≤ b) : a*b = b*a := by
+  have ha' : 0 ≤ -a := by exact neg_le'.mp ha
+  have hb' : -b ≤ 0 := by exact neg_le.mp hb
+  simp[hmul_inst,mul]
+  simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb']
+  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  simp[mul_nneg_comm]
+
+theorem mul_comm_nn {a b : DCut} (ha : a ≤ 0) (hb : b ≤ 0) : a*b = b*a := by
+  have ha' : 0 ≤ -a := by exact neg_le'.mp ha
+  have hb' : 0 ≤ -b := by exact neg_le'.mp hb
+  simp[hmul_inst,mul]
+  simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb']
+  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  simp[mul_nneg_comm]
+
+theorem mul_comm {a b : DCut}: a*b = b*a := by
+  by_cases h1 : 0 ≤ a ∧ 0 ≤ b
+  . exact mul_comm_pp h1.left h1.right
+  by_cases h2 : 0 ≤ a ∧ b ≤ 0
+  . exact mul_comm_pn h2.left h2.right
+  by_cases h3 : a ≤ 0 ∧ 0 ≤ b
+  . exact mul_comm_np h3.left h3.right
+  by_cases h4 : a ≤ 0 ∧ b ≤ 0
+  . exact mul_comm_nn h4.left h4.right
+  . have hat := trichotomy a 0
+    have hbt := trichotomy b 0
+    apply Or.elim (trichotomy a 0)
+    . intro h
+      simp_all[mul_zero_left,mul_zero_right]
+    . intro h
+      apply Or.elim h
+      . intro h
+        simp_all[mul_zero_left,mul_zero_right]
+      . intro h
+        simp_all[mul_zero_left,mul_zero_right]
+
+theorem mul_id_left {a : DCut} : 1 * a = a := by
+  rw[mul_comm,mul_id_right]
+
+theorem mul_neg_dist_left {a b : DCut} : a*(-b) = -(a*b) := by
+  simp[hmul_inst,mul]
+  rcases @two_ineqs_true a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
+  repeat (
+    simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,neg_le.mp]
+    simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  )
+
+theorem mul_neg_dist_right {a b : DCut} : (-a)*b = -(a*b) := by
+  simp[hmul_inst,mul]
+  rcases @two_ineqs_true a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
+  repeat (
+    simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,neg_le.mp]
+    simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  )
+
+theorem mul_assoc_az {a b c : DCut} (ha : 0 = a)
+  : a * (b * c) = (a * b) * c := by
+  simp[←ha,mul_zero_left]
+
+theorem mul_assoc_bz {a b c : DCut} (hb : 0 = b)
+  : a * (b * c) = (a * b) * c := by
+  simp[←hb,mul_zero_right,mul_zero_left]
+
+theorem mul_assoc_cz {a b c : DCut} (hc : 0 = c)
+  : a * (b * c) = (a * b) * c := by
+  simp[←hc,mul_zero_right]
+
+theorem mul_assoc_all_nn {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
+  : a * (b * c) = (a * b) * c := by
+
+  have ha' : -a ≤ 0 := by exact neg_le.mp ha
+  have hb' : -b ≤ 0 := by exact neg_le.mp hb
+  have hc' : -c ≤ 0 := by exact neg_le.mp hc
+
+  have hab : 0 ≤ mul_nneg a b ha hb := by exact mul_is_nneg ha hb
+  have hab' : -mul_nneg a b ha hb ≤ 0 := by exact neg_le.mp hab
+  have hbc : 0 ≤ mul_nneg b c hb hc := by exact mul_is_nneg hb hc
+  have hbc' : -mul_nneg b c hb hc ≤ 0 := by exact neg_le.mp hbc
+
+  simp[hmul_inst,mul]
+  simp[max_pos.mp,ha,hb,hc,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb',hc']
+  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  simp[max_pos.mp,hbc,hab,max_neg.mp,hab',hbc']
+  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
+  simp[mul_nneg_assoc]
+</code></pre>
+<p>When a ≤ 0 while 0 ≤ b and 0 ≤ c then</p>
+<p>(a<em>b)<em>c = a</em>(b</em>c)</p>
+<p>becomes</p>
+<p>-((-a)<em>b)<em>c = -((-a)</em>(b</em>c))</p>
+<p>and then use mul_assoc_all_nn. Similarly, we can do all the other cases this way.</p>
+<h3 id="one-non-positive-value"><a class="header" href="#one-non-positive-value">One Non-Positive Value</a></h3>
+<pre><code class="language-lean">theorem ta {a b c : DCut} (ha : a ≤ 0) (hb : 0 ≤ b) (hc : 0 ≤ c)
+  : a*(b*c) = (a*b)*c := by
+  calc a*(b*c)
+  _ = -((-a)*(b*c)) := by simp[mul_neg_dist_left,mul_neg_dist_right]
+  _ = -(((-a)*b)*c) := congrArg Neg.neg (mul_assoc_all_nn (neg_le'.mp ha) hb hc)
+  _ = (a*b)*c       := by simp[mul_neg_dist_right]
+
+theorem tb {a b c : DCut} (ha : 0 ≤ a) (hb : b ≤ 0) (hc : 0 ≤ c)
+  : a*(b*c) = (a*b)*c := by
+  calc a*(b*c)
+  _ = -(a*((-b)*c)) := by simp[mul_neg_dist_left,mul_neg_dist_right]
+  _ = -((a*(-b))*c) := congrArg Neg.neg (mul_assoc_all_nn ha (neg_le'.mp hb) hc)
+  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
+
+theorem tc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : c ≤ 0)
+  : a*(b*c) = (a*b)*c := by
+  calc a*(b*c)
+  _ = -(a*(b*(-c))) := by simp[mul_neg_dist_left,mul_neg_dist_right]
+  _ = -((a*b)*(-c)) := congrArg Neg.neg (mul_assoc_all_nn ha hb (neg_le'.mp hc))
+  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
+</code></pre>
+<h3 id="two-non-positive-values"><a class="header" href="#two-non-positive-values">Two Non-Positive Values</a></h3>
+<pre><code class="language-lean">theorem tab {a b c : DCut} (ha : a ≤ 0) (hb : b ≤ 0) (hc : 0 ≤ c) : a*(b*c) = (a*b)*c := by
+  calc a*(b*c)
+  _ = (-a)*((-b)*c) := by simp[mul_neg_dist_left,mul_neg_dist_right]
+  _ = ((-a)*(-b))*c := mul_assoc_all_nn (neg_le'.mp ha) (neg_le'.mp hb) hc
+  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
+
+theorem tac {a b c : DCut} (ha : a ≤ 0) (hb : 0 ≤ b) (hc : c ≤ 0) : a*(b*c) = (a*b)*c := by
+  calc a*(b*c)
+  _ = (-a)*(b*(-c)) := by simp[mul_neg_dist_left,mul_neg_dist_right]
+  _ = ((-a)*b)*(-c) := mul_assoc_all_nn (neg_le'.mp ha) hb (neg_le'.mp hc)
+  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
+
+theorem tbc {a b c : DCut} (ha : 0 ≤ a) (hb : b ≤ 0) (hc : c ≤ 0) : a*(b*c) = (a*b)*c := by
+  calc a*(b*c)
+  _ = a*((-b)*(-c)) := by simp[mul_neg_dist_left,mul_neg_dist_right]
+  _ = (a*(-b))*(-c) := mul_assoc_all_nn ha (neg_le'.mp hb) (neg_le'.mp hc)
+  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
+</code></pre>
+<h3 id="three-non-positive-values"><a class="header" href="#three-non-positive-values">Three Non-Positive Values</a></h3>
+<pre><code class="language-lean">theorem tabc {a b c : DCut} (ha : a ≤ 0) (hb : b ≤ 0) (hc : c ≤ 0) : a*(b*c) = (a*b)*c := by
+  calc a*(b*c)
+  _ = -((-a)*((-b)*(-c))) := by simp[mul_neg_dist_left,mul_neg_dist_right]
+  _ = -(((-a)*(-b))*(-c)) := congrArg Neg.neg (mul_assoc_all_nn (neg_le'.mp ha) (neg_le'.mp hb) (neg_le'.mp hc))
+  _ = (a*b)*c             := by simp[mul_neg_dist_left,mul_neg_dist_right]
+
+
+theorem mul_assoc {a b c : DCut} : a * (b * c) = (a * b) * c := by
+  rcases @three_ineqs_true a b c with ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
+                                      ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
+                                      ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
+                                      ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩
+  . exact mul_assoc_all_nn ha hb hc
+  . exact ta (lt_imp_le ha) hb hc
+  . exact tb ha (lt_imp_le hb) hc
+  . exact tc ha hb (lt_imp_le hc)
+  . exact tab (lt_imp_le ha) (lt_imp_le hb) hc
+  . exact tac (lt_imp_le ha) hb (lt_imp_le hc)
+  . exact tbc ha (lt_imp_le hb) (lt_imp_le hc)
+  . exact tabc (lt_imp_le ha) (lt_imp_le hb) (lt_imp_le hc)
+</code></pre>
+<h2 id="instantiating-multiplication-classes"><a class="header" href="#instantiating-multiplication-classes">Instantiating Multiplication Classes</a></h2>
+<pre><code class="language-lean">instance mul_one_inst : MulOneClass DCut := ⟨
+  @mul_id_left,
+  @mul_id_right
+⟩
+
+instance semigroup_inst : Semigroup DCut := ⟨
+  λ x y z =&gt; Eq.symm (@mul_assoc x y z)
+⟩
+
+instance comm_magma_inst : CommMagma DCut := ⟨ @mul_comm ⟩
+
+instance comm_semigroup_inst : CommSemigroup DCut := ⟨ @mul_comm ⟩
+
+example {x y z :DCut} : (x+y)*z = z*(y+x) := by
+  rw[@_root_.mul_comm] -- This is mathlib's CommMagma mul_com
+  abel_nf
+</code></pre>
+<h2 id="natural-powers-and-monoid-instance"><a class="header" href="#natural-powers-and-monoid-instance">Natural Powers and Monoid Instance</a></h2>
+<pre><code class="language-lean">def npow (n: ℕ) (x : DCut) : DCut := match n with
+  | Nat.zero =&gt; 1
+  | Nat.succ k =&gt; x * (npow k x)
+
+theorem npow_zero {x : DCut} : npow 0 x = 1 := by rfl
+
+theorem npow_succ {n : ℕ} {x : DCut} : npow (n+1) x = npow n x * x := by
+  simp[npow]
+  rw[mul_comm]
+
+instance monoid_inst : Monoid DCut := ⟨
+  @mul_id_left,
+  @mul_id_right, -- why does this need to be here if this is already a MulOneClass?
+  npow,
+  @npow_zero,
+  @npow_succ
+⟩
+
+example (x : DCut) : x^2 = x*x := by
+  exact pow_two x --&gt; pow_two is a theorem about monoids from Mathlib
+
+set_option trace.Meta.synthInstance true
+set_option synthInstance.maxHeartbeats 400
+set_option trace.Meta.synthInstance.answer true
+
+#synth Field ℝ
+
+#print Field
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

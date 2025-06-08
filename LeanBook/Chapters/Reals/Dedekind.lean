@@ -9,7 +9,7 @@ open LeanBook.Ordering
 
 /- # The Dedekind Reals
 
-We have seen that te natural numbers may be defined inductively, that the integers can be constructed from the natural numbers, and that this rational numbers can be constructed from the natural numbers and the real numbers. Here, we construct the real numbers from the rational numbers. There are several methods of doing this. For example, Mathlib defines the real numbers as a quotient space of Cauchy Sequences. As an exercise, we provde an alternative definition using Dedekind cuts.
+We have seen that te natural numbers may be defined inductively, that the integers can be constructed from the natural numbers, and that rational numbers can be constructed from the natural numbers and the real numbers. Here, we construct the real numbers from the rational numbers. There are several methods of doing this. For example, Mathlib defines the real numbers as a quotient space of Cauchy Sequences. Here we provde an alternative definition using Dedekind cuts, mainly as an exercise in how to construct a complex mathematical object.
 
 Dedekind's representation of a real number `r` is as a pair `(A,B)` where `A ⊆ ℚ` is the set of all rational numbers less than `r` and `B = ℚ \ A`. The idea is that `A` approximates `r` from below and `B` approximates `r` from above. In the case that `r ∈ ℚ`, then `A = (∞,r)` and `B = [r,∞)`. Since `A` completely determines the cut, we work mainly with it, only occasionally referring to `B`.
 
@@ -25,7 +25,7 @@ A standard reference for Dedekind cuts is Rudin's Principles of Mathematics. In 
 
 ## Definition
 
-First, we define a structure to capture the precise definition of a cut `A ⊆ ℚ`. We require that A is nonempty, that it is not ℚ, that it is downward closed, and that is interval. -/
+First, we define a structure to capture the precise definition of a cut `A ⊆ ℚ`. We require that A is nonempty, that it is not ℚ, that it is downward closed, and that is an open interval. -/
 
 @[ext]
 structure DCut where
@@ -78,13 +78,12 @@ theorem odown_op {q : ℚ} : ∀ x ∈ odown q, ∃ y ∈ odown q, x < y:= by
 def ofRat (q : ℚ) : DCut :=
   ⟨ odown q, odown_ne, odown_nf, odown_dc, odown_op ⟩
 
-/- With this map we can define 0 and 1. -/
+/- With this map we can define 0 and 1, as well as a couple of helper theorems we will later. -/
 
 instance zero_inst : Zero DCut := ⟨ ofRat 0 ⟩
 instance one_inst : One DCut := ⟨ ofRat 1 ⟩
 
 theorem zero_rw : A 0 = odown 0 := by rfl
-
 theorem one_rw : A 1 = odown 1 := by rfl
 
 /- ## Simple Properties of Cuts
@@ -98,7 +97,7 @@ theorem b_gt_a {c : DCut} {x y : ℚ} : x ∈ c.A → y ∈ c.B → x < y := by
   by_contra h
   exact  hy (c.dc y x ⟨ Rat.not_lt.mp h, hx ⟩)
 
-/- An alternate for of this same theorem, in which `B` is characterized as `ℚ \ A` is also useful. -/
+/- An alternative for of this same theorem, in which `B` is characterized as `ℚ \ A` is also useful. -/
 
 theorem a_lt_b {c : DCut} {x y : ℚ }: x ∈ c.A → y ∉ c.A → x < y := by
   intro hx hy
@@ -106,7 +105,7 @@ theorem a_lt_b {c : DCut} {x y : ℚ }: x ∈ c.A → y ∉ c.A → x < y := by
 
 /- Since `A` is downward closed, one can easily show `B` is upward closed. -/
 
-theorem not_in_a_gt {c : DCut} {a b: ℚ} : a ∉ c.A → a ≤ b → b ∉ c.A := by
+theorem b_up_closed {c : DCut} {a b: ℚ} : a ∉ c.A → a ≤ b → b ∉ c.A := by
   intro h1 h2 h3
   exact h1 (c.dc a b ⟨ h2, h3 ⟩)
 
@@ -121,9 +120,9 @@ instance le_inst : LE DCut := ⟨ λ x y => x.A ⊆ y.A ⟩
 
 /- To check these definitions make sense, we verify them with rational numbers. -/
 
-example {x y : ℚ} : x = y → (ofRat x) ≤ (ofRat y) := by
-  intro h
-  simp_all[ofRat,odown,le_inst]
+example {x y : ℚ} : x ≤ y → (ofRat x) ≤ (ofRat y) := by
+  intro h q hq
+  exact gt_of_ge_of_gt h hq
 
 /- It is useful to be able to rewrite the less than relation `<` in terms of inequality and `≤`, and to rewrite `≤` in terms of equality and `<`.  -/
 
@@ -140,6 +139,49 @@ theorem DCut.le_of_lt {x y: DCut} : x ≤ y ↔ x = y ∨ x < y := by
     cases h with
     | inl h1 => exact Eq.subset (congrArg A h1)
     | inr h1 => exact h1.right
+
+/- We can easily prove that cuts form a partial order, which allows us to regiest DCut with Mathlib's PartialOrder class. -/
+
+theorem refl {a: DCut} : a ≤ a := by
+  intro q hq
+  exact hq
+
+theorem anti_symm {a b: DCut} : a ≤ b → b ≤ a → a = b := by
+  intro hab hba
+  ext q
+  constructor
+  . intro hq
+    exact hab (hba (hab hq))
+  . intro hq
+    exact hba (hab (hba hq))
+
+theorem trans {a b c: DCut} : a ≤ b → b ≤ c → a ≤ c := by
+  intro hab hbc q hq
+  exact hbc (hab hq)
+
+theorem lt_iff_le_not_le {a b : DCut} : a < b ↔ a ≤ b ∧ ¬b ≤ a := by
+  constructor
+  . intro h
+    rw[lt_of_le] at h
+    have ⟨ h1, h2 ⟩ := h
+    constructor
+    . exact h.right
+    . intro h3
+      exact h1 (anti_symm h.right h3)
+  . intro ⟨ h1, h2 ⟩
+    rw[le_of_lt] at h1
+    apply Or.elim h1
+    . intro h
+      rw[h] at h2
+      exact False.elim (h2 refl)
+    . intro h
+      exact h
+
+instance pre_order_inst : Preorder DCut :=
+  ⟨ @refl, @trans, @lt_iff_le_not_le ⟩
+
+instance poset_inst : PartialOrder DCut :=
+  ⟨ @anti_symm ⟩
 
 /- Next we prove that cuts form a total order, and instantiate this fact with the TotalOrder class from Mathlib. -/
 
@@ -166,12 +208,7 @@ def isNeg (x : DCut) : Prop := x < 0
 theorem trichotomy (x y: DCut) : x ≤ y ∨ x = y ∨ y ≤ x := by
   apply Or.elim (@total x y)
   . intro h
-    rw[DCut.le_of_lt] at h
-    cases h with
-    | inl h1 => exact Or.inr (Or.inl h1)
-    | inr h1 =>
-      rw[DCut.lt_of_le] at h1
-      exact Or.inl (h1.right)
+    exact Or.symm (Or.inr h)
   . intro h
     exact Or.inr (Or.inr h)
 
@@ -181,6 +218,11 @@ theorem trichotomy_lt (x y: DCut) : x < y ∨ x = y ∨ y < x := by
   aesop
 
 instance trichotomous_inst : IsTrichotomous DCut (· ≤ ·) := ⟨ trichotomy ⟩
+
+instance trichotomous_inst' : IsTrichotomous DCut (· < ·) := ⟨ trichotomy_lt ⟩
+
+
+/- ## Theorems About Zero and One -/
 
 theorem zero_in_pos {a : DCut} (ha : 0 < a) : 0 ∈ a.A := by
   obtain ⟨ h1, h2 ⟩ := ha
@@ -221,7 +263,7 @@ theorem zero_le_one : (0:DCut) ≤ 1 := by
   simp_all[zero_rw,one_rw,odown]
   linarith
 
-theorem not_gt_to_le {a : DCut} : ¬0<a ↔ a ≤ 0 := by
+theorem not_gt_to_le {a : DCut} : ¬ 0 < a ↔ a ≤ 0 := by
   constructor
   . have := trichotomy_lt 0 a
     apply Or.elim this
@@ -244,6 +286,41 @@ theorem not_gt_to_le {a : DCut} : ¬0<a ↔ a ≤ 0 := by
       have : A 0 = a.A := by exact Set.Subset.antisymm h4 h6
       exact h3 this
 
-/- TODO : Instantiate as a partial order -/
+def two_ineqs (a b : DCut) :=
+  (0 ≤ a ∧ 0 ≤ b) ∨
+  (a < 0 ∧ 0 ≤ b) ∨
+  (0 ≤ a ∧ b < 0) ∨
+  (a < 0 ∧ b < 0)
+
+def three_ineqs (a b c : DCut) :=
+  (0 ≤ a ∧ 0 ≤ b ∧ 0 ≤ c) ∨
+  (a < 0 ∧ 0 ≤ b ∧ 0 ≤ c) ∨
+  (0 ≤ a ∧ b < 0 ∧ 0 ≤ c) ∨
+  (0 ≤ a ∧ 0 ≤ b ∧ c < 0) ∨
+  (a < 0 ∧ b < 0 ∧ 0 ≤ c) ∨
+  (a < 0 ∧ 0 ≤ b ∧ c < 0) ∨
+  (0 ≤ a ∧ b < 0 ∧ c < 0) ∨
+  (a < 0 ∧ b < 0 ∧ c < 0)
+
+theorem neg_t {x : DCut} : x < 0 ↔ ¬0 ≤ x := by
+  have := trichotomy_lt 0 x
+  simp_all[le_of_lt]
+  constructor
+  . intro h
+    constructor
+    . exact ne_of_gt h
+    . exact not_lt_of_gt h
+  . intro ⟨ h1, h2 ⟩
+    tauto
+
+theorem lt_imp_le {x y : DCut} : x < y → x ≤ y := by simp[lt_of_le]
+
+theorem two_ineqs_true {a b : DCut} : two_ineqs a b := by
+  simp[two_ineqs,neg_t]
+  tauto
+
+theorem three_ineqs_true {a b c : DCut} : three_ineqs a b c := by
+  simp[three_ineqs,neg_t]
+  tauto
 
 /- **Exercise**: Show that `ofRat` is indeed an order embedding, that is `x ≤ y → ofRat x ≤ ofRat y` for all rational numbers `x` and `y`. -/
