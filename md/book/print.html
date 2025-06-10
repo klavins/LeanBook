@@ -2987,18 +2987,12 @@ Copyright © 2025 Eric Klavins
 </div>
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Intro.lean'>Code</a> for this chapter</span></p>
-<h1 id="what-is-a-real-number"><a class="header" href="#what-is-a-real-number">WHAT IS A REAL NUMBER?</a></h1>
-<div style='background: yellow'>TODO: This chapter needs to be clean up. Any maybe, just for pedagogical purposes, it should use a construction that is different from Mathlib's.
-<p>Sequences should appear in their own section or chapter as well. </div></p>
-<p>One way to characterize the reals is that they are numbers with infinite decimal expansions. For example,</p>
-<pre><code>  1.0000000 ...        --&gt; Also an integer
-  3.5                  --&gt; Also a fracton
-  3.3333333 ...        --&gt; Also a fracton
-  1.4142135 ...        --&gt; √2, an algebraic number, not rational
-  3.1415927 ...        --&gt; π, a trancendental number, not alegbreic or rational
+<h1 id="real-numbers"><a class="header" href="#real-numbers">Real Numbers</a></h1>
+<p>Having built ℕ inductively, ℤ from ℕ, and ℚ from ℕ and ℤ, we now turn to the real numbers ℝ. The key distinction between the ℚ and ℝ is that ℝ has the least upper bound property: every non-empty set of reals that is bounded from above has a least upper bound. The rationals ℚ do not have this property. For example, the set</p>
+<pre><code class="language-hs">{ q ∈ ℚ | q² &lt; 2 }
 </code></pre>
-<p>We might be tempted to define the reals as all sequences of integers, and in fact at least one Real Analysis textbook does this.</p>
-<p>But the usual method, and the one taken by Lean, is to define <code>Cauchy Sequences</code> over <code>ℚ</code> that converge to irrational values. For example, the sequence</p>
+<p>has no least upper bound in ℚ, although in ℝ the least upper bound is <code>√2</code> (for a Lean proof that the square root of 2 is no rational, see <a href="https://leanprover-community.github.io/mathematics_in_lean/C05_Elementary_Number_Theory.html#irrational-roots">Chapter 5</a> of <em>MIL</em>.)</p>
+<p>The usual way to construct ℝ, and the one taken by Mathlib, is to define <code>Cauchy Sequences</code> over <code>ℚ</code> that converge to irrational values. For example, the sequence</p>
 <pre><code>  4/1
   4/1 - 4/3
   4/1 - 4/3 + 4/5
@@ -3006,323 +3000,46 @@ Copyright © 2025 Eric Klavins
   4/1 - 4/3 + 4/5 - 4/7 + 4/9
 </code></pre>
 <p>Converges to <code>π</code>.</p>
-<h2 id="issues"><a class="header" href="#issues">Issues</a></h2>
-<p>Two issues arise.</p>
-<ol>
-<li>
-<p>What does it mean for a sequence over ℚ to converge? The normal notion of convergence over ℝ doesn't work here, because it requires knowledge about the existence of a real number being converged to. But we haven't defined ℝ yet. To address this, we'll define <code>Cauchy Convergence</code>, which states that as you go out in the sequence, the values become arbitrarily close to each other. This means it converges to something, but that something might not be rational. So we'll call it real.</p>
-</li>
-<li>
-<p>Multiple sequences can converge in this sense to the same value. That is, the values of two sequences become arbitrarily close to each other. To address this issue, we'll define a notion of equality on Cauchy Sequences and correspond to each <code>equivalence class</code> of sequences a real number.</p>
-</li>
-</ol>
-<h2 id="sequences"><a class="header" href="#sequences">Sequences</a></h2>
-<p>Sequences over the rational numbers are just functions from ℕ to ℚ.
-Example: (1/n)</p>
-<pre><code class="language-lean">def σ₁ (n : ℕ) : ℚ := (1:ℚ) / (n+1)
-
-#eval [σ₁ 0, σ₁ 1, σ₁ 2, σ₁ 3]
-</code></pre>
-<p>Example: Another name for 1 ...</p>
-<pre><code class="language-lean">def one (n : Nat) : ℚ := match n with
-  | Nat.zero =&gt; 9/10
-  | Nat.succ k =&gt; one k + 9/(10^(n+1))
-
-#eval [one 0, one 1, one 2, one 3]
-</code></pre>
-<p>Example: √2</p>
-<pre><code class="language-lean">def sqrt2 (n : Nat) : ℚ := match n with
-  | Nat.zero =&gt; 1
-  | Nat.succ k =&gt; (sqrt2 k + 2 / (sqrt2 k))/2
-
-#eval [sqrt2 0, sqrt2 1, sqrt2 2, sqrt2 3, sqrt2 4]
-#eval (665857.0/470832)^2
-</code></pre>
-<h2 id="operations-on-sequences"><a class="header" href="#operations-on-sequences">Operations on Sequences</a></h2>
-<p>You can perform many of the same operations on sequences as you can on numbers. This allows you to make new sequences out of old ones.</p>
-<pre><code class="language-lean">def add (a b : ℕ → ℚ) := λ n =&gt; a n + b n
-def mul (a b : ℕ → ℚ) := λ n =&gt; (a n)*(b n)
-def scale (c : ℚ) (a : ℕ → ℚ) := λ n =&gt; c * (a n)
--- and more
-
--- Example
-def σ₂ := scale 3 (add σ₁ (mul σ₁ σ₁))
-
-#eval [σ₂ 0, σ₂ 1, σ₂ 2, σ₂ 3]
-
-def two := (mul sqrt2 sqrt2)
-#eval [two 0, two 1, two 2, two 3]
-#eval (332929 : Float)/166464
-</code></pre>
-<h2 id="the-usual-notion-of-convergence"><a class="header" href="#the-usual-notion-of-convergence">The Usual Notion of Convergence</a></h2>
-<p>One notion of convergence is to specify what the sequence converges to:</p>
-<pre><code class="language-lean">def ConvergesTo (f : ℕ → ℚ) (x:ℚ) := ∀ ε &gt; 0, ∃ n , ∀ m ≥ n, |f m - x| &lt; ε
-</code></pre>
-<p>Here's an easy example of a constant sequence.</p>
-<pre><code class="language-lean">example : ConvergesTo (λ _ =&gt; 3) 3 := by
-  intro ε hε
-  use 1
-  intro n h
-  simp[hε]
-</code></pre>
-<p>Advanced: (1/n) → 0. This method is not covered in this class, but see MIL.</p>
-<pre><code class="language-lean">example : Filter.Tendsto (λ n =&gt; (1:ℚ)/n) Filter.atTop (nhds (0:ℚ)) := by
-  intro X h
-  simp
-  exact mem_nhdsWithin_of_mem_nhds h
-</code></pre>
-<p>NOTE: This notion of convergence requires you know what the sequence is converging to and that it is rational.</p>
-<p>NOTE: The tendency in Mathlib is to prove things in the most generality possible. But this can make it hard to understand the simple examples that abound in engineering mathematics unless you know advanced topology.</p>
-<h2 id="convergence-of-the-sum-of-two-sequences"><a class="header" href="#convergence-of-the-sum-of-two-sequences">Convergence of the Sum of Two Sequences</a></h2>
-<pre><code class="language-lean">theorem converge_add                 -- Adapted from MIL 3.6
-    {σ₁ σ₂ : ℕ → ℚ } {a b : ℚ}
-    (h1 : ConvergesTo σ₁ a) (h2 : ConvergesTo σ₂ b)
-    : ConvergesTo (add σ₁ σ₂) (a+b) := by
-
-  intro ε εpos
-  simp[add]
-  have ε2pos : 0 &lt; ε / 2 := by linarith
-  have ⟨Ns, hs⟩ := h1 (ε/2) ε2pos
-  have ⟨Nt, ht⟩ := h2 (ε/2) ε2pos
-
-  use max Ns Nt
-  intro m hm
-
-  have ngeNs : m ≥ Ns := le_of_max_le_left hm
-  have ngeNt : m ≥ Nt := le_of_max_le_right hm
-
-  calc |σ₁ m + σ₂ m - (a + b)|
-    _ = |σ₁ m - a + (σ₂ m - b)| := by congr; linarith
-    _ ≤ |σ₁ m - a| + |σ₂ m - b| := (abs_add _ _)
-    _ &lt; ε / 2 + ε / 2           := (add_lt_add (hs m ngeNs) (ht m ngeNt))
-    _ = ε                       := by norm_num
-</code></pre>
-<h2 id="cauchy-sequences"><a class="header" href="#cauchy-sequences">Cauchy Sequences</a></h2>
-<p>A different notion of convergence is Cauchy Convergence, stating that values become arbitrary close to each other without saying what they become close to. In fact, whatever the value is, it may not be rational.</p>
-<pre><code class="language-lean">def IsCauchy (σ : ℕ → ℚ) :=
-  ∀ ε &gt; 0 , ∃ N : ℕ , ∀ n m : ℕ,
-  n &gt; N → m &gt; N → abs (σ n - σ m) &lt; ε
-</code></pre>
-<p>Here's the same example as above.</p>
-<pre><code class="language-lean">theorem three_c : IsCauchy (λ _ =&gt; 3) := by
-  intro ε hε
-  use 1
-  intro n m hn hm
-  simp[hε]
-</code></pre>
-<p>Proving more complicated examples, even just 1/n, is tough without more machinery.</p>
-<h2 id="example-the-sum-of-cauchy-sequences-is-cauchy"><a class="header" href="#example-the-sum-of-cauchy-sequences-is-cauchy">Example: The Sum of Cauchy Sequences is Cauchy</a></h2>
-<pre><code class="language-lean">theorem cauchy_add {s1 s2 : ℕ → ℚ}
-  : IsCauchy s1 →
-    IsCauchy s2 →
-    IsCauchy (add s1 s2) := by
-
-  -- Introduce everything
-  intro h1 h2 ε hε
-  have ⟨ N1, h1' ⟩ := h1 (ε/2) (by exact half_pos hε)
-  have ⟨ N2, h2' ⟩ := h2 (ε/2) (by exact half_pos hε)
-  use N1 + N2
-  intro m n gm gn
-
-  -- Dispatch assumptions in the hypotheses
-  have h1'' := h1' n m (by linarith) (by linarith)
-  have h2'' := h2' n m (by linarith) (by linarith)
-
-  -- Break the add up and the absolute values
-  simp_all[add,abs_lt]
-
-  -- The rest is arithmetic
-  exact ⟨ by linarith, by linarith ⟩
-</code></pre>
-<h2 id="example-the-product-of-two-cauchy-sequences-is-cauchy"><a class="header" href="#example-the-product-of-two-cauchy-sequences-is-cauchy">Example the Product of two Cauchy Sequences is Cauchy</a></h2>
-<pre><code class="language-lean">theorem cauchy_mul (s1 s2 : ℕ → ℚ) :
-  IsCauchy s1 →
-  IsCauchy s2 →
-  IsCauchy (mul s1 s2) := by
-    sorry
-</code></pre>
-<h1 id="equality-of-sequences"><a class="header" href="#equality-of-sequences">Equality of Sequences</a></h1>
-<p>Different sequences may converge to the same value. For example, here is a list of ways to approximate π:</p>
-<p>https://mathworld.wolfram.com/PiFormulas.html</p>
-<p>Thus, every real number corresponds to a whole equivalence class of sequences. Here is the notion of equality we can use.</p>
-<pre><code class="language-lean">def eq (σ₁ σ₂ : ℕ → ℚ) :=
-  ∀ ε &gt; 0, ∃ N, ∀ m n,
-  m &gt; N → n &gt; N → |σ₁ n - σ₂ m| &lt; ε
-</code></pre>
-<p>Here's an example that ought to be true</p>
-<pre><code class="language-lean">example : eq (mul sqrt2 sqrt2) (λ _ =&gt; 2) := by
-
-  intro ε hε
-  let N := ε.den^2
-  use N
-  intro m n hm hn
-  simp[mul]
-
-  induction n with
-  | zero =&gt;
-    simp at hn
-  | succ k ih =&gt;
-    unfold sqrt2
-    by_cases h1: k ≤ N
-    . sorry
-    . have h2 : k &gt; N := by linarith
-      have ih' := ih h2
-      -- |a^2-2|&lt;ε → |(a^2 + 2 + 4/(a^2))/4 -2| &lt; ε
-      sorry
-</code></pre>
-<h2 id="ordering"><a class="header" href="#ordering">Ordering</a></h2>
-<pre><code class="language-lean">def leq (σ τ : ℕ → ℚ) := eq σ τ ∨ ∃ N, ∀ n &gt; N, σ n ≤ τ n
-</code></pre>
-<h2 id="example--1--2"><a class="header" href="#example--1--2">Example : 1 ≤ √2</a></h2>
-<p>The arithmetic mean is greater than or equal to the geometric mean</p>
-<pre><code class="language-lean">theorem am_gm (a b : ℚ) : ((a+b)/2)^2 ≥ a*b := by
-
-  have : ((a+b)/2)^2 - a*b ≥ 0 := by
-    calc ((a+b)/2)^2 - a*b
-    _ = (a^2 + 2*a*b + b^2)/4 - a*b := by linarith
-    _ = (a^2 - 2*a*b + b^2)/4 := by linarith
-    _ = ((a-b)/2)^2 := by linarith
-    _ ≥ 0 := sq_nonneg ((a - b) / 2)
-
-  linarith
-
-#help tactic simp!
-
-example : leq (λ _ =&gt; 1) sqrt2 := by
-
-  apply Or.inr
-  use 0
-  intro n hn
-
-  induction n with
-  | zero =&gt; rfl
-  | succ k ih =&gt;
-
-    -- k = 0
-    by_cases h0: k = 0
-    . simp![h0]
-      linarith
-
-    -- k &gt; 0
-    . have : k &gt; 0 := by exact Nat.zero_lt_of_ne_zero h0
-      have ih' : 1 ≤ sqrt2 k := ih this
-      unfold sqrt2
-
-      have h4 : sqrt2 k * (2 / sqrt2 k) = 2 := by
-        calc sqrt2 k * (2 / sqrt2 k)
-        _ = (sqrt2 k * 2) / sqrt2 k := by rw[mul_div]
-        _ = (2 * sqrt2 k) / sqrt2 k := by rw[mul_comm]
-        _ = 2 * (sqrt2 k / sqrt2 k) := by rw[mul_div]
-        _ = 2 * 1 := by rw[div_self]; linarith
-        _ = 2 := Rat.mul_one 2
-
-      have h5 := am_gm (sqrt2 k) (2/(sqrt2 k))
-      simp[h4] at h5
-
-      have h6 : 1 ≤ ((sqrt2 k + 2 / sqrt2 k) / 2) ^ 2 := by
-        calc (1:ℚ)
-        _ ≤ 2 := rfl
-        _ ≤ ((sqrt2 k + 2 / sqrt2 k) / 2) ^ 2 := h5
-
-      have h1 : 0 ≤ sqrt2 k := by linarith
-      have h2 : 0 ≤ 2/(sqrt2 k) := Rat.div_nonneg rfl h1
-      have h3 : 0 ≤ (sqrt2 k + 2 / sqrt2 k)/2 := Rat.div_nonneg (Rat.add_nonneg h1 h2) rfl
-      exact (one_le_sq_iff₀ h3).mp h6
-</code></pre>
-<h2 id="example--commutativity-of-sequence-addition"><a class="header" href="#example--commutativity-of-sequence-addition">Example : Commutativity of Sequence Addition</a></h2>
-<pre><code class="language-lean">theorem sadd_comm {σ τ : ℕ → ℚ}
-  : IsCauchy σ → IsCauchy τ → eq (add σ τ) (add τ σ) := by
-  intro h1 h2 ε hε
-  have ⟨ N1, h1' ⟩ := h1 ε hε
-  have ⟨ N2, h2' ⟩ := h2 ε hε
-  use N1 + N2
-  intro m n hm hn
-  have h1'' := h1' m n (by linarith) (by linarith)
-  have h2'' := h2' m n (by linarith) (by linarith)
-  simp_all[add]
-  sorry
-</code></pre>
-<h1 id="ew-is-reflexive-symmetric-and-transitive"><a class="header" href="#ew-is-reflexive-symmetric-and-transitive">Ew is Reflexive, Symmetric, and Transitive</a></h1>
-<pre><code class="language-lean">theorem eq_refl {σ : ℕ → ℚ}
-  : IsCauchy σ → eq σ σ := by
-  intro hc ε hε
-  have ⟨ N, h ⟩ := hc ε hε
-  use N
-  intro m n hm hn
-  have h' := h n m hn hm
-  exact h'
-
-theorem eq_sym {σ₁ σ₂ : ℕ → ℚ}
-  : IsCauchy σ₁ → IsCauchy σ₂ → eq σ₁ σ₂ → eq σ₂ σ₁ := by
-  intro h1 h2 h12 ε hε
-  have ⟨ N1, h1' ⟩ := h1 ε hε
-  have ⟨ N2, h2' ⟩ := h2 ε hε
-  use N1 + N2
-  intro m n hm hn
-  have h1'' := h1' n m (by linarith) (by linarith)
-  have h2'' := h2' n m (by linarith) (by linarith)
-  sorry
-
-theorem eq_trans {σ₁ σ₂ σ₃: ℕ → ℚ}
-  : IsCauchy σ₁ → IsCauchy σ₂ → eq σ₁ σ₂ → eq σ₂ σ₃ → eq σ₁ σ₃ := by
-  sorry
-</code></pre>
-<h2 id="the-cauchy-completion-of-the-rationals--the-reals"><a class="header" href="#the-cauchy-completion-of-the-rationals--the-reals">The Cauchy Completion of the Rationals = The Reals</a></h2>
-<pre><code class="language-lean">namespace Temp
-
-inductive Real where
-  | ofCauchy (σ : ℕ → ℚ) (h : IsCauchy σ) : Real
-
-open Real
-
-def three := ofCauchy (λ _ =&gt; 3) three_c
-</code></pre>
-<h1 id="operations-relations-and-properties-lift"><a class="header" href="#operations-relations-and-properties-lift">Operations, Relations, and Properties "lift"</a></h1>
-<p>Example operation</p>
-<pre><code class="language-lean">def radd (x y : Real) : Real := match x, y with
-  | ofCauchy σ h1, ofCauchy τ h2 =&gt; ofCauchy (add σ τ) (cauchy_add h1 h2)
-
-#check radd three three
-</code></pre>
-<p>Example relation</p>
-<pre><code class="language-lean">def req (x y : Real) : Prop := match x, y with
-  | ofCauchy σ _, ofCauchy τ _ =&gt; eq σ τ
-
-theorem req_refl (x : Real) : req x x := match x with
-  | ofCauchy _ h =&gt; eq_refl h
-
-example : req three three := by apply req_refl
-</code></pre>
-<p>Example Property</p>
-<pre><code class="language-lean">theorem radd_comm {x y : Real} : req (radd x y) (radd y x) := by
-  match x, y with
-  | ofCauchy σ h1, ofCauchy τ h2 =&gt;
-    simp[req,radd]
-    exact sadd_comm h1 h2
-
-end Temp
-</code></pre>
-<h1 id="all-the-properties-of-the-reals"><a class="header" href="#all-the-properties-of-the-reals">All the Properties of the Reals</a></h1>
-<p>ℝ is a field (so is ℚ)</p>
+<p>In this chapter, mainly as an exercise in formalization, we instead construct ℝ from <em>Dedekind Cuts</em> in which every real number is equated to the set of rational numbers less than it. We roughly follow the decription of this approach presented in Rudin's book <em>Principles of Mathematical Analysis</em> (which also, by the way, describes the Cauchy Sequence approach.)</p>
+<h2 id="axioms-of-the-reals"><a class="header" href="#axioms-of-the-reals">Axioms of the Reals</a></h2>
+<p>To show that a set R is equivalent to the real numbers, we define the following relations and operations:</p>
 <ul>
-<li>and * are associative, commutative, distributive, inverses
-there are additive and multiplicative identities</li>
+<li>Ordering relations: &lt;, ≤, &gt; and ≥</li>
+<li>Addition and subtraction: +, -</li>
+<li>Multiplication: *</li>
+<li>Division: /</li>
 </ul>
-<p>ℝ is totally ordered by ≤ and respected by + and * (so is ℚ)</p>
-<p>ℝ is complete with respect to ≤ (but ℚ isn't)
-Every bounded nonempty set has a least upper bound
-This is the only</p>
-<p>All these properties are available, along with many more.</p>
-<pre><code class="language-lean">#check mul_assoc
-#check add_mul
-#check mul_le_mul_left
-#check le_total
-#check le_csSup
-</code></pre>
+<p>and we require the following:</p>
+<ul>
+<li>R is totally ordered: ∀ x y ∈ R, x &lt; y ∨ y &lt; x ∨ x=y</li>
+<li>R is a field
+<ul>
+<li>Addition properties
+<ul>
+<li>Addition is commutative: x+y=y+x</li>
+<li>Addition is associative: x+(y+z) = (x+y)+z</li>
+<li>There is an additive identity 0 and x+0 = 0+x = x.</li>
+<li>Each element x has an additive inverse -x such that x+(-x) = 0.</li>
+</ul>
+</li>
+<li>Multiplication properties
+<ul>
+<li>Multiplication is commutative: x<em>y=y</em>x</li>
+<li>Multiplication is associative: x*(y<em>z) = (x</em>y)*z</li>
+<li>There is a multiplicative identity 1 and x<em>1 = 1</em>x = x.</li>
+<li>Each element x has a multiplicative inverse x⁻¹ such that x<em>x⁻¹ = x⁻¹</em>x = 1.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>R has the least upper bound property</li>
+</ul>
+<p>Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes and more so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.</p>
+<p><span style='background: yellow'>TODO: List the relevant Mathlib classes or insert a tree diagram of them.</span></p>
 <h2 id="references-5"><a class="header" href="#references-5">References</a></h2>
 <p>A nice description of the Cauchy Completion: https://mathweb.ucsd.edu/~tkemp/140A/Construction.of.R.pdf</p>
-<p>A book that describes the Cauchy Completion:  Rudin, W.: Principles of Mathematical Analysis. Third Edition. International Series in Pure and Applied Mathematics. McGraw-Hill Book Co., New York – Aukland – Dusseldorf, 1976.ß</p>
-<p>A real analysis book in which ℝ is constructed from decimal expansions of the form f : ℕ → ℤ with f(0) being the integer part and f(n) ∈ {0, ..., 9} for n ≥ 1. https://docs.ufpr.br/%7Ehigidio/Ensino/Seminario/Davidson-Donsig-2010-Real%20Analysis%20and%20Aplications.pdf</p>
+<p>Rudin, W.: Principles of Mathematical Analysis. Third Edition. International Series in Pure and Applied Mathematics. McGraw-Hill Book Co., New York – Aukland – Dusseldorf, 1976.</p>
+<p>A real analysis book in which ℝ is constructed from decimal expansions of the form f : ℕ → ℤ with f(0) being the integer part and f(n) ∈ {0, ..., 9} for n ≥ 1. <a href="https://docs.ufpr.br/%7Ehigidio/Ensino/Seminario/Davidson-Donsig-2010-Real%20Analysis%20and%20Aplications.pdf">Davidson and Donsig</a></p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 <div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
@@ -3336,7 +3053,6 @@ Copyright © 2025 Eric Klavins
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Dedekind.lean'>Code</a> for this chapter</span></p>
 <h1 id="the-dedekind-reals"><a class="header" href="#the-dedekind-reals">The Dedekind Reals</a></h1>
-<p>We have seen that te natural numbers may be defined inductively, that the integers can be constructed from the natural numbers, and that rational numbers can be constructed from the natural numbers and the real numbers. Here, we construct the real numbers from the rational numbers. There are several methods of doing this. For example, Mathlib defines the real numbers as a quotient space of Cauchy Sequences. Here we provde an alternative definition using Dedekind cuts, mainly as an exercise in how to construct a complex mathematical object.</p>
 <p>Dedekind's representation of a real number <code>r</code> is as a pair <code>(A,B)</code> where <code>A ⊆ ℚ</code> is the set of all rational numbers less than <code>r</code> and <code>B = ℚ \ A</code>. The idea is that <code>A</code> approximates <code>r</code> from below and <code>B</code> approximates <code>r</code> from above. In the case that <code>r ∈ ℚ</code>, then <code>A = (∞,r)</code> and <code>B = [r,∞)</code>. Since <code>A</code> completely determines the cut, we work mainly with it, only occasionally referring to <code>B</code>.</p>
 <p>That this definition satisfies the properties of the real numbers needs to be proved, which is what this chapter is about. Specifically, we will prove that</p>
 <ul>
@@ -3392,13 +3108,32 @@ theorem odown_nf {q : ℚ} : ∃ x, x ∉ odown q := by
 <p>With these theorems we define the map <code>ofRat : ℚ → DCut</code> that embeds the rationals into the Dedekind cuts.</p>
 <pre><code class="language-lean">def ofRat (q : ℚ) : DCut :=
   ⟨ odown q, odown_ne, odown_nf, odown_dc, odown_op ⟩
+
+instance rat_cast_inst : RatCast DCut := ⟨ λ x =&gt; ofRat x ⟩
+
+instance nat_cast_inst : NatCast DCut := ⟨ λ x =&gt; ofRat x ⟩
+
+instance int_cast_inst : IntCast DCut := ⟨ λ x =&gt; ofRat x ⟩
 </code></pre>
 <p>With this map we can define 0 and 1, as well as a couple of helper theorems we will later.</p>
 <pre><code class="language-lean">instance zero_inst : Zero DCut := ⟨ ofRat 0 ⟩
 instance one_inst : One DCut := ⟨ ofRat 1 ⟩
+instance inhabited_inst : Inhabited DCut := ⟨ 0 ⟩
+
+
 
 theorem zero_rw : A 0 = odown 0 := by rfl
 theorem one_rw : A 1 = odown 1 := by rfl
+
+theorem zero_ne_one : (0:DCut) ≠ 1 := by
+  intro h
+  simp[DCut.ext_iff,zero_rw,one_rw,odown,Set.ext_iff] at h
+  have h0 := h (1/2)
+  have h1 : (1:ℚ)/2 &lt; 1 := by linarith
+  have h2 : ¬(1:ℚ)/2 &lt; 0 := by linarith
+  exact h2 (h0.mpr h1)
+
+instance non_triv_inst : Nontrivial DCut := ⟨ ⟨ 0, 1, zero_ne_one ⟩ ⟩
 </code></pre>
 <h2 id="simple-properties-of-cuts"><a class="header" href="#simple-properties-of-cuts">Simple Properties of Cuts</a></h2>
 <p>Here we define some simple properties that wil make subsequent proofs less cumbersome. The first says for <code>x in A</code> and <code>y in B</code>, that <code>x &lt; y</code>.</p>
@@ -3418,7 +3153,7 @@ theorem one_rw : A 1 = odown 1 := by rfl
   intro h1 h2 h3
   exact h1 (c.dc a b ⟨ h2, h3 ⟩)
 </code></pre>
-<h2 id="ordering-1"><a class="header" href="#ordering-1">Ordering</a></h2>
+<h2 id="ordering"><a class="header" href="#ordering">Ordering</a></h2>
 <p>Next we show that cuts are totally ordered by the subset relation. First, we define and instantiate the less than and less than or equal relations on cuts.</p>
 <pre><code class="language-lean">instance lt_inst : LT DCut := ⟨ λ x y =&gt; x ≠ y ∧ x.A ⊆ y.A ⟩
 instance le_inst : LE DCut := ⟨ λ x y =&gt; x.A ⊆ y.A ⟩
@@ -3687,6 +3422,23 @@ def sum (a b : DCut) : DCut :=
 instance hadd_inst : HAdd DCut DCut DCut:= ⟨ sum ⟩
 
 instance add_inst : Add DCut := ⟨ sum ⟩
+
+theorem add_rats {x y: ℚ} : ofRat (x+y) = ofRat x + ofRat y := by
+
+  simp[ofRat,hadd_inst,sum,presum,odown]
+  ext q
+  constructor
+
+  . intro hq
+    let ε := x+y - q
+    have hε : q = x+y-ε := by
+      simp[ε]
+    simp_all
+    exact ⟨ x-ε/2, ⟨ by linarith, ⟨ y-ε/2, ⟨ by linarith, by linarith ⟩ ⟩ ⟩ ⟩
+
+  . intro ⟨ a, ⟨ ha, ⟨ b, ⟨ hb1, hb2 ⟩ ⟩ ⟩ ⟩
+    simp_all
+    linarith
 </code></pre>
 <h3 id="the-associative-property-of-addition"><a class="header" href="#the-associative-property-of-addition">The Associative Property Of Addition</a></h3>
 <pre><code class="language-lean">theorem sum_assoc {a b c : DCut} : (a+b)+c = a + (b+c) := by
@@ -3962,6 +3714,20 @@ instance s_dec {c : DCut} {s t : ℚ}  : DecidablePred (· ∈ Svals c s t) := b
 instance add_comm_group_inst : AddCommGroup DCut := ⟨ @sum_comm ⟩
 
 example (x y z : DCut) : x - y + z = z + x - y := by abel
+
+instance add_monoid_wo_inst : AddMonoidWithOne DCut := ⟨
+    by
+      ext q
+      exact ⟨ id, id ⟩,
+    by
+      intro n
+      ext q
+      constructor
+      repeat
+      . intro hq
+        simp_all[add_rats,nat_cast_inst]
+        exact hq
+  ⟩
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -4039,6 +3805,8 @@ theorem maximum_op {a b : DCut} : ∀ x ∈ a.A ∪ b.A, ∃ y ∈ a.A ∪ b.A, 
 
 def maximum (a b : DCut) : DCut :=
  ⟨ a.A ∪ b.A, maximum_ne, maximum_nf, maximum_dc, maximum_op ⟩
+
+instance max_inst : Max DCut := ⟨ maximum ⟩
 
 theorem max_gz (a: DCut) : 0 ≤ maximum 0 a := by
   simp_all[le_inst,zero_rw,odown,maximum]
@@ -4159,24 +3927,27 @@ Copyright © 2025 Eric Klavins
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Multiply.lean'>Code</a> for this chapter</span></p>
 <h1 id="multiplication"><a class="header" href="#multiplication">Multiplication</a></h1>
-<p>Multiplication of Dedekind cuts is straightfoward, but also fairly involved, or as Rudin says: "bothersome". The issue is dealing with positive and negative cutes. Following Rudin, the development of the definitions proceeds as follows:</p>
+<p>Multiplication of Dedekind cuts is straightfoward, but also fairly involved, or as Rudin says: "bothersome". The issue is dealing with both positive and negative cuts. Following Rudin, the development of the definitions proceeds as follows:</p>
 <ul>
-<li>Define multiplication on two positive cuts <code>0 &lt; x₁</code> and <code>0 &lt; x₂</code> as the set of points <code>c</code> such that for some <code>a ∈ x₁</code> and <code>b ∈ x₂</code>, <code>c &lt; ab</code>.</li>
-<li>Extend multiplciation on positive cuts to non-negative cuts <code>0 ≤ x₁</code> and <code>0 ≤ x₂</code> building on the previous step by handling the case in which either or both of the cuts is zero.</li>
-<li>Extend multiplication on non-negative cuts to all cuts. This step requires noting that every cut <code>x</code> can be written as the different <code>max 0 x - max 0 (-x)</code> between two non-negative cuts.</li>
+<li>Define multiplication on two positive cuts.</li>
+<li>Extend multiplciation on positive cuts to non-negative cuts, building on the previous step by handling the cases in which either or both of the cuts is zero.</li>
+<li>Extend multiplication on non-negative cuts to all cuts.</li>
 </ul>
 <p>For each of the above definitions of multiplication, we also prove the properties required to show that multiplication forms a commutiative group on cuts:</p>
 <ul>
 <li>0 is an identity: 0x = 0.</li>
 <li>Multiplication is commutative: xy = yx.</li>
 <li>Associativity: x(yz) = (xy)z
-The last property is particularly challenging. In priciple, one has to reason about 27 differen cases where each of x, y and z are either positive, negative or zero. Thus, along the way we will prove several intermediate results which allow us to make the proof more concise.</li>
+The last property is particularly challenging, because to relate arbitary reals with positive reals, one has to deal with an abundance of cases, preferably gracefully. Thus, along the way we will prove several intermediate results which allow us to make the proof more concise.</li>
 </ul>
-<h2 id="multiplication-of-positive-reals"><a class="header" href="#multiplication-of-positive-reals">Multiplication of Positive Reals</a></h2>
+<h2 id="definitions-1"><a class="header" href="#definitions-1">Definitions</a></h2>
+<h3 id="multiplication-of-positive-reals"><a class="header" href="#multiplication-of-positive-reals">Multiplication of Positive Reals</a></h3>
+<p>Given two positive cuts <code>0 &lt; a</code> and <code>0 &lt; b</code>, their product is the set of points <code>z</code> such that for some <code>x ∈ a</code> and <code>y ∈ b</code>, <code>z &lt; x*y</code>. This basic definition underlies the entire framework for multiplication, after which we simply have to deal with various combinations of non-negative and negative numbers.</p>
 <pre><code class="language-lean">def pre_mul (a b : DCut) :=
-  { z | ∃ x ∈ a.A, ∃ y ∈ b.A, 0 &lt; x ∧ 0 &lt; y ∧ z &lt; x*y } -- Rudin's definition
-
-theorem pre_mul_ne {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) : ∃ q, q ∈ pre_mul a b := by
+  { z | ∃ x ∈ a.A, ∃ y ∈ b.A, 0 &lt; x ∧ 0 &lt; y ∧ z &lt; x*y }
+</code></pre>
+<p>To prove that this definition results in a cut, we need to prove as usual that it is non-empty, not equal to ℚ, downward closed, and open.</p>
+<pre><code class="language-lean">theorem pre_mul_ne {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) : ∃ q, q ∈ pre_mul a b := by
 
   have ⟨ x, ⟨ hx1, hx2 ⟩ ⟩ := a.op 0 (zero_in_pos ha)
   have ⟨ y, ⟨ hy1, hy2 ⟩ ⟩ := b.op 0 (zero_in_pos hb)
@@ -4220,7 +3991,7 @@ theorem pre_mul_op {a b : DCut} : ∀ x ∈ (pre_mul a b), ∃ y ∈ (pre_mul a 
 def mul_pos (a b : DCut) (ha : 0 &lt; a) (hb : 0 &lt; b) : DCut :=
   ⟨ pre_mul a b, pre_mul_ne ha hb, pre_mul_nf ha hb, pre_mul_dc, pre_mul_op ⟩
 </code></pre>
-<h2 id="properties"><a class="header" href="#properties">Properties</a></h2>
+<p>We will need the following property to extend multiplication from positive numbers to non-negative numbers. It states taht the product of two positive numbers is again positive. Thus, the definition <code>pre_mul</code> operates exclusively on the positive reals.</p>
 <pre><code class="language-lean">theorem mul_is_pos {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) : 0 &lt; mul_pos a b ha hb := by
   simp[lt_inst,mul_pos,DCut.ext_iff]
   have ⟨ x, ⟨ hx1, hx2 ⟩ ⟩ := non_neg_in_pos ha
@@ -4236,71 +4007,9 @@ def mul_pos (a b : DCut) (ha : 0 &lt; a) (hb : 0 &lt; b) : DCut :=
     intro q hq
     have : q &lt; x*y := gt_trans (Left.mul_pos hx2 hy2) hq
     exact ⟨ x, ⟨ hx1, ⟨ y, ⟨ hy1, ⟨ hx2, ⟨ hy2, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-
-theorem mul_pos_id_left {a : DCut} (ha: 0 &lt; a)
-  : mul_pos 1 a zero_lt_one ha = a := by
-  simp[DCut.ext_iff,mul_pos,pre_mul,one_rw,odown]
-  ext q
-  simp
-  constructor
-  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ hx0, ⟨ hy0, hqxy ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-    have hxy : x*y &lt; y := mul_lt_of_lt_one_left hy0 hx
-    have hxy' := a.dc (x*y) y ⟨ by linarith, hy ⟩
-    exact a.dc q (x*y) ⟨ by linarith, hxy' ⟩
-  . intro hq
-    by_cases h : 0 &lt; q
-    . have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
-      have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
-      use q/s
-      have hs3 : 0 &lt; s := by linarith
-      apply And.intro
-      . exact Bound.div_lt_one_of_pos_of_lt hs3 hs2
-      . use t
-        have hts : t/s &gt; 1 := (one_lt_div hs3).mpr ht2
-        have h1 : q*(t/s) &gt; q := (lt_mul_iff_one_lt_right h).mpr hts
-        have h2 : q*(t/s) = q / s * t := Eq.symm (mul_comm_div q s t)
-        exact ⟨ ht1, ⟨ div_pos h hs3, ⟨ by linarith, by linarith ⟩ ⟩ ⟩
-    . -- case q ≤ 0
-      have := zero_in_pos ha
-      have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op 0 this
-      use 1/2
-      apply And.intro
-      . linarith
-      . use s
-        exact ⟨ hs1, ⟨ by linarith, ⟨ hs2, by linarith ⟩ ⟩ ⟩
-
-theorem mul_pos_comm {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b)
-  : mul_pos a b ha hb = mul_pos b a hb ha  := by
-  ext q
-  constructor
-  repeat
-  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ h1, ⟨ h2, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-    exact ⟨ y, ⟨ hy, ⟨ x, ⟨ hx, ⟨ h2, ⟨ h1, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-
-theorem mul_pos_assoc {a b c : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) (hc : 0 &lt; c)
-  : mul_pos a (mul_pos b c hb hc) ha (mul_is_pos hb hc) =
-    mul_pos (mul_pos a b ha hb) c (mul_is_pos ha hb) hc  := by
-
-  simp[mul_pos,pre_mul]
-  ext q
-  simp
-  constructor
-
-  . intro ⟨ x, ⟨ hx, ⟨ yz, ⟨ ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, ⟨ hy0, ⟨ hz0, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hyz0, h2 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-    have hxyz' : x * yz &lt; x * (y*z) := by exact (mul_lt_mul_left hx0).mpr h3
-    have ⟨ x', ⟨ hx', hxx' ⟩  ⟩ := a.op x hx
-    have h : x * y &lt; x' * y := by exact (mul_lt_mul_iff_of_pos_right hy0).mpr hxx'
-    exact ⟨ x*y, ⟨ ⟨ x', ⟨ hx', ⟨ y, ⟨ hy, ⟨ by linarith, ⟨ hy0,h ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ z, ⟨ hz, ⟨ Left.mul_pos hx0 hy0, ⟨ hz0, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-
-  . rintro ⟨ xy, ⟨ x, hx, y, hy, hx0, hy0, hxy ⟩, z, hz, hxy', hz0, hxyz ⟩
-    have ⟨ z', ⟨ hz', hzz' ⟩ ⟩ := c.op z hz
-    have hxyz' : xy * z &lt; (x * y) * z := by exact (mul_lt_mul_iff_of_pos_right hz0).mpr hxy
-    have hxy0 : 0 &lt; y * z := by exact Left.mul_pos hy0 hz0
-    have hqxyz : q &lt; x * (y * z) := by linarith
-    have : y * z &lt; y * z' := by exact (mul_lt_mul_left hy0).mpr hzz'
-    exact ⟨ x, ⟨ hx, ⟨ y*z, ⟨ ⟨ y, ⟨ hy, ⟨ z', ⟨ hz', ⟨ hy0, ⟨ by linarith, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hxy0, hqxyz ⟩  ⟩ ⟩ ⟩ ⟩  ⟩
 </code></pre>
-<h2 id="mulitiplication-of-non-negative-reals"><a class="header" href="#mulitiplication-of-non-negative-reals">Mulitiplication of Non-negative Reals</a></h2>
+<h3 id="multiplication-of-non-negative-reals"><a class="header" href="#multiplication-of-non-negative-reals">Multiplication of Non-negative Reals</a></h3>
+<p>We now extend the definition to non-negative reals, essentially dealing with the cases in which either cut is zero, in which case the resulting product is zero. Indeed, if one of <code>a</code> and <code>b</code> is zero, then <code>pre_mul a b = ∅</code>.</p>
 <pre><code class="language-lean">theorem zero_mul_empty (a b : DCut) (h : 0 = a ∨ 0 = b) : pre_mul a b = ∅ := by
   apply Or.elim h
   repeat
@@ -4311,8 +4020,9 @@ theorem mul_pos_assoc {a b c : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) (hc : 0 &lt
     simp
     intro x hx y hy h1 h2
     linarith
-
-theorem mul_nneg_ne {a b : DCut}
+</code></pre>
+<p>Since <code>∅</code> is not a valid cut, we use <code>pre_mul a b ∪ odown 0</code> to represent the product of two non-negative cuts. The remaining theorems are required to show that the result is a cut simply, and laboriously, have to deal with the possible cases.</p>
+<pre><code class="language-lean">theorem mul_nneg_ne {a b : DCut}
   : ∃ q, q ∈ pre_mul a b ∪ odown 0 := by
   use -1
   apply Or.inr
@@ -4362,8 +4072,35 @@ def mul_nneg (a b : DCut) (ha : 0 ≤ a) (hb : 0 ≤ b) : DCut :=
     mul_nneg_nf ha hb,
     @mul_nneg_dc a b,
     @mul_nneg_op a b ⟩
+</code></pre>
+<h3 id="mulitiplication-of-arbitrary-reals"><a class="header" href="#mulitiplication-of-arbitrary-reals">Mulitiplication of Arbitrary Reals</a></h3>
+<p>Finally, we extend multiiplcation to arbitrary cuts. This step uses the fact that every cut <code>a</code> can be written as the difference <code>max 0 a - max 0 (-a)</code>. If <code>0 ≤ a</code> then</p>
+<pre><code class="language-hs">max 0 a - max 0 (-a) = a + 0
+</code></pre>
+<p>and if <code>a &lt; 0</code> then</p>
+<pre><code class="language-hs">max 0 a - max 0 (-a) = 0 + -a
+</code></pre>
+<p>both of which are non-negative, and we can therefore use the previous definition of multiplication on non-negative cuts.</p>
+<pre><code class="language-lean">def mul (a b : DCut) : DCut :=
+  let ap := maximum 0 a
+  let an := maximum 0 (-a)
+  let bp := maximum 0 b
+  let bn := maximum 0 (-b)
+  (mul_nneg ap bp (max_gz _) (max_gz _)) +
+  (mul_nneg an bn (max_gz _) (max_gz _)) -
+  (mul_nneg ap bn (max_gz _) (max_gz _)) -
+  (mul_nneg an bp (max_gz _) (max_gz _))
+</code></pre>
+<p>We may now instantiate the notation classes for multiplcation.</p>
+<pre><code class="language-lean">instance hmul_inst : HMul DCut DCut DCut := ⟨ mul ⟩
+instance mul_inst : Mul DCut := ⟨ mul ⟩
 
-theorem mul_nneg_zero_left {a : DCut} (ha: 0 ≤ a)
+example : (1:DCut) * 0 = 0 := by
+  simp[hmul_inst,mul]
+</code></pre>
+<h2 id="multiplication-by-0"><a class="header" href="#multiplication-by-0">Multiplication by 0</a></h2>
+<p>For non-negative cuts, it will be useful to know that 0<em>a = 0 and a</em>0 = 0, as these properties allow us to reason about the zero cases in the non-negative commutativity proof. These properties also show that 0 is the multiplicative identity, which is needed for proving cuts with multiplication form a group.</p>
+<pre><code class="language-lean">theorem mul_nneg_zero_left {a : DCut} (ha: 0 ≤ a)
   : mul_nneg 0 a (λ _ a =&gt; a) ha = 0 := by
   simp[mul_nneg,DCut.ext_iff,pre_mul,zero_rw]
   intro q hq
@@ -4378,20 +4115,9 @@ theorem mul_nneg_zero_right {a : DCut} (ha: 0 ≤ a)
   simp_all[odown]
   obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩ := hq
   linarith
-
-theorem mul_nneg_comm {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
-  : mul_nneg a b ha hb = mul_nneg b a hb ha := by
-  by_cases h : 0 &lt; a ∧ 0 &lt; b
-  . simp[mul_nneg]
-    have := mul_pos_comm h.left h.right
-    simp_all[mul_pos]
-  . simp[lt_of_le] at h
-    by_cases hb0 : 0 = b
-    . simp[←hb0,mul_nneg_zero_right,mul_nneg_zero_left]
-    . simp_all
-      simp[←h,mul_nneg_zero_right,mul_nneg_zero_left]
-
-theorem mul_is_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
+</code></pre>
+<p>These two also allow us to prove that the multiple of two non-negative cuts is again non-negative.</p>
+<pre><code class="language-lean">theorem mul_is_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
   : 0 ≤ mul_nneg a b ha hb := by
   by_cases h : 0 &lt; a ∧ 0 &lt; b
   . have := mul_is_pos h.left h.right
@@ -4403,6 +4129,47 @@ theorem mul_is_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
     . simp[←hb0,mul_nneg_zero_right,mul_nneg_zero_left]
     . simp_all[lt_of_le]
       simp[←h,mul_nneg_zero_right,mul_nneg_zero_left]
+</code></pre>
+<p>We can extend these properties to arbitrary reals.</p>
+<pre><code class="language-lean">theorem mul_zero_left {a : DCut} : 0 * a = 0 := by
+  simp[hmul_inst,mul]
+
+theorem mul_zero_right {a : DCut} : a * 0 = 0 := by
+  simp[hmul_inst,mul]
+</code></pre>
+<h2 id="multiplication-by-1"><a class="header" href="#multiplication-by-1">Multiplication by 1</a></h2>
+<pre><code class="language-lean">theorem mul_pos_id_left {a : DCut} (ha: 0 &lt; a)
+  : mul_pos 1 a zero_lt_one ha = a := by
+  simp[DCut.ext_iff,mul_pos,pre_mul,one_rw,odown]
+  ext q
+  simp
+  constructor
+  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ hx0, ⟨ hy0, hqxy ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+    have hxy : x*y &lt; y := mul_lt_of_lt_one_left hy0 hx
+    have hxy' := a.dc (x*y) y ⟨ by linarith, hy ⟩
+    exact a.dc q (x*y) ⟨ by linarith, hxy' ⟩
+  . intro hq
+    by_cases h : 0 &lt; q
+    . have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
+      have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
+      use q/s
+      have hs3 : 0 &lt; s := by linarith
+      apply And.intro
+      . exact Bound.div_lt_one_of_pos_of_lt hs3 hs2
+      . use t
+        have hts : t/s &gt; 1 := (one_lt_div hs3).mpr ht2
+        have h1 : q*(t/s) &gt; q := (lt_mul_iff_one_lt_right h).mpr hts
+        have h2 : q*(t/s) = q / s * t := Eq.symm (mul_comm_div q s t)
+        exact ⟨ ht1, ⟨ div_pos h hs3, ⟨ by linarith, by linarith ⟩ ⟩ ⟩
+    . -- case q ≤ 0
+      have := zero_in_pos ha
+      have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op 0 this
+      use 1/2
+      apply And.intro
+      . linarith
+      . use s
+        exact ⟨ hs1, ⟨ by linarith, ⟨ hs2, by linarith ⟩ ⟩ ⟩
+
 
 theorem mul_nneg_id_left {a : DCut} (ha: 0 ≤ a)
   : mul_nneg 1 a zero_le_one ha = a := by
@@ -4414,10 +4181,65 @@ theorem mul_nneg_id_left {a : DCut} (ha: 0 ≤ a)
       have := mul_pos_id_left ha'
       simp_all[mul_pos,DCut.ext_iff,mul_nneg,DCut.ext_iff]
       exact ha
-
-theorem mul_nneg_id_right {a : DCut} (ha: 0 ≤ a)
+</code></pre>
+<h2 id="commutativity"><a class="header" href="#commutativity">Commutativity</a></h2>
+<p>For positive cuts, commutativity is straightfoward, as it simply amounts to reordering x and y in the definition of <code>pre_mul</code>.</p>
+<pre><code class="language-lean">theorem mul_pos_comm {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b)
+  : mul_pos a b ha hb = mul_pos b a hb ha  := by
+  ext q
+  constructor
+  repeat
+  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ h1, ⟨ h2, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+    exact ⟨ y, ⟨ hy, ⟨ x, ⟨ hx, ⟨ h2, ⟨ h1, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+</code></pre>
+<p>Proving commutativity for non-negative cuts amounts to three cases, where <code>a</code> and <code>b</code> are both positive and where one or the other is negative.</p>
+<pre><code class="language-lean">theorem mul_nneg_comm {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
+  : mul_nneg a b ha hb = mul_nneg b a hb ha := by
+  by_cases h : 0 &lt; a ∧ 0 &lt; b
+  . simp[mul_nneg]
+    have := mul_pos_comm h.left h.right
+    simp_all[mul_pos]
+  . simp[lt_of_le] at h
+    by_cases hb0 : 0 = b
+    . simp[←hb0,mul_nneg_zero_right,mul_nneg_zero_left]
+    . simp_all
+      simp[←h,mul_nneg_zero_right,mul_nneg_zero_left]
+</code></pre>
+<p>The proof of commutativity for arbitrary cuts requires us to reason about every possible combination of non-negative and negative cuts. We do this with the theorem <code>two_ineqs_true</code> which enuerates all four cases. For each case, the same (somewhat massive) simplificiation works.</p>
+<pre><code class="language-lean">theorem mul_comm {a b : DCut}: a*b = b*a := by
+  rcases @two_ineqs_true a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
+  repeat
+  simp[ha,hb,hmul_inst,mul,max_pos_lt,max_neg_lt,mul_nneg_zero_left,mul_nneg_zero_right,
+       mul_nneg_comm,neg_le.mp,neg_le.mp,max_pos.mp,max_neg.mp]
+</code></pre>
+<p>Commutativity makes it easy to prove the right versions of theorems for which the left version has already been established.</p>
+<pre><code class="language-lean">theorem mul_nneg_id_right {a : DCut} (ha: 0 ≤ a)
   : mul_nneg a 1 ha zero_le_one = a := by
   rw[mul_nneg_comm,mul_nneg_id_left]
+</code></pre>
+<h2 id="associativity"><a class="header" href="#associativity">Associativity</a></h2>
+<pre><code class="language-lean">theorem mul_pos_assoc {a b c : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) (hc : 0 &lt; c)
+  : mul_pos a (mul_pos b c hb hc) ha (mul_is_pos hb hc) =
+    mul_pos (mul_pos a b ha hb) c (mul_is_pos ha hb) hc  := by
+
+  simp[mul_pos,pre_mul]
+  ext q
+  simp
+  constructor
+
+  . intro ⟨ x, ⟨ hx, ⟨ yz, ⟨ ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, ⟨ hy0, ⟨ hz0, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hyz0, h2 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+    have hxyz' : x * yz &lt; x * (y*z) := by exact (mul_lt_mul_left hx0).mpr h3
+    have ⟨ x', ⟨ hx', hxx' ⟩  ⟩ := a.op x hx
+    have h : x * y &lt; x' * y := by exact (mul_lt_mul_iff_of_pos_right hy0).mpr hxx'
+    exact ⟨ x*y, ⟨ ⟨ x', ⟨ hx', ⟨ y, ⟨ hy, ⟨ by linarith, ⟨ hy0,h ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ z, ⟨ hz, ⟨ Left.mul_pos hx0 hy0, ⟨ hz0, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+
+  . rintro ⟨ xy, ⟨ x, hx, y, hy, hx0, hy0, hxy ⟩, z, hz, hxy', hz0, hxyz ⟩
+    have ⟨ z', ⟨ hz', hzz' ⟩ ⟩ := c.op z hz
+    have hxyz' : xy * z &lt; (x * y) * z := by exact (mul_lt_mul_iff_of_pos_right hz0).mpr hxy
+    have hxy0 : 0 &lt; y * z := by exact Left.mul_pos hy0 hz0
+    have hqxyz : q &lt; x * (y * z) := by linarith
+    have : y * z &lt; y * z' := by exact (mul_lt_mul_left hy0).mpr hzz'
+    exact ⟨ x, ⟨ hx, ⟨ y*z, ⟨ ⟨ y, ⟨ hy, ⟨ z', ⟨ hz', ⟨ hy0, ⟨ by linarith, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hxy0, hqxyz ⟩  ⟩ ⟩ ⟩ ⟩  ⟩
 
 theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
   : mul_nneg a (mul_nneg b c hb hc) ha (mul_is_nneg hb hc) =
@@ -4442,21 +4264,6 @@ theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ 
   by_cases h3 : 0 = c
   . simp[←h3,mul_nneg_zero_right,mul_nneg_zero_left]
   . simp_all[lt_of_le]
-</code></pre>
-<h2 id="mulitiplication-of-arbitrary-reals"><a class="header" href="#mulitiplication-of-arbitrary-reals">Mulitiplication of Arbitrary Reals</a></h2>
-<pre><code class="language-lean">def mul (a b : DCut) : DCut :=
-  let ap := maximum 0 a
-  let an := maximum 0 (-a)
-  let bp := maximum 0 b
-  let bn := maximum 0 (-b)
-  (mul_nneg ap bp (max_gz _) (max_gz _)) +
-  (mul_nneg an bn (max_gz _) (max_gz _)) -
-  (mul_nneg ap bn (max_gz _) (max_gz _)) -
-  (mul_nneg an bp (max_gz _) (max_gz _))
-
-instance hmul_inst : HMul DCut DCut DCut := ⟨ mul ⟩
-
-instance mul_inst : Mul DCut := ⟨ mul ⟩
 
 theorem mul_id_right {a : DCut} : a * 1 = a := by
   simp[hmul_inst,mul]
@@ -4469,66 +4276,6 @@ theorem mul_id_right {a : DCut} : a * 1 = a := by
     simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
     rw[not_gt_to_le] at ha
     simp[max_neg.mp,neg_max_zero_neg,ha]
-
-theorem mul_zero_left {a : DCut} : 0 * a = 0 := by
-  simp[hmul_inst,mul]
-
-theorem mul_zero_right {a : DCut} : a * 0 = 0 := by
-  simp[hmul_inst,mul]
-
-
-theorem mul_comm_pp {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) : a*b = b*a := by
-  have ha' : -a ≤ 0 := by exact neg_le.mp ha
-  have hb' : -b ≤ 0 := by exact neg_le.mp hb
-  simp[hmul_inst,mul]
-  simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb']
-  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  simp[mul_nneg_comm]
-
-theorem mul_comm_pn {a b : DCut} (ha : 0 ≤ a) (hb : b ≤ 0) : a*b = b*a := by
-  have ha' : -a ≤ 0 := by exact neg_le.mp ha
-  have hb' : 0 ≤ -b := by exact neg_le'.mp hb
-  simp[hmul_inst,mul]
-  simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb']
-  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  simp[mul_nneg_comm]
-
-theorem mul_comm_np {a b : DCut} (ha : a ≤ 0) (hb : 0 ≤ b) : a*b = b*a := by
-  have ha' : 0 ≤ -a := by exact neg_le'.mp ha
-  have hb' : -b ≤ 0 := by exact neg_le.mp hb
-  simp[hmul_inst,mul]
-  simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb']
-  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  simp[mul_nneg_comm]
-
-theorem mul_comm_nn {a b : DCut} (ha : a ≤ 0) (hb : b ≤ 0) : a*b = b*a := by
-  have ha' : 0 ≤ -a := by exact neg_le'.mp ha
-  have hb' : 0 ≤ -b := by exact neg_le'.mp hb
-  simp[hmul_inst,mul]
-  simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb']
-  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  simp[mul_nneg_comm]
-
-theorem mul_comm {a b : DCut}: a*b = b*a := by
-  by_cases h1 : 0 ≤ a ∧ 0 ≤ b
-  . exact mul_comm_pp h1.left h1.right
-  by_cases h2 : 0 ≤ a ∧ b ≤ 0
-  . exact mul_comm_pn h2.left h2.right
-  by_cases h3 : a ≤ 0 ∧ 0 ≤ b
-  . exact mul_comm_np h3.left h3.right
-  by_cases h4 : a ≤ 0 ∧ b ≤ 0
-  . exact mul_comm_nn h4.left h4.right
-  . have hat := trichotomy a 0
-    have hbt := trichotomy b 0
-    apply Or.elim (trichotomy a 0)
-    . intro h
-      simp_all[mul_zero_left,mul_zero_right]
-    . intro h
-      apply Or.elim h
-      . intro h
-        simp_all[mul_zero_left,mul_zero_right]
-      . intro h
-        simp_all[mul_zero_left,mul_zero_right]
 
 theorem mul_id_left {a : DCut} : 1 * a = a := by
   rw[mul_comm,mul_id_right]
@@ -4649,13 +4396,28 @@ theorem mul_assoc {a b c : DCut} : a * (b * c) = (a * b) * c := by
   . exact tabc (lt_imp_le ha) (lt_imp_le hb) (lt_imp_le hc)
 </code></pre>
 <h2 id="instantiating-multiplication-classes"><a class="header" href="#instantiating-multiplication-classes">Instantiating Multiplication Classes</a></h2>
-<pre><code class="language-lean">instance mul_one_inst : MulOneClass DCut := ⟨
+<pre><code class="language-lean">instance mul_zero_inst : MulZeroClass DCut := ⟨
+    @mul_zero_left,
+    @mul_zero_right
+  ⟩
+
+instance mul_one_inst : MulOneClass DCut := ⟨
   @mul_id_left,
   @mul_id_right
 ⟩
 
 instance semigroup_inst : Semigroup DCut := ⟨
   λ x y z =&gt; Eq.symm (@mul_assoc x y z)
+⟩
+
+instance semigroup_w_zero_inst : SemigroupWithZero DCut := ⟨ -- is this auotgenerated?
+  @mul_zero_left,
+  @mul_zero_right
+⟩
+
+instance mul_zo_inst : MulZeroOneClass DCut := ⟨  -- is this auotgenerated?
+  @mul_zero_left,
+  @mul_zero_right
 ⟩
 
 instance comm_magma_inst : CommMagma DCut := ⟨ @mul_comm ⟩
@@ -4685,16 +4447,25 @@ instance monoid_inst : Monoid DCut := ⟨
   @npow_succ
 ⟩
 
+instance com_monoid_inst : CommMonoid DCut := ⟨
+  @mul_comm
+⟩
+
+instance monoid_wz_inst : MonoidWithZero DCut := ⟨
+  @mul_zero_left,
+  @mul_zero_right
+⟩
+
+instance comm_monoid_wz_inst : CommMonoidWithZero DCut := ⟨
+  @mul_zero_left,
+  @mul_zero_right
+⟩
+
+
 example (x : DCut) : x^2 = x*x := by
   exact pow_two x --&gt; pow_two is a theorem about monoids from Mathlib
 
-set_option trace.Meta.synthInstance true
-set_option synthInstance.maxHeartbeats 400
-set_option trace.Meta.synthInstance.answer true
-
-#synth Field ℝ
-
-#print Field
+#synth CommMonoidWithZero DCut
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

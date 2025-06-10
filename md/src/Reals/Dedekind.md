@@ -12,8 +12,6 @@
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Dedekind.lean'>Code</a> for this chapter</span>
  # The Dedekind Reals
 
-We have seen that te natural numbers may be defined inductively, that the integers can be constructed from the natural numbers, and that rational numbers can be constructed from the natural numbers and the real numbers. Here, we construct the real numbers from the rational numbers. There are several methods of doing this. For example, Mathlib defines the real numbers as a quotient space of Cauchy Sequences. Here we provde an alternative definition using Dedekind cuts, mainly as an exercise in how to construct a complex mathematical object.
-
 Dedekind's representation of a real number `r` is as a pair `(A,B)` where `A ⊆ ℚ` is the set of all rational numbers less than `r` and `B = ℚ \ A`. The idea is that `A` approximates `r` from below and `B` approximates `r` from above. In the case that `r ∈ ℚ`, then `A = (∞,r)` and `B = [r,∞)`. Since `A` completely determines the cut, we work mainly with it, only occasionally referring to `B`.
 
 That this definition satisfies the properties of the real numbers needs to be proved, which is what this chapter is about. Specifically, we will prove that
@@ -80,14 +78,33 @@ theorem odown_op {q : ℚ} : ∀ x ∈ odown q, ∃ y ∈ odown q, x < y:= by
 ```lean
 def ofRat (q : ℚ) : DCut :=
   ⟨ odown q, odown_ne, odown_nf, odown_dc, odown_op ⟩
+
+instance rat_cast_inst : RatCast DCut := ⟨ λ x => ofRat x ⟩
+
+instance nat_cast_inst : NatCast DCut := ⟨ λ x => ofRat x ⟩
+
+instance int_cast_inst : IntCast DCut := ⟨ λ x => ofRat x ⟩
 ```
  With this map we can define 0 and 1, as well as a couple of helper theorems we will later. 
 ```lean
 instance zero_inst : Zero DCut := ⟨ ofRat 0 ⟩
 instance one_inst : One DCut := ⟨ ofRat 1 ⟩
+instance inhabited_inst : Inhabited DCut := ⟨ 0 ⟩
+
+
 
 theorem zero_rw : A 0 = odown 0 := by rfl
 theorem one_rw : A 1 = odown 1 := by rfl
+
+theorem zero_ne_one : (0:DCut) ≠ 1 := by
+  intro h
+  simp[DCut.ext_iff,zero_rw,one_rw,odown,Set.ext_iff] at h
+  have h0 := h (1/2)
+  have h1 : (1:ℚ)/2 < 1 := by linarith
+  have h2 : ¬(1:ℚ)/2 < 0 := by linarith
+  exact h2 (h0.mpr h1)
+
+instance non_triv_inst : Nontrivial DCut := ⟨ ⟨ 0, 1, zero_ne_one ⟩ ⟩
 ```
  ## Simple Properties of Cuts
 

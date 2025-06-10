@@ -65,6 +65,22 @@ instance hadd_inst : HAdd DCut DCut DCut:= ⟨ sum ⟩
 
 instance add_inst : Add DCut := ⟨ sum ⟩
 
+theorem add_rats {x y: ℚ} : ofRat (x+y) = ofRat x + ofRat y := by
+
+  simp[ofRat,hadd_inst,sum,presum,odown]
+  ext q
+  constructor
+
+  . intro hq
+    let ε := x+y - q
+    have hε : q = x+y-ε := by
+      simp[ε]
+    simp_all
+    exact ⟨ x-ε/2, ⟨ by linarith, ⟨ y-ε/2, ⟨ by linarith, by linarith ⟩ ⟩ ⟩ ⟩
+
+  . intro ⟨ a, ⟨ ha, ⟨ b, ⟨ hb1, hb2 ⟩ ⟩ ⟩ ⟩
+    simp_all
+    linarith
 
 /- ### The Associative Property Of Addition -/
 

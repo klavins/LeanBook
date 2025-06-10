@@ -76,6 +76,8 @@ theorem maximum_op {a b : DCut} : ∀ x ∈ a.A ∪ b.A, ∃ y ∈ a.A ∪ b.A, 
 def maximum (a b : DCut) : DCut :=
  ⟨ a.A ∪ b.A, maximum_ne, maximum_nf, maximum_dc, maximum_op ⟩
 
+instance max_inst : Max DCut := ⟨ maximum ⟩
+
 theorem max_gz (a: DCut) : 0 ≤ maximum 0 a := by
   simp_all[le_inst,zero_rw,odown,maximum]
 

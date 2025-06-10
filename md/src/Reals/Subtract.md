@@ -242,6 +242,20 @@ instance add_group_inst : AddGroup DCut
 instance add_comm_group_inst : AddCommGroup DCut := ⟨ @sum_comm ⟩
 
 example (x y z : DCut) : x - y + z = z + x - y := by abel
+
+instance add_monoid_wo_inst : AddMonoidWithOne DCut := ⟨
+    by
+      ext q
+      exact ⟨ id, id ⟩,
+    by
+      intro n
+      ext q
+      constructor
+      repeat
+      . intro hq
+        simp_all[add_rats,nat_cast_inst]
+        exact hq
+  ⟩
 ```
 
 <div style='height=50px'>&nbsp;</div><hr>

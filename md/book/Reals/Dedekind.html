@@ -172,7 +172,6 @@
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Dedekind.lean'>Code</a> for this chapter</span></p>
 <h1 id="the-dedekind-reals"><a class="header" href="#the-dedekind-reals">The Dedekind Reals</a></h1>
-<p>We have seen that te natural numbers may be defined inductively, that the integers can be constructed from the natural numbers, and that rational numbers can be constructed from the natural numbers and the real numbers. Here, we construct the real numbers from the rational numbers. There are several methods of doing this. For example, Mathlib defines the real numbers as a quotient space of Cauchy Sequences. Here we provde an alternative definition using Dedekind cuts, mainly as an exercise in how to construct a complex mathematical object.</p>
 <p>Dedekind's representation of a real number <code>r</code> is as a pair <code>(A,B)</code> where <code>A ⊆ ℚ</code> is the set of all rational numbers less than <code>r</code> and <code>B = ℚ \ A</code>. The idea is that <code>A</code> approximates <code>r</code> from below and <code>B</code> approximates <code>r</code> from above. In the case that <code>r ∈ ℚ</code>, then <code>A = (∞,r)</code> and <code>B = [r,∞)</code>. Since <code>A</code> completely determines the cut, we work mainly with it, only occasionally referring to <code>B</code>.</p>
 <p>That this definition satisfies the properties of the real numbers needs to be proved, which is what this chapter is about. Specifically, we will prove that</p>
 <ul>
@@ -228,13 +227,32 @@ theorem odown_nf {q : ℚ} : ∃ x, x ∉ odown q := by
 <p>With these theorems we define the map <code>ofRat : ℚ → DCut</code> that embeds the rationals into the Dedekind cuts.</p>
 <pre><code class="language-lean">def ofRat (q : ℚ) : DCut :=
   ⟨ odown q, odown_ne, odown_nf, odown_dc, odown_op ⟩
+
+instance rat_cast_inst : RatCast DCut := ⟨ λ x =&gt; ofRat x ⟩
+
+instance nat_cast_inst : NatCast DCut := ⟨ λ x =&gt; ofRat x ⟩
+
+instance int_cast_inst : IntCast DCut := ⟨ λ x =&gt; ofRat x ⟩
 </code></pre>
 <p>With this map we can define 0 and 1, as well as a couple of helper theorems we will later.</p>
 <pre><code class="language-lean">instance zero_inst : Zero DCut := ⟨ ofRat 0 ⟩
 instance one_inst : One DCut := ⟨ ofRat 1 ⟩
+instance inhabited_inst : Inhabited DCut := ⟨ 0 ⟩
+
+
 
 theorem zero_rw : A 0 = odown 0 := by rfl
 theorem one_rw : A 1 = odown 1 := by rfl
+
+theorem zero_ne_one : (0:DCut) ≠ 1 := by
+  intro h
+  simp[DCut.ext_iff,zero_rw,one_rw,odown,Set.ext_iff] at h
+  have h0 := h (1/2)
+  have h1 : (1:ℚ)/2 &lt; 1 := by linarith
+  have h2 : ¬(1:ℚ)/2 &lt; 0 := by linarith
+  exact h2 (h0.mpr h1)
+
+instance non_triv_inst : Nontrivial DCut := ⟨ ⟨ 0, 1, zero_ne_one ⟩ ⟩
 </code></pre>
 <h2 id="simple-properties-of-cuts"><a class="header" href="#simple-properties-of-cuts">Simple Properties of Cuts</a></h2>
 <p>Here we define some simple properties that wil make subsequent proofs less cumbersome. The first says for <code>x in A</code> and <code>y in B</code>, that <code>x &lt; y</code>.</p>
