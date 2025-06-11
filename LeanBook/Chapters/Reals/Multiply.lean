@@ -17,21 +17,21 @@ open DCut
 
 Multiplication of Dedekind cuts is straightfoward, but also fairly involved, or as Rudin says: "bothersome". The issue is dealing with both positive and negative cuts. Following Rudin, the development of the definitions proceeds as follows:
 
-- Define multiplication on two positive cuts.
+- Define multiplication on positive cuts.
 - Extend multiplciation on positive cuts to non-negative cuts, building on the previous step by handling the cases in which either or both of the cuts is zero.
 - Extend multiplication on non-negative cuts to all cuts.
 
 For each of the above definitions of multiplication, we also prove the properties required to show that multiplication forms a commutiative group on cuts:
-- 0 is an identity: 0x = 0.
-- Multiplication is commutative: xy = yx.
-- Associativity: x(yz) = (xy)z
+- 0 is an identity: `0*x = 0`
+- Multiplication is commutative: `x*y = y*x`
+- Associativity: `x*(y*z) = (x*y)*z`
 The last property is particularly challenging, because to relate arbitary reals with positive reals, one has to deal with an abundance of cases, preferably gracefully. Thus, along the way we will prove several intermediate results which allow us to make the proof more concise.
 
 -/
 
 /- ## Definitions
 
-### Multiplication of Positive Reals
+### Multiplication of Positive Cuts
 
 Given two positive cuts `0 < a` and `0 < b`, their product is the set of points `z` such that for some `x ∈ a` and `y ∈ b`, `z < x*y`. This basic definition underlies the entire framework for multiplication, after which we simply have to deal with various combinations of non-negative and negative numbers. -/
 
@@ -45,8 +45,8 @@ theorem pre_mul_ne {a b : DCut} (ha : 0 < a) (hb : 0 < b) : ∃ q, q ∈ pre_mul
   have ⟨ x, ⟨ hx1, hx2 ⟩ ⟩ := a.op 0 (zero_in_pos ha)
   have ⟨ y, ⟨ hy1, hy2 ⟩ ⟩ := b.op 0 (zero_in_pos hb)
   have hxy : 0 < x * y := Left.mul_pos hx2 hy2
-  use -1
-  exact ⟨ x, ⟨ hx1, ⟨ y, ⟨ hy1, ⟨ hx2, ⟨ hy2, gt_of_gt_of_ge hxy rfl ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  use -1, x, hx1, y, hy1, hx2, hy2
+  exact gt_of_gt_of_ge hxy rfl
 
 theorem pre_mul_nf {a b : DCut} (ha : 0 < a) (_ : 0 < b)
   : ∃ q, q ∉ pre_mul a b := by
@@ -56,7 +56,6 @@ theorem pre_mul_nf {a b : DCut} (ha : 0 < a) (_ : 0 < b)
   use x*y
 
   have hxpos : 0 < x := a_lt_b (zero_in_pos ha) hx
-
   have hx' : ∀ q ∈ a.A, q < x := by intro q hq; exact a_lt_b hq hx
   have hy' : ∀ q ∈ b.A, q < y := by intro q hq; exact a_lt_b hq hy
 
@@ -71,8 +70,7 @@ theorem pre_mul_dc {a b : DCut} : ∀ x y, x ≤ y ∧ y ∈ (pre_mul a b) → x
   exact ⟨ s, ⟨ hs, ⟨ t, ⟨ ht, ⟨ hsp, ⟨ htp, lt_of_le_of_lt hxy hyst ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
 
 theorem pre_mul_op {a b : DCut} : ∀ x ∈ (pre_mul a b), ∃ y ∈ (pre_mul a b), x < y := by
-  intro x hx
-  obtain ⟨ s, ⟨ hs, ⟨ t, ⟨ ht, ⟨ hsp, ⟨ htp, hyst ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ := hx
+  intro x ⟨ s, ⟨ hs, ⟨ t, ⟨ ht, ⟨ hsp, ⟨ htp, hyst ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
   have ⟨ s', ⟨ hs', hss' ⟩ ⟩ := a.op s hs
   have ⟨ t', ⟨ ht', htt' ⟩ ⟩ := b.op t ht
   have h: s*t < s'*t' := mul_lt_mul_of_pos' hss' htt' htp (by linarith)
@@ -81,10 +79,12 @@ theorem pre_mul_op {a b : DCut} : ∀ x ∈ (pre_mul a b), ∃ y ∈ (pre_mul a 
   . exact ⟨ s', ⟨ hs', ⟨ t', ⟨ ht', ⟨ by linarith, ⟨ by linarith, h ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
   . linarith
 
+/- Grouping these properties together we get: -/
+
 def mul_pos (a b : DCut) (ha : 0 < a) (hb : 0 < b) : DCut :=
   ⟨ pre_mul a b, pre_mul_ne ha hb, pre_mul_nf ha hb, pre_mul_dc, pre_mul_op ⟩
 
-/- We will need the following property to extend multiplication from positive numbers to non-negative numbers. It states taht the product of two positive numbers is again positive. Thus, the definition `pre_mul` operates exclusively on the positive reals. -/
+/- We will need the following property to extend multiplication from positive numbers to non-negative numbers stating that the product of two positive numbers is again positive. Thus, the definition `pre_mul` operates exclusively on the positive reals. -/
 
 theorem mul_is_pos {a b : DCut} (ha : 0 < a) (hb : 0 < b) : 0 < mul_pos a b ha hb := by
   simp[lt_inst,mul_pos,DCut.ext_iff]
@@ -103,11 +103,12 @@ theorem mul_is_pos {a b : DCut} (ha : 0 < a) (hb : 0 < b) : 0 < mul_pos a b ha h
     exact ⟨ x, ⟨ hx1, ⟨ y, ⟨ hy1, ⟨ hx2, ⟨ hy2, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
 
 
-/- ### Multiplication of Non-negative Reals
+/- ### Multiplication on Non-negative Cuts
 
 We now extend the definition to non-negative reals, essentially dealing with the cases in which either cut is zero, in which case the resulting product is zero. Indeed, if one of `a` and `b` is zero, then `pre_mul a b = ∅`. -/
 
-theorem zero_mul_empty (a b : DCut) (h : 0 = a ∨ 0 = b) : pre_mul a b = ∅ := by
+@[simp]
+theorem zero_mul_empty {a b : DCut} (h : 0 = a ∨ 0 = b) : pre_mul a b = ∅ := by
   apply Or.elim h
   repeat
   . intro h'
@@ -118,7 +119,7 @@ theorem zero_mul_empty (a b : DCut) (h : 0 = a ∨ 0 = b) : pre_mul a b = ∅ :=
     intro x hx y hy h1 h2
     linarith
 
-/- Since `∅` is not a valid cut, we use `pre_mul a b ∪ odown 0` to represent the product of two non-negative cuts. The remaining theorems are required to show that the result is a cut simply, and laboriously, have to deal with the possible cases. -/
+/- Since `∅` is not a valid cut, we use `pre_mul a b ∪ odown 0` to represent the product of two non-negative cuts. The remaining theorems are required to show that the result is a cut. We simply, and laboriously, have to deal with the possible cases. -/
 
 theorem mul_nneg_ne {a b : DCut}
   : ∃ q, q ∈ pre_mul a b ∪ odown 0 := by
@@ -137,10 +138,8 @@ theorem mul_nneg_nf {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
   . have hab : 0 = a ∨ 0 = b := by
       simp_all[lt_of_le]
       exact Or.symm (or_iff_not_imp_right.mpr h0)
-    have := zero_mul_empty a b hab
-    simp[this,odown]
-    use 1
-    exact rfl
+    simp[hab,odown]
+    exact ⟨ 1, rfl ⟩
 
 theorem mul_nneg_dc {a b : DCut} {x y : ℚ}
   : x ≤ y ∧ y ∈ pre_mul a b ∪ odown 0 → x ∈ pre_mul a b ∪ odown 0 := by
@@ -171,9 +170,7 @@ def mul_nneg (a b : DCut) (ha : 0 ≤ a) (hb : 0 ≤ b) : DCut :=
     @mul_nneg_dc a b,
     @mul_nneg_op a b ⟩
 
-
-
-/- ### Mulitiplication of Arbitrary Reals
+/- ### Mulitiplication on Arbitrary Cuts
 
 Finally, we extend multiiplcation to arbitrary cuts. This step uses the fact that every cut `a` can be written as the difference `max 0 a - max 0 (-a)`. If `0 ≤ a` then
 ```hs
@@ -206,10 +203,12 @@ example : (1:DCut) * 0 = 0 := by
   simp[hmul_inst,mul]
 
 
+
 /- ## Multiplication by 0
 
-For non-negative cuts, it will be useful to know that 0*a = 0 and a*0 = 0, as these properties allow us to reason about the zero cases in the non-negative commutativity proof. These properties also show that 0 is the multiplicative identity, which is needed for proving cuts with multiplication form a group. -/
+For non-negative cuts, it is useful to know that `0*a = 0` and `a*0 = 0`, as these properties allow us to reason about the zero cases in the non-negative commutativity proof. These properties also allow us to show that `0` is the multiplicative identity, which is needed for proving cuts with multiplication form a group. -/
 
+@[simp]
 theorem mul_nneg_zero_left {a : DCut} (ha: 0 ≤ a)
   : mul_nneg 0 a (λ _ a => a) ha = 0 := by
   simp[mul_nneg,DCut.ext_iff,pre_mul,zero_rw]
@@ -218,6 +217,7 @@ theorem mul_nneg_zero_left {a : DCut} (ha: 0 ≤ a)
   obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩ := hq
   linarith
 
+@[simp]
 theorem mul_nneg_zero_right {a : DCut} (ha: 0 ≤ a)
   : mul_nneg a 0 ha (λ _ a => a) = 0 := by
   simp[mul_nneg,DCut.ext_iff,pre_mul,zero_rw]
@@ -226,8 +226,9 @@ theorem mul_nneg_zero_right {a : DCut} (ha: 0 ≤ a)
   obtain ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩ := hq
   linarith
 
-/- These two also allow us to prove that the multiple of two non-negative cuts is again non-negative. -/
+/- These two theorems allow us to prove that the multiple of two non-negative cuts is again non-negative. -/
 
+@[simp]
 theorem mul_is_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
   : 0 ≤ mul_nneg a b ha hb := by
   by_cases h : 0 < a ∧ 0 < b
@@ -237,26 +238,27 @@ theorem mul_is_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
     simp[le_inst,mul_nneg]
     exact Set.subset_union_right
   . by_cases hb0 : 0 = a
-    . simp[←hb0,mul_nneg_zero_right,mul_nneg_zero_left]
+    . simp[←hb0]
     . simp_all[lt_of_le]
-      simp[←h,mul_nneg_zero_right,mul_nneg_zero_left]
+      simp[←h]
 
 /- We can extend these properties to arbitrary reals. -/
 
+@[simp]
 theorem mul_zero_left {a : DCut} : 0 * a = 0 := by
   simp[hmul_inst,mul]
 
+@[simp]
 theorem mul_zero_right {a : DCut} : a * 0 = 0 := by
   simp[hmul_inst,mul]
 
-
 /- ## Multiplication by 1 -/
 
+@[simp]
 theorem mul_pos_id_left {a : DCut} (ha: 0 < a)
   : mul_pos 1 a zero_lt_one ha = a := by
   simp[DCut.ext_iff,mul_pos,pre_mul,one_rw,odown]
   ext q
-  simp
   constructor
   . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ hx0, ⟨ hy0, hqxy ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
     have hxy : x*y < y := mul_lt_of_lt_one_left hy0 hx
@@ -275,27 +277,23 @@ theorem mul_pos_id_left {a : DCut} (ha: 0 < a)
         have h1 : q*(t/s) > q := (lt_mul_iff_one_lt_right h).mpr hts
         have h2 : q*(t/s) = q / s * t := Eq.symm (mul_comm_div q s t)
         exact ⟨ ht1, ⟨ div_pos h hs3, ⟨ by linarith, by linarith ⟩ ⟩ ⟩
-    . -- case q ≤ 0
-      have := zero_in_pos ha
-      have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op 0 this
+    . have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op 0 (zero_in_pos ha)
       use 1/2
       apply And.intro
       . linarith
-      . use s
-        exact ⟨ hs1, ⟨ by linarith, ⟨ hs2, by linarith ⟩ ⟩ ⟩
+      . exact ⟨ s, ⟨ hs1, ⟨ by linarith, ⟨ hs2, by linarith ⟩ ⟩ ⟩ ⟩
 
-
+@[simp]
 theorem mul_nneg_id_left {a : DCut} (ha: 0 ≤ a)
   : mul_nneg 1 a zero_le_one ha = a := by
     rw[le_of_lt] at ha
     apply Or.elim ha
     intro ha0
-    . simp[←ha0,mul_nneg_zero_right]
+    . simp[←ha0]
     . intro ha'
       have := mul_pos_id_left ha'
       simp_all[mul_pos,DCut.ext_iff,mul_nneg,DCut.ext_iff]
       exact ha
-
 
 /- ## Commutativity
 
@@ -319,26 +317,38 @@ theorem mul_nneg_comm {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
     simp_all[mul_pos]
   . simp[lt_of_le] at h
     by_cases hb0 : 0 = b
-    . simp[←hb0,mul_nneg_zero_right,mul_nneg_zero_left]
+    . simp[←hb0]
     . simp_all
-      simp[←h,mul_nneg_zero_right,mul_nneg_zero_left]
-
+      simp[←h]
 
 /- The proof of commutativity for arbitrary cuts requires us to reason about every possible combination of non-negative and negative cuts. We do this with the theorem `two_ineqs_true` which enuerates all four cases. For each case, the same (somewhat massive) simplificiation works. -/
 
 theorem mul_comm {a b : DCut}: a*b = b*a := by
-  rcases @two_ineqs_true a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
+  rcases two_ineqs a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
   repeat
-  simp[ha,hb,hmul_inst,mul,max_pos_lt,max_neg_lt,mul_nneg_zero_left,mul_nneg_zero_right,
-       mul_nneg_comm,neg_le.mp,neg_le.mp,max_pos.mp,max_neg.mp]
+  simp[ha,hb,hmul_inst,mul,mul_nneg_comm,neg_le.mp]
 
+/- Commutativity makes it easy to prove similar versions of theorems for which the one side has already been established. For example: -/
 
-/- Commutativity makes it easy to prove the right versions of theorems for which the left version has already been established. -/
-
+@[simp]
 theorem mul_nneg_id_right {a : DCut} (ha: 0 ≤ a)
   : mul_nneg a 1 ha zero_le_one = a := by
   rw[mul_nneg_comm,mul_nneg_id_left]
 
+/- And similarly, -/
+
+@[simp]
+theorem mul_id_right {a : DCut} : a * 1 = a := by
+  simp only[hmul_inst,mul]
+  by_cases ha : 0 < a
+  . simp[ha]
+  . simp
+    rw[not_gt_to_le] at ha
+    simp[ha]
+
+@[simp]
+theorem mul_id_left {a : DCut} : 1 * a = a := by
+  simp[mul_comm]
 
 /- ## Associativity -/
 
@@ -346,13 +356,11 @@ theorem mul_pos_assoc {a b c : DCut} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
   : mul_pos a (mul_pos b c hb hc) ha (mul_is_pos hb hc) =
     mul_pos (mul_pos a b ha hb) c (mul_is_pos ha hb) hc  := by
 
-  simp[mul_pos,pre_mul]
   ext q
-  simp
   constructor
 
   . intro ⟨ x, ⟨ hx, ⟨ yz, ⟨ ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, ⟨ hy0, ⟨ hz0, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hyz0, h2 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-    have hxyz' : x * yz < x * (y*z) := by exact (mul_lt_mul_left hx0).mpr h3
+    have hxyz' : x * yz < x * (y*z) := by exact (mul_lt_mul_left hx0).mpr h3 -- helps linarith
     have ⟨ x', ⟨ hx', hxx' ⟩  ⟩ := a.op x hx
     have h : x * y < x' * y := by exact (mul_lt_mul_iff_of_pos_right hy0).mpr hxx'
     exact ⟨ x*y, ⟨ ⟨ x', ⟨ hx', ⟨ y, ⟨ hy, ⟨ by linarith, ⟨ hy0,h ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ z, ⟨ hz, ⟨ Left.mul_pos hx0 hy0, ⟨ hz0, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
@@ -361,177 +369,81 @@ theorem mul_pos_assoc {a b c : DCut} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
     have ⟨ z', ⟨ hz', hzz' ⟩ ⟩ := c.op z hz
     have hxyz' : xy * z < (x * y) * z := by exact (mul_lt_mul_iff_of_pos_right hz0).mpr hxy
     have hxy0 : 0 < y * z := by exact Left.mul_pos hy0 hz0
-    have hqxyz : q < x * (y * z) := by linarith
     have : y * z < y * z' := by exact (mul_lt_mul_left hy0).mpr hzz'
-    exact ⟨ x, ⟨ hx, ⟨ y*z, ⟨ ⟨ y, ⟨ hy, ⟨ z', ⟨ hz', ⟨ hy0, ⟨ by linarith, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hxy0, hqxyz ⟩  ⟩ ⟩ ⟩ ⟩  ⟩
+    exact ⟨ x, ⟨ hx, ⟨ y*z, ⟨ ⟨ y, ⟨ hy, ⟨ z', ⟨ hz', ⟨ hy0, ⟨ by linarith, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hxy0, by linarith ⟩  ⟩ ⟩ ⟩ ⟩  ⟩
 
+@[simp]
+theorem pre_mul_with_pos {a b : DCut} (ha : 0 < a) (hb : 0 < b)
+  : pre_mul a b ∪ odown 0 = pre_mul a b := by
+    have := mul_is_pos ha hb
+    simp_all[mul_pos,lt_inst,zero_rw]
+
+@[simp]
 theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
   : mul_nneg a (mul_nneg b c hb hc) ha (mul_is_nneg hb hc) =
     mul_nneg (mul_nneg a b ha hb) c (mul_is_nneg ha hb) hc := by
+
   by_cases h : 0 < a ∧ 0 < b ∧ 0 < c
   . have h1 := mul_pos_assoc h.left h.right.left h.right.right
     simp[mul_pos] at h1
-    simp[mul_nneg]
-    have h2 : pre_mul b c ∪ odown 0 = pre_mul b c := by
-      have := mul_is_pos h.right.left h.right.right
-      simp[mul_pos,lt_inst,zero_rw] at this
-      simp_all
-    have h3 : pre_mul a b ∪ odown 0 = pre_mul a b := by
-      have := mul_is_pos h.left h.right.left
-      simp[mul_pos,lt_inst,zero_rw] at this
-      simp_all
-    simp[h1,h2,h3]
+    simp[mul_nneg,h1,h]
+
   by_cases h1 : 0 = a
-  . simp[←h1,mul_nneg_zero_left]
+  . simp[←h1]
   by_cases h2 : 0 = b
-  . simp[←h2,mul_nneg_zero_right,mul_nneg_zero_left]
+  . simp[←h2]
   by_cases h3 : 0 = c
-  . simp[←h3,mul_nneg_zero_right,mul_nneg_zero_left]
-  . simp_all[lt_of_le]
+  . simp[←h3]
 
-theorem mul_id_right {a : DCut} : a * 1 = a := by
-  simp[hmul_inst,mul]
-  by_cases ha : 0 < a
-  . simp[max_pos.mp]
-    simp[max_pos_to_neg, max_pos_lt, ha]
-    simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  . simp at ha
-    simp[max_pos_to_neg,zero_lt_one,max_pos.mp]
-    simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-    rw[not_gt_to_le] at ha
-    simp[max_neg.mp,neg_max_zero_neg,ha]
+  simp_all[lt_of_le]
 
-theorem mul_id_left {a : DCut} : 1 * a = a := by
-  rw[mul_comm,mul_id_right]
-
-theorem mul_neg_dist_left {a b : DCut} : a*(-b) = -(a*b) := by
-  simp[hmul_inst,mul]
-  rcases @two_ineqs_true a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
-  repeat (
-    simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,neg_le.mp]
-    simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  )
-
-theorem mul_neg_dist_right {a b : DCut} : (-a)*b = -(a*b) := by
-  simp[hmul_inst,mul]
-  rcases @two_ineqs_true a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
-  repeat (
-    simp[max_pos.mp,ha,hb,max_pos_lt,max_neg.mp,max_neg_lt,neg_le.mp]
-    simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  )
-
-theorem mul_assoc_az {a b c : DCut} (ha : 0 = a)
-  : a * (b * c) = (a * b) * c := by
-  simp[←ha,mul_zero_left]
-
-theorem mul_assoc_bz {a b c : DCut} (hb : 0 = b)
-  : a * (b * c) = (a * b) * c := by
-  simp[←hb,mul_zero_right,mul_zero_left]
-
-theorem mul_assoc_cz {a b c : DCut} (hc : 0 = c)
-  : a * (b * c) = (a * b) * c := by
-  simp[←hc,mul_zero_right]
-
-theorem mul_assoc_all_nn {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
-  : a * (b * c) = (a * b) * c := by
-
-  have ha' : -a ≤ 0 := by exact neg_le.mp ha
-  have hb' : -b ≤ 0 := by exact neg_le.mp hb
-  have hc' : -c ≤ 0 := by exact neg_le.mp hc
-
-  have hab : 0 ≤ mul_nneg a b ha hb := by exact mul_is_nneg ha hb
-  have hab' : -mul_nneg a b ha hb ≤ 0 := by exact neg_le.mp hab
-  have hbc : 0 ≤ mul_nneg b c hb hc := by exact mul_is_nneg hb hc
-  have hbc' : -mul_nneg b c hb hc ≤ 0 := by exact neg_le.mp hbc
-
-  simp[hmul_inst,mul]
-  simp[max_pos.mp,ha,hb,hc,max_pos_lt,max_neg.mp,max_neg_lt,ha',hb',hc']
-  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  simp[max_pos.mp,hbc,hab,max_neg.mp,hab',hbc']
-  simp[mul_nneg_zero_left,mul_nneg_zero_right,mul_nneg_id_right]
-  simp[mul_nneg_assoc]
 
 /-
 When a ≤ 0 while 0 ≤ b and 0 ≤ c then
-
-   (a*b)*c = a*(b*c)
-
+```hs
+(a*b)*c = a*(b*c)
+```
 becomes
-
-   -((-a)*b)*c = -((-a)*(b*c))
-
+```hs
+-((-a)*b)*c = -((-a)*(b*c))
+```
 and then use mul_assoc_all_nn. Similarly, we can do all the other cases this way.
 -/
 
-/- ### One Non-Positive Value -/
+@[simp]
+theorem mul_neg_dist_left {a b : DCut} : a*(-b) = -(a*b) := by
+  simp[hmul_inst,mul]
+  rcases two_ineqs a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
+  repeat
+  simp[ha,hb,neg_le.mp]
 
-theorem ta {a b c : DCut} (ha : a ≤ 0) (hb : 0 ≤ b) (hc : 0 ≤ c)
-  : a*(b*c) = (a*b)*c := by
-  calc a*(b*c)
-  _ = -((-a)*(b*c)) := by simp[mul_neg_dist_left,mul_neg_dist_right]
-  _ = -(((-a)*b)*c) := congrArg Neg.neg (mul_assoc_all_nn (neg_le'.mp ha) hb hc)
-  _ = (a*b)*c       := by simp[mul_neg_dist_right]
+@[simp]
+theorem mul_neg_dist_right {a b : DCut} : (-a)*b = -(a*b) := by
+  simp only[hmul_inst,mul]
+  rcases two_ineqs a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
+  repeat
+  simp[ha,hb,neg_le.mp]
 
-theorem tb {a b c : DCut} (ha : 0 ≤ a) (hb : b ≤ 0) (hc : 0 ≤ c)
-  : a*(b*c) = (a*b)*c := by
-  calc a*(b*c)
-  _ = -(a*((-b)*c)) := by simp[mul_neg_dist_left,mul_neg_dist_right]
-  _ = -((a*(-b))*c) := congrArg Neg.neg (mul_assoc_all_nn ha (neg_le'.mp hb) hc)
-  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
+theorem mul_assoc_all_nn {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
+  : a * (b * c) = (a * b) * c := by
+  simp[hmul_inst,mul]
+  simp[ha,hb,hc,neg_le.mp] -- uses mul_nneg_assoc
 
-theorem tc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : c ≤ 0)
-  : a*(b*c) = (a*b)*c := by
-  calc a*(b*c)
-  _ = -(a*(b*(-c))) := by simp[mul_neg_dist_left,mul_neg_dist_right]
-  _ = -((a*b)*(-c)) := congrArg Neg.neg (mul_assoc_all_nn ha hb (neg_le'.mp hc))
-  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
-
-/- ### Two Non-Positive Values -/
-
-theorem tab {a b c : DCut} (ha : a ≤ 0) (hb : b ≤ 0) (hc : 0 ≤ c) : a*(b*c) = (a*b)*c := by
-  calc a*(b*c)
-  _ = (-a)*((-b)*c) := by simp[mul_neg_dist_left,mul_neg_dist_right]
-  _ = ((-a)*(-b))*c := mul_assoc_all_nn (neg_le'.mp ha) (neg_le'.mp hb) hc
-  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
-
-theorem tac {a b c : DCut} (ha : a ≤ 0) (hb : 0 ≤ b) (hc : c ≤ 0) : a*(b*c) = (a*b)*c := by
-  calc a*(b*c)
-  _ = (-a)*(b*(-c)) := by simp[mul_neg_dist_left,mul_neg_dist_right]
-  _ = ((-a)*b)*(-c) := mul_assoc_all_nn (neg_le'.mp ha) hb (neg_le'.mp hc)
-  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
-
-theorem tbc {a b c : DCut} (ha : 0 ≤ a) (hb : b ≤ 0) (hc : c ≤ 0) : a*(b*c) = (a*b)*c := by
-  calc a*(b*c)
-  _ = a*((-b)*(-c)) := by simp[mul_neg_dist_left,mul_neg_dist_right]
-  _ = (a*(-b))*(-c) := mul_assoc_all_nn ha (neg_le'.mp hb) (neg_le'.mp hc)
-  _ = (a*b)*c       := by simp[mul_neg_dist_left,mul_neg_dist_right]
-
-/- ### Three Non-Positive Values -/
-
-theorem tabc {a b c : DCut} (ha : a ≤ 0) (hb : b ≤ 0) (hc : c ≤ 0) : a*(b*c) = (a*b)*c := by
-  calc a*(b*c)
-  _ = -((-a)*((-b)*(-c))) := by simp[mul_neg_dist_left,mul_neg_dist_right]
-  _ = -(((-a)*(-b))*(-c)) := congrArg Neg.neg (mul_assoc_all_nn (neg_le'.mp ha) (neg_le'.mp hb) (neg_le'.mp hc))
-  _ = (a*b)*c             := by simp[mul_neg_dist_left,mul_neg_dist_right]
-
+theorem flip {a : DCut} (ha: a < 0) : 0 ≤ -a := neg_le'.mp (lt_imp_le ha)
 
 theorem mul_assoc {a b c : DCut} : a * (b * c) = (a * b) * c := by
-  rcases @three_ineqs_true a b c with ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
-                                      ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
-                                      ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
-                                      ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩
+  rcases three_ineqs a b c with ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
+                                ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
+                                ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
+                                ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩
   . exact mul_assoc_all_nn ha hb hc
-  . exact ta (lt_imp_le ha) hb hc
-  . exact tb ha (lt_imp_le hb) hc
-  . exact tc ha hb (lt_imp_le hc)
-  . exact tab (lt_imp_le ha) (lt_imp_le hb) hc
-  . exact tac (lt_imp_le ha) hb (lt_imp_le hc)
-  . exact tbc ha (lt_imp_le hb) (lt_imp_le hc)
-  . exact tabc (lt_imp_le ha) (lt_imp_le hb) (lt_imp_le hc)
-
-
-
-
+  . simpa using mul_assoc_all_nn (flip ha) hb hc
+  . simpa using mul_assoc_all_nn ha (flip hb) hc
+  . simpa using mul_assoc_all_nn ha hb (flip hc)
+  . simpa using mul_assoc_all_nn (flip ha) (flip hb) hc
+  . simpa using mul_assoc_all_nn (flip ha) hb (flip hc)
+  . simpa using mul_assoc_all_nn ha (flip hb) (flip hc)
+  . simpa using mul_assoc_all_nn (flip ha) (flip hb) (flip hc)
 
 
 
@@ -578,8 +490,7 @@ def npow (n: ℕ) (x : DCut) : DCut := match n with
 theorem npow_zero {x : DCut} : npow 0 x = 1 := by rfl
 
 theorem npow_succ {n : ℕ} {x : DCut} : npow (n+1) x = npow n x * x := by
-  simp[npow]
-  rw[mul_comm]
+  simp[npow,mul_comm]
 
 instance monoid_inst : Monoid DCut := ⟨
   @mul_id_left,
@@ -606,5 +517,3 @@ instance comm_monoid_wz_inst : CommMonoidWithZero DCut := ⟨
 
 example (x : DCut) : x^2 = x*x := by
   exact pow_two x --> pow_two is a theorem about monoids from Mathlib
-
-#synth CommMonoidWithZero DCut

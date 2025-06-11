@@ -3,6 +3,9 @@ import Lean
 
 import Mathlib.Algebra.Group.Defs
 
+
+
+
 -- set_option trace.Meta.synthInstance true
 -- set_option synthInstance.maxHeartbeats 400
 

@@ -84,21 +84,27 @@ theorem max_gz (a: DCut) : 0 ≤ maximum 0 a := by
 theorem max_sym {a b : DCut} : maximum a b = maximum b a := by
   simp[maximum,Set.union_comm]
 
-theorem max_pos {a : DCut} : 0 ≤ a ↔ maximum 0 a = a := by
+@[simp]
+theorem max_pos {a : DCut} : 0 ≤ a → maximum 0 a = a := by
   simp[maximum,le_inst,DCut.ext_iff]
 
-theorem max_neg {a : DCut} : a ≤ 0 ↔ maximum 0 a = 0 := by
+@[simp]
+theorem max_neg {a : DCut} : a ≤ 0 → maximum 0 a = 0 := by
   simp[maximum,le_inst,DCut.ext_iff]
 
+@[simp]
 theorem max_pos_lt {a : DCut} : 0 < a → maximum 0 a = a := by
    simp[maximum,lt_inst,DCut.ext_iff]
 
+@[simp]
 theorem max_neg_lt {a : DCut} : a < 0 → maximum 0 a = 0 := by
    simp[maximum,lt_inst,DCut.ext_iff]
 
+@[simp]
 theorem max_self {a : DCut} : maximum a a = a := by
    simp[maximum,lt_inst,DCut.ext_iff]
 
+@[simp]
 theorem max_pos_to_neg {a: DCut} (ha : 0 < a) : maximum 0 (-a) = 0 := by
   simp[maximum,lt_inst,DCut.ext_iff,neg_inst,neg,preneg,zero_rw,odown]
   intro x y hy z hz hxyz
@@ -161,8 +167,8 @@ theorem neg_le' {a : DCut} : a ≤ 0 ↔ 0 ≤ -a := by
 
 theorem pos_neg_sum {a : DCut} : a = maximum 0 a - maximum 0 (-a) := by
   by_cases h : 0 < a
-  . rw[max_pos.mp h.right]
-    rw[max_neg.mp (neg_le.mp h.right)]
+  . rw[max_pos h.right]
+    rw[max_neg (neg_le.mp h.right)]
     exact Eq.symm (sub_zero a)
   . have := trichotomy_lt 0 a
     simp[not_gt_to_le] at h
@@ -173,16 +179,17 @@ theorem pos_neg_sum {a : DCut} : a = maximum 0 a - maximum 0 (-a) := by
       rw[max_neg_lt this]
       simp
     . intro h'
-      rw[max_neg.mp h]
+      rw[max_neg h]
       have := neg_le'.mp h
-      rw[max_pos.mp this]
+      rw[max_pos this]
       simp
 
+@[simp]
 theorem neg_max_zero_neg {a : DCut} (ha : a ≤ 0) : -maximum 0 (-a) = a := by
    have : 0 ≤ -a := by
      rw[neg_le'] at ha
      exact ha
-   simp[max_pos.mp,this]
+   simp[max_pos,this]
 ```
 
 <div style='height=50px'>&nbsp;</div><hr>

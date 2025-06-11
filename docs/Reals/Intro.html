@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Maximum - Foundations of Lean</title>
+        <title>Overview - Foundations of Lean</title>
 
 
         <!-- Custom HTML head -->
@@ -170,187 +170,60 @@
 --  (at your option) any later version.   
 </div>
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Max.lean'>Code</a> for this chapter</span></p>
-<h1 id="the-maximum-operator"><a class="header" href="#the-maximum-operator">The Maximum Operator</a></h1>
-<pre><code class="language-lean">theorem neg_gt_zero {a : DCut} (ha : a &lt; 0) : 0 &lt; -a := by
-
-  simp[lt_inst]
-  apply And.intro
-
-  . intro h
-    obtain ⟨ h1, h2 ⟩ := ha
-    exact h1 h
-
-  . intro q hq
-    simp[zero_rw,odown] at hq
-    simp[neg_inst,neg,preneg]
-    obtain ⟨ b, hb ⟩ := a.nf
-    exact ⟨ q, ⟨ hq, ⟨ 0, ⟨ zero_notin_neg ha, Eq.symm (sub_zero q) ⟩ ⟩ ⟩ ⟩
-
-theorem maximum_ne {a b : DCut} : ∃ q, q ∈ a.A ∪ b.A := by
-  obtain ⟨ x, hx ⟩ := a.ne
-  use x
-  exact Set.mem_union_left b.A hx
-
-theorem maximum_nf {a b : DCut} : ∃ q, q ∉ a.A ∪ b.A := by
-  obtain ⟨ x, hx ⟩ := a.nf
-  obtain ⟨ y, hy ⟩ := b.nf
-  apply Or.elim (trichotomy a b)
-  . intro h
-    simp_all
-    use y
-    apply And.intro
-    . intro h1
-      exact hy (h h1)
-    . exact hy
-  . intro h
-    apply Or.elim h
-    . intro h1
-      simp[h1]
-      use y
-    . intro h1
-      simp[h1]
-      use x
-      exact ⟨ hx, fun a ↦ hx (h1 a) ⟩
-
-theorem maximum_dc {a b : DCut} : ∀ (x y : ℚ), x ≤ y ∧ y ∈ a.A ∪ b.A → x ∈ a.A ∪ b.A := by
-  intro x y ⟨ hx, hy ⟩
-  apply Or.elim hy
-  . intro h
-    simp[h]
-    exact Or.inl (a.dc x y ⟨ hx, h ⟩)
-  . intro h
-    simp[h]
-    exact Or.inr (b.dc x y ⟨ hx, h ⟩)
-
-theorem maximum_op {a b : DCut} : ∀ x ∈ a.A ∪ b.A, ∃ y ∈ a.A ∪ b.A, x &lt; y:= by
-  intro x hx
-  apply Or.elim hx
-  . intro h
-    obtain ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := a.op x h
-    exact ⟨ q, ⟨ Set.mem_union_left b.A hq1, hq2 ⟩ ⟩
-  . intro h
-    obtain ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := b.op x h
-    exact ⟨ q, ⟨ Set.mem_union_right a.A hq1, hq2 ⟩ ⟩
-
-def maximum (a b : DCut) : DCut :=
- ⟨ a.A ∪ b.A, maximum_ne, maximum_nf, maximum_dc, maximum_op ⟩
-
-instance max_inst : Max DCut := ⟨ maximum ⟩
-
-theorem max_gz (a: DCut) : 0 ≤ maximum 0 a := by
-  simp_all[le_inst,zero_rw,odown,maximum]
-
-theorem max_sym {a b : DCut} : maximum a b = maximum b a := by
-  simp[maximum,Set.union_comm]
-
-@[simp]
-theorem max_pos {a : DCut} : 0 ≤ a → maximum 0 a = a := by
-  simp[maximum,le_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_neg {a : DCut} : a ≤ 0 → maximum 0 a = 0 := by
-  simp[maximum,le_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_pos_lt {a : DCut} : 0 &lt; a → maximum 0 a = a := by
-   simp[maximum,lt_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_neg_lt {a : DCut} : a &lt; 0 → maximum 0 a = 0 := by
-   simp[maximum,lt_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_self {a : DCut} : maximum a a = a := by
-   simp[maximum,lt_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_pos_to_neg {a: DCut} (ha : 0 &lt; a) : maximum 0 (-a) = 0 := by
-  simp[maximum,lt_inst,DCut.ext_iff,neg_inst,neg,preneg,zero_rw,odown]
-  intro x y hy z hz hxyz
-  have ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := non_neg_in_pos ha
-  have := a_lt_b hq1 hz
-  linarith
-
-theorem neg_lt {a : DCut}: 0 &lt; a ↔ -a &lt; 0 := by
-  constructor
-  . simp_all[lt_inst]
-    intro h1 h2
-    apply And.intro
-    . intro h
-      exact h1 (Eq.symm h)
-    . intro x ⟨ q, ⟨ hq, ⟨ r, ⟨ hr, hqr ⟩ ⟩ ⟩ ⟩
-      have h4 := a_lt_b (h2 hq) hr
-      simp[zero_rw,odown]
-      linarith
-  . intro ⟨ h1, h2 ⟩
-    apply And.intro
-    . exact id (Ne.symm (neg_ne_zero.mp h1))
-    . by_contra h
-      have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := Set.not_subset.mp h
-      simp[neg_inst,neg,preneg,zero_rw,odown] at h2
-      have := h2 0 z hz1 z hz2 (by linarith)
-      simp at this
-
-theorem neg_le {a : DCut} : 0 ≤ a ↔ -a ≤ 0 := by
-  simp[le_of_lt,@neg_lt a,eq_comm]
-
-theorem neg_lt' {a : DCut} : a &lt; 0 ↔ 0 &lt; -a := by
-
-  constructor
-  . intro ⟨ h1, h2 ⟩
-    apply And.intro
-    . simp[DCut.ext_iff] at h1 ⊢
-      exact h1
-    . intro q hq
-      simp[neg_inst,neg,preneg]
-      simp[zero_rw,odown] at hq
-      have : 0 ∉ a.A := by
-        intro h
-        have := h2 h
-        simp[zero_rw,odown] at this
-      exact ⟨ q, ⟨ hq, ⟨ 0, ⟨ this, by linarith ⟩ ⟩ ⟩ ⟩
-  . simp[lt_inst]
-    intro ha h
-    apply And.intro
-    . exact ha
-    . by_contra hnq
-      have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := Set.not_subset.mp hnq
-      simp[neg_inst,neg,preneg,zero_rw,odown] at h hz2
-      have ⟨ s, ⟨ hs1, hs2 ⟩ ⟩ := a.op z hz1
-      have ⟨ q, ⟨ hq, ⟨ r, ⟨ hr1, hr2 ⟩ ⟩ ⟩ ⟩ := h (-s) (by linarith)
-      have : s &lt; r := by exact a_lt_b hs1 hr1
-      linarith
-
-theorem neg_le' {a : DCut} : a ≤ 0 ↔ 0 ≤ -a := by
-  simp[le_of_lt,@neg_lt' a,eq_comm]
-
-theorem pos_neg_sum {a : DCut} : a = maximum 0 a - maximum 0 (-a) := by
-  by_cases h : 0 &lt; a
-  . rw[max_pos h.right]
-    rw[max_neg (neg_le.mp h.right)]
-    exact Eq.symm (sub_zero a)
-  . have := trichotomy_lt 0 a
-    simp[not_gt_to_le] at h
-    apply Or.elim this
-    . intro h'
-      rw[max_pos_lt h']
-      have := neg_lt.mp h'
-      rw[max_neg_lt this]
-      simp
-    . intro h'
-      rw[max_neg h]
-      have := neg_le'.mp h
-      rw[max_pos this]
-      simp
-
-@[simp]
-theorem neg_max_zero_neg {a : DCut} (ha : a ≤ 0) : -maximum 0 (-a) = a := by
-   have : 0 ≤ -a := by
-     rw[neg_le'] at ha
-     exact ha
-   simp[max_pos,this]
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Intro.lean'>Code</a> for this chapter</span></p>
+<h1 id="real-numbers"><a class="header" href="#real-numbers">Real Numbers</a></h1>
+<p>Having built ℕ inductively, ℤ from ℕ, and ℚ from ℕ and ℤ, we now turn to the real numbers ℝ. The key distinction between the ℚ and ℝ is that ℝ has the least upper bound property: every non-empty set of reals that is bounded from above has a least upper bound. The rationals ℚ do not have this property. For example, the set</p>
+<pre><code class="language-hs">{ q ∈ ℚ | q² &lt; 2 }
 </code></pre>
+<p>has no least upper bound in ℚ, although in ℝ the least upper bound is <code>√2</code> (for a Lean proof that the square root of 2 is no rational, see <a href="https://leanprover-community.github.io/mathematics_in_lean/C05_Elementary_Number_Theory.html#irrational-roots">Chapter 5</a> of <em>MIL</em>.)</p>
+<p>The usual way to construct ℝ, and the one taken by Mathlib, is to define <code>Cauchy Sequences</code> over <code>ℚ</code> that converge to irrational values. For example, the sequence</p>
+<pre><code>  4/1
+  4/1 - 4/3
+  4/1 - 4/3 + 4/5
+  4/1 - 4/3 + 4/5 - 4/7
+  4/1 - 4/3 + 4/5 - 4/7 + 4/9
+</code></pre>
+<p>Converges to <code>π</code>.</p>
+<p>In this chapter, mainly as an exercise in formalization, we instead construct ℝ from <em>Dedekind Cuts</em> in which every real number is equated to the set of rational numbers less than it. We roughly follow the decription of this approach presented in Rudin's book <em>Principles of Mathematical Analysis</em> (which also, by the way, describes the Cauchy Sequence approach.)</p>
+<h2 id="axioms-of-the-reals"><a class="header" href="#axioms-of-the-reals">Axioms of the Reals</a></h2>
+<p>To show that a set R is equivalent to the real numbers, we define the following relations and operations:</p>
+<ul>
+<li>Ordering relations: &lt;, ≤, &gt; and ≥</li>
+<li>Addition and subtraction: +, -</li>
+<li>Multiplication: *</li>
+<li>Division: /</li>
+</ul>
+<p>and we require the following:</p>
+<ul>
+<li>R is totally ordered: ∀ x y ∈ R, x &lt; y ∨ y &lt; x ∨ x=y</li>
+<li>R is a field
+<ul>
+<li>Addition properties
+<ul>
+<li>Addition is commutative: x+y=y+x</li>
+<li>Addition is associative: x+(y+z) = (x+y)+z</li>
+<li>There is an additive identity 0 and x+0 = 0+x = x.</li>
+<li>Each element x has an additive inverse -x such that x+(-x) = 0.</li>
+</ul>
+</li>
+<li>Multiplication properties
+<ul>
+<li>Multiplication is commutative: x<em>y=y</em>x</li>
+<li>Multiplication is associative: x*(y<em>z) = (x</em>y)*z</li>
+<li>There is a multiplicative identity 1 and x<em>1 = 1</em>x = x.</li>
+<li>Each element x has a multiplicative inverse x⁻¹ such that x<em>x⁻¹ = x⁻¹</em>x = 1.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>R has the least upper bound property</li>
+</ul>
+<p>Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes and more so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.</p>
+<p><span style='background: yellow'>TODO: List the relevant Mathlib classes or insert a tree diagram of them.</span></p>
+<h2 id="references"><a class="header" href="#references">References</a></h2>
+<p>A nice description of the Cauchy Completion: https://mathweb.ucsd.edu/~tkemp/140A/Construction.of.R.pdf</p>
+<p>Rudin, W.: Principles of Mathematical Analysis. Third Edition. International Series in Pure and Applied Mathematics. McGraw-Hill Book Co., New York – Aukland – Dusseldorf, 1976.</p>
+<p>A real analysis book in which ℝ is constructed from decimal expansions of the form f : ℕ → ℤ with f(0) being the integer part and f(n) ∈ {0, ..., 9} for n ≥ 1. <a href="https://docs.ufpr.br/%7Ehigidio/Ensino/Seminario/Davidson-Donsig-2010-Real%20Analysis%20and%20Aplications.pdf">Davidson and Donsig</a></p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 
@@ -358,11 +231,11 @@ Copyright © 2025 Eric Klavins
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Reals/Subtract.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Numbers.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Reals/Multiply.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Reals/Dedekind.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -372,11 +245,11 @@ Copyright © 2025 Eric Klavins
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Reals/Subtract.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Numbers.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Reals/Multiply.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Reals/Dedekind.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

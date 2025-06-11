@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Maximum - Foundations of Lean</title>
+        <title>Subtraction - Foundations of Lean</title>
 
 
         <!-- Custom HTML head -->
@@ -170,186 +170,234 @@
 --  (at your option) any later version.   
 </div>
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
-<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Max.lean'>Code</a> for this chapter</span></p>
-<h1 id="the-maximum-operator"><a class="header" href="#the-maximum-operator">The Maximum Operator</a></h1>
-<pre><code class="language-lean">theorem neg_gt_zero {a : DCut} (ha : a &lt; 0) : 0 &lt; -a := by
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Subtract.lean'>Code</a> for this chapter</span></p>
+<h1 id="negation"><a class="header" href="#negation">Negation</a></h1>
+<pre><code class="language-lean">def preneg (c : DCut) : Set ℚ := { x | ∃ a &lt; 0, ∃ b ∉ c.A, x = a-b }
 
-  simp[lt_inst]
+theorem preneg_rat {p : ℚ} : preneg (ofRat p) = (ofRat (-p)).A := by
+  simp[preneg,ofRat,odown]
+  ext q
+  constructor
+  . simp_all
+    intro a ha x hx hq
+    linarith
+  . simp_all
+    intro hq
+    exact ⟨ q+p, ⟨ by linarith, ⟨ p, ⟨ by linarith, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem predeg_ne {c : DCut} : ∃ q, q ∈ preneg c := by
+  simp[preneg]
+  have ⟨ q, hq ⟩ := c.nf
+  use -q-2
+  have h1 : q + 1 ∉ c.A := by
+    apply b_up_closed hq
+    linarith
+  exact  ⟨ -1, ⟨ by linarith, ⟨ q+1, ⟨ h1, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem predeg_nf {c : DCut} : ∃ q, q ∉ preneg c := by
+  simp[preneg]
+  have ⟨ q, hq ⟩ := c.ne
+  use -q
+  intro x hx y hy h
+  have h2 : y ≤ q := by linarith
+  have h3 : q ∉ c.A := by
+    intro h1
+    exact b_up_closed hy h2 hq
+  exact h3 hq
+
+theorem predeg_dc {c : DCut}
+  : ∀ (x y : ℚ), x ≤ y ∧ y ∈ preneg c → x ∈ preneg c := by
+  intro x y ⟨ hxy, ⟨ a, ⟨ ha, ⟨ b, ⟨ hb, h ⟩ ⟩ ⟩ ⟩ ⟩
+  exact ⟨ a - (y-x), ⟨ by linarith, ⟨ b, ⟨ hb, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem predeg_op {c : DCut}
+  : ∀ x ∈ preneg c, ∃ y ∈ preneg c, x &lt; y := by
+  simp[preneg]
+  intro q x hx y hy hxy
+  have := c.op
+  use q-x/2
   apply And.intro
+  . simp[hxy]
+    exact ⟨ x/2, ⟨ by linarith, ⟨ y, ⟨ hy, by linarith ⟩ ⟩ ⟩ ⟩
+  . linarith
 
-  . intro h
-    obtain ⟨ h1, h2 ⟩ := ha
-    exact h1 h
+def neg (c : DCut) : DCut :=
+  ⟨ preneg c, predeg_ne, predeg_nf, predeg_dc, predeg_op ⟩
 
-  . intro q hq
-    simp[zero_rw,odown] at hq
-    simp[neg_inst,neg,preneg]
-    obtain ⟨ b, hb ⟩ := a.nf
-    exact ⟨ q, ⟨ hq, ⟨ 0, ⟨ zero_notin_neg ha, Eq.symm (sub_zero q) ⟩ ⟩ ⟩ ⟩
+instance neg_inst : Neg DCut := ⟨ neg ⟩
 
-theorem maximum_ne {a b : DCut} : ∃ q, q ∈ a.A ∪ b.A := by
-  obtain ⟨ x, hx ⟩ := a.ne
-  use x
-  exact Set.mem_union_left b.A hx
+theorem neg_rat {p : ℚ} : -ofRat p = ofRat (-p) := by
+  simp[neg_inst,neg]
+  apply DCut.ext
+  simp
+  rw[preneg_rat]
+</code></pre>
+<h2 id="subtraction"><a class="header" href="#subtraction">Subtraction</a></h2>
+<pre><code class="language-lean">def sub (a b : DCut) : DCut := a + (-b)
 
-theorem maximum_nf {a b : DCut} : ∃ q, q ∉ a.A ∪ b.A := by
-  obtain ⟨ x, hx ⟩ := a.nf
-  obtain ⟨ y, hy ⟩ := b.nf
-  apply Or.elim (trichotomy a b)
-  . intro h
+instance hsub_inst : HSub DCut DCut DCut := ⟨ sub ⟩
+
+instance sub_inst : Sub DCut := ⟨ sub ⟩
+
+theorem add_neg (a b : DCut) : a + -b = a - b := by
+  simp[hsub_inst,sub]
+</code></pre>
+<p>Let's check this definition works for the simple example <code>1-1=0</code>. The forward direction is easy. For the reverse direction, we need to choose x and y so that</p>
+<ul>
+<li><code>x &lt; 1</code></li>
+<li><code>y &lt; -1</code></li>
+<li><code>x + y = q</code></li>
+</ul>
+<p>Since q &lt; 0, we know q-1 &lt; -1. For y, we take the point halfway between q-1 and -1, which is <code>y = (q-2)/2</code>.</p>
+<pre><code class="language-lean">example : ofRat 1 - ofRat 1 = ofRat 0 := by
+  simp[hsub_inst,sub,neg_rat]
+  ext q
+  simp[hadd_inst,sum,ofRat,presum,odown]
+  constructor
+  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h ⟩ ⟩ ⟩ ⟩
+    linarith
+  . intro hq
+    exact ⟨ (q+2)/2, ⟨ by linarith, ⟨ (q-2)/2, ⟨ by linarith, by linarith ⟩ ⟩ ⟩ ⟩
+</code></pre>
+<p>More challenging is to show for any cut <code>c</code> that <code>c-c=0</code>. We are given <code>q&lt;0</code>. Since <code>c.A</code> is not <code>ℚ</code>, we can choose an element <code>t ∉ c.A</code>. We then want to find <code>a ∈ -c.A</code> and <code>b ∈ c.A</code> so that <code>a+b=q</code>. Using the Archimedean property of the rational numbers, we can find <code>n</code> such that <code>t + (n+1)q ∈ c.A</code> and <code>t + nq ∉ c.A</code>.</p>
+<p>These values do not work directly because of the edge case where <code>c</code> is a principal cut (representing a rational number). For example, the situation could look like the diagram below.</p>
+<pre><code>                -c.A                        b      c.A    -a
+       -t - nq             q       0   t + (n+1)q       t + nq
+  ←———————+———————)————————+———————+———————+————————)—————+————————————→
+                 -2       -1             4-3=1      2   4-2=2
+</code></pre>
+<p>But because <code>c.A</code> is open, we can find <code>z</code> greater than <code>t + (n+1)q</code> and which is still in c.A.</p>
+<pre><code>        -c.A                                              c.A
+                      q          0    t + (n+1)q                  t + nq
+  ←———————)———————————+——————————+————————+————————+———————)————————+————————————→
+                                                   z
+</code></pre>
+<p>And then take ε = z - (t + (n+1)q) to get the following situation, where <code>a</code> is completly inside <code>-c.A</code>.</p>
+<pre><code>          a    -c.A                        b          c.A
+  ←———————+———————)———————+———————+————————+———————————)———————+————————————→
+   -t - nq - ε            q       0    t + (n+1)q + ε       t + nq + ε
+</code></pre>
+<p>This proof outline takes some work to get done in Lean. First we need a result showing that given <code>t ∉ c.A</code> we can find an <code>n</code> so that <code>t + n s ∈ c.A</code>.</p>
+<pre><code class="language-lean">theorem cut_element (c : DCut) (s t : ℚ) (hs : s &lt; 0)
+  : ∃ n : ℕ, t + n * s ∈ c.A := by
+  obtain ⟨q, hq⟩ := c.ne
+  let n := ⌈(q-t)/s⌉₊
+  use n
+  have hdiv : (q-t)/s ≤ n := Nat.le_ceil ((q - t) / s)
+  have hcalc : t + n * s ≤ q := by
+    have : (q-t) ≥ n * s := (div_le_iff_of_neg hs).mp hdiv
     simp_all
-    use y
+    linarith
+  exact c.dc _ q ⟨hcalc, hq⟩
+</code></pre>
+<p>We then define the set of all <code>n</code> such that t + ns ∈ c.A. For subsequent steps to work, we need to instantiate this set as decidable. This can be done using Classical logic, in which propositions are considered decidable by default.</p>
+<pre><code class="language-lean">def Svals (c : DCut) (s t : ℚ) : Set ℕ := {n : ℕ | t + n * s ∈ c.A}
+
+noncomputable
+instance s_dec {c : DCut} {s t : ℚ}  : DecidablePred (· ∈ Svals c s t) := by
+    intro n
+    apply Classical.propDecidable
+</code></pre>
+<p>With <code>Svals</code> decidiable and nonempty, we can use <code>Nat.find</code> to show it has a minimal element. Note that <code>Nat.find</code> uses the Axiom of Choice.</p>
+<pre><code class="language-lean">theorem min_element (S : Set ℕ) [DecidablePred (· ∈ S)] (h : ∃ x, x ∈ S)
+  : ∃ m, m ∈ S ∧ (∀ k &lt; m, k ∉ S) := by
+  have hsne : S.Nonempty := h
+  let m := Nat.find hsne
+  have hm : m ∈ S := Nat.find_spec hsne
+  have hm_min : ∀ k &lt; m, k ∉ S := λ k =&gt; Nat.find_min hsne
+  exact ⟨ m, hm, hm_min ⟩
+</code></pre>
+<p>We use the minimal element to find <code>n</code> so that  <code>t + (n+1)q ∈ c.A</code> and <code>t + nq ∉ c.A</code>. as desired.</p>
+<pre><code class="language-lean">theorem archimedean {c : DCut} {s t : ℚ} (ht : t ∉ c.A) (hs : s &lt; 0)
+  : ∃ n : ℤ, t+n*s ∉ c.A ∧ t+(n+1)*s ∈ c.A := by
+
+  let S := Svals c s t
+  have ⟨ m, hm, hm_min ⟩ := min_element S (cut_element c s t hs)
+
+  by_cases h : m = 0
+
+  · simp [h, S, Svals] at hm
+    contradiction
+
+  · use m - 1
+    have hm' : m &gt; 0 := Nat.zero_lt_of_ne_zero h
+
     apply And.intro
-    . intro h1
-      exact hy (h h1)
-    . exact hy
-  . intro h
-    apply Or.elim h
-    . intro h1
-      simp[h1]
-      use y
-    . intro h1
-      simp[h1]
-      use x
-      exact ⟨ hx, fun a ↦ hx (h1 a) ⟩
+    · have := hm_min (m-1) (Nat.sub_one_lt_of_lt hm')
+      simp_all[S,Svals]
+    · simp
+      assumption
+</code></pre>
+<p>Finally, we prove the desired theorem.</p>
+<pre><code class="language-lean">theorem neg_add_cancel_right {c : DCut} : c - c = 0 := by
 
-theorem maximum_dc {a b : DCut} : ∀ (x y : ℚ), x ≤ y ∧ y ∈ a.A ∪ b.A → x ∈ a.A ∪ b.A := by
-  intro x y ⟨ hx, hy ⟩
-  apply Or.elim hy
-  . intro h
-    simp[h]
-    exact Or.inl (a.dc x y ⟨ hx, h ⟩)
-  . intro h
-    simp[h]
-    exact Or.inr (b.dc x y ⟨ hx, h ⟩)
-
-theorem maximum_op {a b : DCut} : ∀ x ∈ a.A ∪ b.A, ∃ y ∈ a.A ∪ b.A, x &lt; y:= by
-  intro x hx
-  apply Or.elim hx
-  . intro h
-    obtain ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := a.op x h
-    exact ⟨ q, ⟨ Set.mem_union_left b.A hq1, hq2 ⟩ ⟩
-  . intro h
-    obtain ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := b.op x h
-    exact ⟨ q, ⟨ Set.mem_union_right a.A hq1, hq2 ⟩ ⟩
-
-def maximum (a b : DCut) : DCut :=
- ⟨ a.A ∪ b.A, maximum_ne, maximum_nf, maximum_dc, maximum_op ⟩
-
-instance max_inst : Max DCut := ⟨ maximum ⟩
-
-theorem max_gz (a: DCut) : 0 ≤ maximum 0 a := by
-  simp_all[le_inst,zero_rw,odown,maximum]
-
-theorem max_sym {a b : DCut} : maximum a b = maximum b a := by
-  simp[maximum,Set.union_comm]
-
-@[simp]
-theorem max_pos {a : DCut} : 0 ≤ a → maximum 0 a = a := by
-  simp[maximum,le_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_neg {a : DCut} : a ≤ 0 → maximum 0 a = 0 := by
-  simp[maximum,le_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_pos_lt {a : DCut} : 0 &lt; a → maximum 0 a = a := by
-   simp[maximum,lt_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_neg_lt {a : DCut} : a &lt; 0 → maximum 0 a = 0 := by
-   simp[maximum,lt_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_self {a : DCut} : maximum a a = a := by
-   simp[maximum,lt_inst,DCut.ext_iff]
-
-@[simp]
-theorem max_pos_to_neg {a: DCut} (ha : 0 &lt; a) : maximum 0 (-a) = 0 := by
-  simp[maximum,lt_inst,DCut.ext_iff,neg_inst,neg,preneg,zero_rw,odown]
-  intro x y hy z hz hxyz
-  have ⟨ q, ⟨ hq1, hq2 ⟩ ⟩ := non_neg_in_pos ha
-  have := a_lt_b hq1 hz
-  linarith
-
-theorem neg_lt {a : DCut}: 0 &lt; a ↔ -a &lt; 0 := by
+  ext q
   constructor
-  . simp_all[lt_inst]
-    intro h1 h2
-    apply And.intro
-    . intro h
-      exact h1 (Eq.symm h)
-    . intro x ⟨ q, ⟨ hq, ⟨ r, ⟨ hr, hqr ⟩ ⟩ ⟩ ⟩
-      have h4 := a_lt_b (h2 hq) hr
-      simp[zero_rw,odown]
-      linarith
-  . intro ⟨ h1, h2 ⟩
-    apply And.intro
-    . exact id (Ne.symm (neg_ne_zero.mp h1))
-    . by_contra h
-      have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := Set.not_subset.mp h
-      simp[neg_inst,neg,preneg,zero_rw,odown] at h2
-      have := h2 0 z hz1 z hz2 (by linarith)
-      simp at this
 
-theorem neg_le {a : DCut} : 0 ≤ a ↔ -a ≤ 0 := by
-  simp[le_of_lt,@neg_lt a,eq_comm]
+  . simp[hsub_inst,neg_inst,neg,sub,hadd_inst,sum,preneg]
+    intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, hxy ⟩ ⟩ ⟩ ⟩
+    obtain ⟨ a, ⟨ ha, ⟨ b, ⟨ hb, hab ⟩ ⟩ ⟩ ⟩ := hy
+    have h1 : q ∈ A 0 ↔ q &lt; 0 := Set.mem_def
+    simp[h1]
+    have h2 := a_lt_b hx hb
+    linarith
 
-theorem neg_lt' {a : DCut} : a &lt; 0 ↔ 0 &lt; -a := by
+  . intro hq
+    have hq : q &lt; 0 := hq
+    obtain ⟨ t, ht ⟩ := c.nf
+    obtain ⟨ n, ⟨ hn1, hn2 ⟩ ⟩ := archimedean ht hq
 
-  constructor
-  . intro ⟨ h1, h2 ⟩
-    apply And.intro
-    . simp[DCut.ext_iff] at h1 ⊢
-      exact h1
-    . intro q hq
-      simp[neg_inst,neg,preneg]
-      simp[zero_rw,odown] at hq
-      have : 0 ∉ a.A := by
-        intro h
-        have := h2 h
-        simp[zero_rw,odown] at this
-      exact ⟨ q, ⟨ hq, ⟨ 0, ⟨ this, by linarith ⟩ ⟩ ⟩ ⟩
-  . simp[lt_inst]
-    intro ha h
-    apply And.intro
-    . exact ha
-    . by_contra hnq
-      have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := Set.not_subset.mp hnq
-      simp[neg_inst,neg,preneg,zero_rw,odown] at h hz2
-      have ⟨ s, ⟨ hs1, hs2 ⟩ ⟩ := a.op z hz1
-      have ⟨ q, ⟨ hq, ⟨ r, ⟨ hr1, hr2 ⟩ ⟩ ⟩ ⟩ := h (-s) (by linarith)
-      have : s &lt; r := by exact a_lt_b hs1 hr1
+    let b' := t + (n+1)*q
+    let a' := -n*q-t
+
+    obtain ⟨ z, ⟨ hz, hbz ⟩ ⟩ := c.op b' hn2
+    let ε := z - b'
+    have hε : 0 &lt; ε := by simp[ε]; linarith
+
+    let b := z
+    let a := -n*q-t-ε
+
+    have hab : z+a = q := by
+      simp[a,a',b,b',ε]
       linarith
 
-theorem neg_le' {a : DCut} : a ≤ 0 ↔ 0 ≤ -a := by
-  simp[le_of_lt,@neg_lt' a,eq_comm]
+    have ha : a ∈ (-c).A := by
+      use -ε
+      apply And.intro
+      . linarith
+      . use -a-ε
+        apply And.intro
+        . simp[a]
+          exact hn1
+        . linarith
 
-theorem pos_neg_sum {a : DCut} : a = maximum 0 a - maximum 0 (-a) := by
-  by_cases h : 0 &lt; a
-  . rw[max_pos h.right]
-    rw[max_neg (neg_le.mp h.right)]
-    exact Eq.symm (sub_zero a)
-  . have := trichotomy_lt 0 a
-    simp[not_gt_to_le] at h
-    apply Or.elim this
-    . intro h'
-      rw[max_pos_lt h']
-      have := neg_lt.mp h'
-      rw[max_neg_lt this]
-      simp
-    . intro h'
-      rw[max_neg h]
-      have := neg_le'.mp h
-      rw[max_pos this]
-      simp
+    exact ⟨ z, ⟨ hz, ⟨ a, ⟨ ha, hab ⟩ ⟩ ⟩ ⟩
+</code></pre>
+<p>And by commutativity:</p>
+<pre><code class="language-lean">theorem neg_add_cancel_left {c : DCut} : -c + c = 0 := by
+  rw[sum_comm,add_neg,neg_add_cancel_right]
+</code></pre>
+<h2 id="additive-group-structure"><a class="header" href="#additive-group-structure">Additive Group Structure</a></h2>
+<pre><code class="language-lean">instance add_group_inst : AddGroup DCut
+  := AddGroup.ofLeftAxioms add_assoc @sum_zero_left @neg_add_cancel_left
 
-@[simp]
-theorem neg_max_zero_neg {a : DCut} (ha : a ≤ 0) : -maximum 0 (-a) = a := by
-   have : 0 ≤ -a := by
-     rw[neg_le'] at ha
-     exact ha
-   simp[max_pos,this]
+instance add_comm_group_inst : AddCommGroup DCut := ⟨ @sum_comm ⟩
+
+example (x y z : DCut) : x - y + z = z + x - y := by abel
+
+instance add_monoid_wo_inst : AddMonoidWithOne DCut := ⟨
+    by
+      ext q
+      exact ⟨ id, id ⟩,
+    by
+      intro n
+      ext q
+      constructor
+      repeat
+      . intro hq
+        simp_all[add_rats,nat_cast_inst]
+        exact hq
+  ⟩
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -358,11 +406,11 @@ Copyright © 2025 Eric Klavins
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Reals/Subtract.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Reals/Add.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../Reals/Multiply.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../Reals/Max.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -372,11 +420,11 @@ Copyright © 2025 Eric Klavins
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Reals/Subtract.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Reals/Add.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../Reals/Multiply.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../Reals/Max.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

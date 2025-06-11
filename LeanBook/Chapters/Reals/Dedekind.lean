@@ -303,13 +303,19 @@ theorem not_gt_to_le {a : DCut} : ¬ 0 < a ↔ a ≤ 0 := by
       have : A 0 = a.A := by exact Set.Subset.antisymm h4 h6
       exact h3 this
 
-def two_ineqs (a b : DCut) :=
+/- ## Supporting Reasoning by Cases
+
+Later, in the chapter on multiplication, it will be useful to reason about combinations of non-negative and negative cuts. With one cut `a`, there are two possibilities: `0 ≤ a` and `a < 0`. For two cuts there are four possibilities, and for three cuts, there are eight possibilities.
+
+The following two definitions list all possible cases for two and three cuts respectively. -/
+
+def two_ineq_list (a b : DCut) :=
   (0 ≤ a ∧ 0 ≤ b) ∨
   (a < 0 ∧ 0 ≤ b) ∨
   (0 ≤ a ∧ b < 0) ∨
   (a < 0 ∧ b < 0)
 
-def three_ineqs (a b c : DCut) :=
+def three_ineq_list (a b c : DCut) :=
   (0 ≤ a ∧ 0 ≤ b ∧ 0 ≤ c) ∨
   (a < 0 ∧ 0 ≤ b ∧ 0 ≤ c) ∨
   (0 ≤ a ∧ b < 0 ∧ 0 ≤ c) ∨
@@ -319,25 +325,34 @@ def three_ineqs (a b c : DCut) :=
   (0 ≤ a ∧ b < 0 ∧ c < 0) ∨
   (a < 0 ∧ b < 0 ∧ c < 0)
 
+/- Next we show that these statements are tautologies. The goal is to be able to use the definitions in tactic mode, as in:
+```hs
+rcases @two_ineqs a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
+repeat
+simp
+```
+
+We start with a theorem that can be used to rewrite `x<0` as `¬0≤x`.
+-/
+
 theorem neg_t {x : DCut} : x < 0 ↔ ¬0 ≤ x := by
   have := trichotomy_lt 0 x
   simp_all[le_of_lt]
   constructor
   . intro h
-    constructor
-    . exact ne_of_gt h
-    . exact not_lt_of_gt h
-  . intro ⟨ h1, h2 ⟩
-    tauto
+    exact ⟨ ne_of_gt h, not_lt_of_gt h ⟩
+  . tauto
+
+/- Then the proofs are straightforward. To see how these are used later, see the proofs of commutativity and associativity of multiplication. -/
 
 theorem lt_imp_le {x y : DCut} : x < y → x ≤ y := by simp[lt_of_le]
 
-theorem two_ineqs_true {a b : DCut} : two_ineqs a b := by
-  simp[two_ineqs,neg_t]
+theorem two_ineqs (a b : DCut) : two_ineq_list a b := by
+  simp[two_ineq_list,neg_t]
   tauto
 
-theorem three_ineqs_true {a b c : DCut} : three_ineqs a b c := by
-  simp[three_ineqs,neg_t]
+theorem three_ineqs (a b c : DCut) : three_ineq_list a b c := by
+  simp[three_ineq_list,neg_t]
   tauto
 
 /- **Exercise**: Show that `ofRat` is indeed an order embedding, that is `x ≤ y → ofRat x ≤ ofRat y` for all rational numbers `x` and `y`. -/
