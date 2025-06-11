@@ -3336,6 +3336,9 @@ def three_ineq_list (a b c : DCut) :=
   (a &lt; 0 ∧ 0 ≤ b ∧ c &lt; 0) ∨
   (0 ≤ a ∧ b &lt; 0 ∧ c &lt; 0) ∨
   (a &lt; 0 ∧ b &lt; 0 ∧ c &lt; 0)
+
+def three_ineq_nn_list (a b c : DCut) :=
+  (0 &lt; a ∧ 0 &lt; b ∧ 0 &lt; c) ∨ a = 0 ∨ b = 0 ∨ c = 0
 </code></pre>
 <p>Next we show that these statements are tautologies. The goal is to be able to use the definitions in tactic mode, as in:</p>
 <pre><code class="language-hs">rcases @two_ineqs a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
@@ -3360,6 +3363,12 @@ theorem two_ineqs (a b : DCut) : two_ineq_list a b := by
 
 theorem three_ineqs (a b c : DCut) : three_ineq_list a b c := by
   simp[three_ineq_list,neg_t]
+  tauto
+
+theorem three_nn_ineqs {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
+  : three_ineq_nn_list a b c := by
+  simp[three_ineq_nn_list,neg_t]
+  simp[le_of_lt] at ha hb hc
   tauto
 </code></pre>
 <p><strong>Exercise</strong>: Show that <code>ofRat</code> is indeed an order embedding, that is <code>x ≤ y → ofRat x ≤ ofRat y</code> for all rational numbers <code>x</code> and <code>y</code>.</p>
@@ -3959,6 +3968,11 @@ The last property is particularly challenging, because to relate arbitary reals 
 <p>Given two positive cuts <code>0 &lt; a</code> and <code>0 &lt; b</code>, their product is the set of points <code>z</code> such that for some <code>x ∈ a</code> and <code>y ∈ b</code>, <code>z &lt; x*y</code>. This basic definition underlies the entire framework for multiplication, after which we simply have to deal with various combinations of non-negative and negative numbers.</p>
 <pre><code class="language-lean">def pre_mul (a b : DCut) :=
   { z | ∃ x ∈ a.A, ∃ y ∈ b.A, 0 &lt; x ∧ 0 &lt; y ∧ z &lt; x*y }
+
+theorem pre_mulalt (a b : DCut)
+  :  { z | ∃ x ∈ a.A, ∃ y ∈ b.A, 0 &lt; x ∧ 0 &lt; y ∧ z &lt; x*y } =
+     { z | ∃ x y, x ∈ a.A ∧ y ∈ b.A ∧ 0 &lt; x ∧ 0 &lt; y ∧ z &lt; x*y } := by
+  simp
 </code></pre>
 <p>To prove that this definition results in a cut, we need to prove as usual that it is non-empty, not equal to ℚ, downward closed, and open.</p>
 <pre><code class="language-lean">theorem pre_mul_ne {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) : ∃ q, q ∈ pre_mul a b := by
@@ -4246,6 +4260,7 @@ theorem mul_id_left {a : DCut} : 1 * a = a := by
   simp[mul_comm]
 </code></pre>
 <h2 id="associativity"><a class="header" href="#associativity">Associativity</a></h2>
+<p>The proof that <code>mul_pos</code> is associatve amounts to a lot of book-keeping around some simple observations.</p>
 <pre><code class="language-lean">theorem mul_pos_assoc {a b c : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) (hc : 0 &lt; c)
   : mul_pos a (mul_pos b c hb hc) ha (mul_is_pos hb hc) =
     mul_pos (mul_pos a b ha hb) c (mul_is_pos ha hb) hc  := by
@@ -4253,18 +4268,29 @@ theorem mul_id_left {a : DCut} : 1 * a = a := by
   ext q
   constructor
 
-  . intro ⟨ x, ⟨ hx, ⟨ yz, ⟨ ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, ⟨ hy0, ⟨ hz0, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hyz0, h2 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-    have hxyz' : x * yz &lt; x * (y*z) := by exact (mul_lt_mul_left hx0).mpr h3 -- helps linarith
-    have ⟨ x', ⟨ hx', hxx' ⟩  ⟩ := a.op x hx
-    have h : x * y &lt; x' * y := by exact (mul_lt_mul_iff_of_pos_right hy0).mpr hxx'
-    exact ⟨ x*y, ⟨ ⟨ x', ⟨ hx', ⟨ y, ⟨ hy, ⟨ by linarith, ⟨ hy0,h ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ z, ⟨ hz, ⟨ Left.mul_pos hx0 hy0, ⟨ hz0, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  . choose x hx yz h' hx0 hyz0 hq
+    choose y hy z hz hy0 hz0 hyz' using h'
+    obtain ⟨ x', ⟨ hx', hxx' ⟩ ⟩ : ∃ x' ∈ a.A, x &lt; x' := a.op x hx
+    use x*y
+    constructor
+    . use! x', hx', y
+      simp_all
+      nlinarith
+    . use z
+      simp_all
+      nlinarith
 
-  . rintro ⟨ xy, ⟨ x, hx, y, hy, hx0, hy0, hxy ⟩, z, hz, hxy', hz0, hxyz ⟩
-    have ⟨ z', ⟨ hz', hzz' ⟩ ⟩ := c.op z hz
-    have hxyz' : xy * z &lt; (x * y) * z := by exact (mul_lt_mul_iff_of_pos_right hz0).mpr hxy
-    have hxy0 : 0 &lt; y * z := by exact Left.mul_pos hy0 hz0
-    have : y * z &lt; y * z' := by exact (mul_lt_mul_left hy0).mpr hzz'
-    exact ⟨ x, ⟨ hx, ⟨ y*z, ⟨ ⟨ y, ⟨ hy, ⟨ z', ⟨ hz', ⟨ hy0, ⟨ by linarith, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hxy0, by linarith ⟩  ⟩ ⟩ ⟩ ⟩  ⟩
+  . choose xy h' z hz hxy hx0 hq
+    choose x hx y hy hz0 hy0 hxy' using h'
+    have ⟨ z', ⟨ hz', hzz' ⟩ ⟩ : ∃ z' ∈ c.A, z &lt;z' := c.op z hz
+    use! x, hx, y*z
+    constructor
+    . use y, hy, z'
+      simp_all
+      nlinarith
+    . simp_all
+      nlinarith
+
 
 @[simp]
 theorem pre_mul_with_pos {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b)
@@ -4277,19 +4303,13 @@ theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ 
   : mul_nneg a (mul_nneg b c hb hc) ha (mul_is_nneg hb hc) =
     mul_nneg (mul_nneg a b ha hb) c (mul_is_nneg ha hb) hc := by
 
-  by_cases h : 0 &lt; a ∧ 0 &lt; b ∧ 0 &lt; c
-  . have h1 := mul_pos_assoc h.left h.right.left h.right.right
-    simp[mul_pos] at h1
-    simp[mul_nneg,h1,h]
+  rcases three_nn_ineqs ha hb hc with ⟨ ha', hb', hc' ⟩ | h | h | h
+  . simp[mul_nneg]
+    congr -- removes `∪ odown 0`
+    simpa[mul_pos,ha',hb',hc'] using mul_pos_assoc ha' hb' hc'
 
-  by_cases h1 : 0 = a
-  . simp[←h1]
-  by_cases h2 : 0 = b
-  . simp[←h2]
-  by_cases h3 : 0 = c
-  . simp[←h3]
-
-  simp_all[lt_of_le]
+  repeat
+  . simp[h]
 </code></pre>
 <p>When a ≤ 0 while 0 ≤ b and 0 ≤ c then</p>
 <pre><code class="language-hs">(a*b)*c = a*(b*c)

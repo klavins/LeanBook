@@ -22,9 +22,7 @@ For each of the above definitions of multiplication, we also prove the propertie
 - 0 is an identity: `0*x = 0`
 - Multiplication is commutative: `x*y = y*x`
 - Associativity: `x*(y*z) = (x*y)*z`
-The last property is particularly challenging, because to relate arbitary reals with positive reals, one has to deal with an abundance of cases, preferably gracefully. Thus, along the way we will prove several intermediate results which allow us to make the proof more concise.
-
-
+The last property is particularly challenging, because to relate arbitary reals with positive reals, one has to deal with an abundance of cases, preferably gracefully. Thus, along the way we will prove several intermediate results which allow us to make the proof more concise. 
  ## Definitions
 
 ### Multiplication of Positive Cuts
@@ -33,6 +31,11 @@ Given two positive cuts `0 < a` and `0 < b`, their product is the set of points 
 ```lean
 def pre_mul (a b : DCut) :=
   { z | ∃ x ∈ a.A, ∃ y ∈ b.A, 0 < x ∧ 0 < y ∧ z < x*y }
+
+theorem pre_mulalt (a b : DCut)
+  :  { z | ∃ x ∈ a.A, ∃ y ∈ b.A, 0 < x ∧ 0 < y ∧ z < x*y } =
+     { z | ∃ x y, x ∈ a.A ∧ y ∈ b.A ∧ 0 < x ∧ 0 < y ∧ z < x*y } := by
+  simp
 ```
  To prove that this definition results in a cut, we need to prove as usual that it is non-empty, not equal to ℚ, downward closed, and open.  
 ```lean
@@ -342,7 +345,9 @@ theorem mul_id_right {a : DCut} : a * 1 = a := by
 theorem mul_id_left {a : DCut} : 1 * a = a := by
   simp[mul_comm]
 ```
- ## Associativity 
+ ## Associativity
+
+The proof that `mul_pos` is associatve amounts to a lot of book-keeping around some simple observations. 
 ```lean
 theorem mul_pos_assoc {a b c : DCut} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
   : mul_pos a (mul_pos b c hb hc) ha (mul_is_pos hb hc) =
@@ -351,18 +356,29 @@ theorem mul_pos_assoc {a b c : DCut} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
   ext q
   constructor
 
-  . intro ⟨ x, ⟨ hx, ⟨ yz, ⟨ ⟨ y, ⟨ hy, ⟨ z, ⟨ hz, ⟨ hy0, ⟨ hz0, h3 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hyz0, h2 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-    have hxyz' : x * yz < x * (y*z) := by exact (mul_lt_mul_left hx0).mpr h3 -- helps linarith
-    have ⟨ x', ⟨ hx', hxx' ⟩  ⟩ := a.op x hx
-    have h : x * y < x' * y := by exact (mul_lt_mul_iff_of_pos_right hy0).mpr hxx'
-    exact ⟨ x*y, ⟨ ⟨ x', ⟨ hx', ⟨ y, ⟨ hy, ⟨ by linarith, ⟨ hy0,h ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ z, ⟨ hz, ⟨ Left.mul_pos hx0 hy0, ⟨ hz0, by linarith ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  . choose x hx yz h' hx0 hyz0 hq
+    choose y hy z hz hy0 hz0 hyz' using h'
+    obtain ⟨ x', ⟨ hx', hxx' ⟩ ⟩ : ∃ x' ∈ a.A, x < x' := a.op x hx
+    use x*y
+    constructor
+    . use! x', hx', y
+      simp_all
+      nlinarith
+    . use z
+      simp_all
+      nlinarith
 
-  . rintro ⟨ xy, ⟨ x, hx, y, hy, hx0, hy0, hxy ⟩, z, hz, hxy', hz0, hxyz ⟩
-    have ⟨ z', ⟨ hz', hzz' ⟩ ⟩ := c.op z hz
-    have hxyz' : xy * z < (x * y) * z := by exact (mul_lt_mul_iff_of_pos_right hz0).mpr hxy
-    have hxy0 : 0 < y * z := by exact Left.mul_pos hy0 hz0
-    have : y * z < y * z' := by exact (mul_lt_mul_left hy0).mpr hzz'
-    exact ⟨ x, ⟨ hx, ⟨ y*z, ⟨ ⟨ y, ⟨ hy, ⟨ z', ⟨ hz', ⟨ hy0, ⟨ by linarith, this ⟩ ⟩ ⟩ ⟩ ⟩ ⟩, ⟨ hx0, ⟨ hxy0, by linarith ⟩  ⟩ ⟩ ⟩ ⟩  ⟩
+  . choose xy h' z hz hxy hx0 hq
+    choose x hx y hy hz0 hy0 hxy' using h'
+    have ⟨ z', ⟨ hz', hzz' ⟩ ⟩ : ∃ z' ∈ c.A, z <z' := c.op z hz
+    use! x, hx, y*z
+    constructor
+    . use y, hy, z'
+      simp_all
+      nlinarith
+    . simp_all
+      nlinarith
+
 
 @[simp]
 theorem pre_mul_with_pos {a b : DCut} (ha : 0 < a) (hb : 0 < b)
@@ -375,19 +391,13 @@ theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ 
   : mul_nneg a (mul_nneg b c hb hc) ha (mul_is_nneg hb hc) =
     mul_nneg (mul_nneg a b ha hb) c (mul_is_nneg ha hb) hc := by
 
-  by_cases h : 0 < a ∧ 0 < b ∧ 0 < c
-  . have h1 := mul_pos_assoc h.left h.right.left h.right.right
-    simp[mul_pos] at h1
-    simp[mul_nneg,h1,h]
+  rcases three_nn_ineqs ha hb hc with ⟨ ha', hb', hc' ⟩ | h | h | h
+  . simp[mul_nneg]
+    congr -- removes `∪ odown 0`
+    simpa[mul_pos,ha',hb',hc'] using mul_pos_assoc ha' hb' hc'
 
-  by_cases h1 : 0 = a
-  . simp[←h1]
-  by_cases h2 : 0 = b
-  . simp[←h2]
-  by_cases h3 : 0 = c
-  . simp[←h3]
-
-  simp_all[lt_of_le]
+  repeat
+  . simp[h]
 ```
 
 When a ≤ 0 while 0 ≤ b and 0 ≤ c then

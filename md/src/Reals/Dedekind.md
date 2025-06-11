@@ -324,6 +324,9 @@ def three_ineq_list (a b c : DCut) :=
   (a < 0 ∧ 0 ≤ b ∧ c < 0) ∨
   (0 ≤ a ∧ b < 0 ∧ c < 0) ∨
   (a < 0 ∧ b < 0 ∧ c < 0)
+
+def three_ineq_nn_list (a b c : DCut) :=
+  (0 < a ∧ 0 < b ∧ 0 < c) ∨ a = 0 ∨ b = 0 ∨ c = 0
 ```
  Next we show that these statements are tautologies. The goal is to be able to use the definitions in tactic mode, as in:
 ```hs
@@ -353,6 +356,12 @@ theorem two_ineqs (a b : DCut) : two_ineq_list a b := by
 
 theorem three_ineqs (a b c : DCut) : three_ineq_list a b c := by
   simp[three_ineq_list,neg_t]
+  tauto
+
+theorem three_nn_ineqs {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
+  : three_ineq_nn_list a b c := by
+  simp[three_ineq_nn_list,neg_t]
+  simp[le_of_lt] at ha hb hc
   tauto
 ```
  **Exercise**: Show that `ofRat` is indeed an order embedding, that is `x ≤ y → ofRat x ≤ ofRat y` for all rational numbers `x` and `y`. 
