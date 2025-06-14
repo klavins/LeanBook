@@ -39,6 +39,12 @@ def DCut.B (c : DCut) : Set ℚ := Set.univ \ c.A
 
 theorem not_in_a_in_b {c :DCut} {q : ℚ} : q ∉ c.A → q ∈ c.B := by simp[B]
 
+theorem ub_to_notin {y:ℚ} {A : Set ℚ}
+  : (∀ x ∈ A, x < y) → y ∉ A := by
+  intro h hy
+  have := h y hy
+  simp_all
+
 /- ## Making Rationals into Reals
 
 All rational numbers are also real numbers via the map that identifies a rational `q` with the interval `(∞,q)` of all rationals less than `q`. We call this set `odown q`, where `odown` is meant to abbreviate `open, downward closed`. -/
@@ -87,8 +93,6 @@ instance int_cast_inst : IntCast DCut := ⟨ λ x => ofRat x ⟩
 instance zero_inst : Zero DCut := ⟨ ofRat 0 ⟩
 instance one_inst : One DCut := ⟨ ofRat 1 ⟩
 instance inhabited_inst : Inhabited DCut := ⟨ 0 ⟩
-
-
 
 theorem zero_rw : A 0 = odown 0 := by rfl
 theorem one_rw : A 1 = odown 1 := by rfl
@@ -250,6 +254,22 @@ theorem zero_in_pos {a : DCut} (ha : 0 < a) : 0 ∈ a.A := by
   simp[zero_rw,odown] at hx2
   exact a.dc 0 x ⟨ hx2, hx1 ⟩
 
+theorem pos_has_zero {a : DCut} : 0 < a ↔ 0 ∈ a.A := by
+  constructor
+  . intro h
+    exact zero_in_pos h
+  . simp[lt_inst,DCut.ext_iff]
+    intro h
+    constructor
+    . intro h1
+      rw[←h1] at h
+      simp[zero_rw,odown] at h
+    . intro q hq
+      simp[zero_rw,odown] at hq
+      apply a.dc q 0
+      exact ⟨ by exact _root_.le_of_lt hq, h ⟩
+
+
 theorem non_neg_in_pos {a : DCut} (ha : 0 < a) : ∃ x ∈ a.A, 0 < x := by
   have h0 := zero_in_pos ha
   exact a.op 0 h0
@@ -303,6 +323,12 @@ theorem not_gt_to_le {a : DCut} : ¬ 0 < a ↔ a ≤ 0 := by
       have : A 0 = a.A := by exact Set.Subset.antisymm h4 h6
       exact h3 this
 
+theorem has_ub (a : DCut) : ∃ x, x ∉ a.A ∧ ∀ y ∈ a.A, y < x := by
+  obtain ⟨ x, hx ⟩ := a.nf
+  use! x, hx
+  intro y hy
+  exact a_lt_b hy hx
+
 /- ## Supporting Reasoning by Cases
 
 Later, in the chapter on multiplication, it will be useful to reason about combinations of non-negative and negative cuts. With one cut `a`, there are two possibilities: `0 ≤ a` and `a < 0`. For two cuts there are four possibilities, and for three cuts, there are eight possibilities.
@@ -314,6 +340,9 @@ def two_ineq_list (a b : DCut) :=
   (a < 0 ∧ 0 ≤ b) ∨
   (0 ≤ a ∧ b < 0) ∨
   (a < 0 ∧ b < 0)
+
+def two_ineq_nn_list (a b: DCut) :=
+  (0 < a ∧ 0 < b) ∨ a = 0 ∨ b = 0
 
 def three_ineq_list (a b c : DCut) :=
   (0 ≤ a ∧ 0 ≤ b ∧ 0 ≤ c) ∨
@@ -356,6 +385,12 @@ theorem two_ineqs (a b : DCut) : two_ineq_list a b := by
 
 theorem three_ineqs (a b c : DCut) : three_ineq_list a b c := by
   simp[three_ineq_list,neg_t]
+  tauto
+
+theorem two_nn_ineqs {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
+  : two_ineq_nn_list a b := by
+  simp[two_ineq_nn_list,neg_t]
+  simp[le_of_lt] at ha hb
   tauto
 
 theorem three_nn_ineqs {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)

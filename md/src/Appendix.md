@@ -29,6 +29,12 @@ theorem not_empty_set_diff {A : Type u} {X Y : Set A} (h : ¬X ⊆ Y)
   by_contra hx
   simp at hx
   exact h hx
+
+theorem remove_set_notation {T : Type*} (A : Set T) (f : T → Prop)
+  : { x | f x } = A ↔ ∀ x, x ∈ A ↔ f x := by
+  constructor
+  . exact fun a x ↦ Iff.symm (Eq.to_iff (congrFun a x))
+  . exact fun a ↦ Eq.symm (Set.ext a)
 ```
 
 <div style='height=50px'>&nbsp;</div><hr>

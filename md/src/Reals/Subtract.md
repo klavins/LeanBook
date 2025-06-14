@@ -236,8 +236,8 @@ theorem neg_add_cancel_left {c : DCut} : -c + c = 0 := by
 ```
  ## Additive Group Structure 
 ```lean
-instance add_group_inst : AddGroup DCut
-  := AddGroup.ofLeftAxioms add_assoc @sum_zero_left @neg_add_cancel_left
+instance add_group_inst : AddGroup DCut :=
+  AddGroup.ofLeftAxioms add_assoc @sum_zero_left @neg_add_cancel_left
 
 instance add_comm_group_inst : AddCommGroup DCut := ⟨ @sum_comm ⟩
 

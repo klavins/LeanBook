@@ -378,8 +378,8 @@ instance s_dec {c : DCut} {s t : ℚ}  : DecidablePred (· ∈ Svals c s t) := b
   rw[sum_comm,add_neg,neg_add_cancel_right]
 </code></pre>
 <h2 id="additive-group-structure"><a class="header" href="#additive-group-structure">Additive Group Structure</a></h2>
-<pre><code class="language-lean">instance add_group_inst : AddGroup DCut
-  := AddGroup.ofLeftAxioms add_assoc @sum_zero_left @neg_add_cancel_left
+<pre><code class="language-lean">instance add_group_inst : AddGroup DCut :=
+  AddGroup.ofLeftAxioms add_assoc @sum_zero_left @neg_add_cancel_left
 
 instance add_comm_group_inst : AddCommGroup DCut := ⟨ @sum_comm ⟩
 
