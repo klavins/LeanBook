@@ -219,8 +219,6 @@ example : (1:DCut) * 0 = 0 := by
   simp[hmul_inst,mul]
 
 
-
-
 /- ## Multiplication by 0
 
 For non-negative cuts, it is useful to know that `0*a = 0` and `a*0 = 0`, as these properties allow us to reason about the zero cases in the non-negative commutativity proof. These properties also allow us to show that `0` is the multiplicative identity, which is needed for proving cuts with multiplication form a group. -/
@@ -257,51 +255,12 @@ theorem mul_zero_left {a : DCut} : 0 * a = 0 := by
 theorem mul_zero_right {a : DCut} : a * 0 = 0 := by
   simp[hmul_inst,mul]
 
+instance mul_zero_inst : MulZeroClass DCut := ⟨
+    @mul_zero_left,
+    @mul_zero_right
+  ⟩
 
 
-
-/- ## Multiplication by 1 -/
-
-@[simp]
-theorem mul_pos_id_left {a : DCut} (ha: 0 < a)
-  : mul_pos 1 a zero_lt_one ha = a := by
-  simp[DCut.ext_iff,mul_pos,pre_mul,one_rw,odown]
-  ext q
-  constructor
-  . intro ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ hx0, ⟨ hy0, hqxy ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ -- 1 * a ≤ a
-    have hxy : x*y < y := mul_lt_of_lt_one_left hy0 hx
-    have hxy' := a.dc (x*y) y ⟨ by linarith, hy ⟩
-    exact a.dc q (x*y) ⟨ by linarith, hxy' ⟩
-  . intro hq                                                   -- a ≤ 1 * a
-    by_cases h : 0 < q
-    . have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ : ∃ s ∈ a.A, q < s := a.op q hq
-      have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ : ∃ t ∈ a.A, s < t := a.op s hs1
-      have hs3 : 0 < s := by linarith
-      use q/s
-      apply And.intro
-      . exact Bound.div_lt_one_of_pos_of_lt hs3 hs2
-      . use t
-        simp_all
-        have hts : t/s > 1 := (one_lt_div hs3).mpr ht2
-        have hqts : q*(t/s) = q / s * t := Eq.symm (mul_comm_div q s t)
-        exact ⟨ by linarith, by nlinarith ⟩
-    . have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op 0 (zero_in_pos ha)
-      use 1/2
-      apply And.intro
-      . linarith
-      . exact ⟨ s, ⟨ hs1, ⟨ by linarith, ⟨ hs2, by linarith ⟩ ⟩ ⟩ ⟩
-
-@[simp]
-theorem mul_nneg_id_left {a : DCut} (ha: 0 ≤ a)
-  : mul_nneg 1 a zero_le_one ha = a := by
-    rw[le_of_lt] at ha
-    apply Or.elim ha
-    intro ha0
-    . simp[←ha0]
-    . intro ha'
-      have := mul_pos_id_left ha'
-      simp_all[mul_pos,DCut.ext_iff,mul_nneg,DCut.ext_iff]
-      exact ha
 
 /- ## Commutativity
 
@@ -319,24 +278,84 @@ theorem mul_pos_comm {a b : DCut} (ha : 0 < a) (hb : 0 < b)
 
 theorem mul_nneg_comm {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b)
   : mul_nneg a b ha hb = mul_nneg b a hb ha := by
-  by_cases h : 0 < a ∧ 0 < b
-  . simp[mul_nneg]
-    have := mul_pos_comm h.left h.right
-    simp_all[mul_pos]
-  . simp[lt_of_le] at h
-    by_cases hb0 : 0 = b
-    . simp[←hb0]
-    . simp_all
-      simp[←h]
 
-/- The proof of commutativity for arbitrary cuts requires us to reason about every possible combination of non-negative and negative cuts. We do this with the theorem `two_ineqs_true` which enuerates all four cases. For each case, the same (somewhat massive) simplificiation works. -/
+  rcases two_nn_ineqs ha hb with ⟨ ha, hb ⟩ | h | h
+  . simp[mul_nneg]
+    have := mul_pos_comm ha hb
+    simp_all[mul_pos]
+  repeat
+  . simp[h]
+
+
+/- The proof of commutativity for arbitrary cuts requires us to reason about every possible combination of non-negative and negative cuts. We do this with the theorem `two_ineqs_true` which enuerates all four cases. For each case, the same simplificiation works. -/
 
 theorem mul_comm {a b : DCut}: a*b = b*a := by
   rcases two_ineqs a b with ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩ | ⟨ ha, hb ⟩
   repeat
   simp[ha,hb,hmul_inst,mul,mul_nneg_comm,neg_le.mp]
 
-/- Commutativity makes it easy to prove similar versions of theorems for which the one side has already been established. For example: -/
+
+
+/- ## Multiplication by 1
+
+The proof that `1*x=x` is split into three main steps for positive, non-negative, and arbitary cuts. For positive cuts, the proof is split into two parts that show `1*a ≤ a` and `a*1 ≤ 1` respectively. The first direction is straightforward, and uses the fact that `a` is downward closed.
+
+-/
+
+theorem mul_pos_id_left_1 {a : DCut} (ha: 0 < a)
+  : mul_pos 1 a zero_lt_one ha ≤ a := by
+  intro q ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, ⟨ hx0, ⟨ hy0, hqxy ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  apply a.dc q (x*y)
+  split_ands
+  . linarith
+  . have hxy : x*y < y := mul_lt_of_lt_one_left hy0 hx
+    exact a.dc (x*y) y ⟨ by linarith, hy ⟩
+
+/- For the other direction, we assume we have `q ∈ a.A` and need to show `q` is in `mul_pos 1 a`. This is done differently depending on whether `q` is positive or non-negative. For the first case, we use the fact that `a.A` is open to find `s` and `t` in `a.A` with `q < s < t`. Then `q < s*t` as required. For `q` non-negative, we use the fact that `0 ∈ a.A` and find `s ∈ a.A` with `0<s`. We also have `1/2 ∈ odown 1`. Then `q < s*(1/2)` as required.
+-/
+
+theorem mul_pos_id_left_2 {a : DCut} (ha: 0 < a)
+  : a ≤ mul_pos 1 a zero_lt_one ha := by
+  intro q hq
+  simp[mul_pos]
+  by_cases h : 0 < q
+  . have ⟨ s, ⟨ t, ⟨ hx, ⟨ ht1, ⟨ hsq, st ⟩ ⟩ ⟩ ⟩ ⟩ := op2 q hq
+    have hs3 : 0 < s := by linarith
+    refine pre_mul_suffice ?_ ht1 (div_pos h hs3) ?_ ?_
+    . apply in_one
+      exact Bound.div_lt_one_of_pos_of_lt hs3 (by linarith)
+    . linarith
+    . have hts : t/s > 1 := (one_lt_div hs3).mpr (by linarith)
+      have hqts : q*(t/s) = q / s * t := Eq.symm (mul_comm_div q s t)
+      nlinarith
+  . have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op 0 (zero_in_pos ha)
+    refine pre_mul_suffice ?_ hs1 one_half_pos hs2 ?_
+    . apply in_one
+      linarith
+    . linarith
+
+/- Combining the above inequalities gives the main result for positive cuts. -/
+
+@[simp]
+theorem mul_pos_id_left {a : DCut} (ha: 0 < a)
+  : mul_pos 1 a zero_lt_one ha = a := by
+  apply PartialOrder.le_antisymm
+  . exact mul_pos_id_left_1 ha
+  . exact mul_pos_id_left_2 ha
+
+/- For non-negative cuts, we consider the cases where `0 = a` and `0 < a` separately. -/
+
+@[simp]
+theorem mul_nneg_id_left {a : DCut} (ha: 0 ≤ a)
+  : mul_nneg 1 a zero_le_one ha = a := by
+    rw[le_of_lt] at ha
+    rcases ha with h1 | h2
+    . simp[←h1]
+    . have := mul_pos_id_left h2
+      simp_all[mul_pos,DCut.ext_iff,mul_nneg,DCut.ext_iff]
+      exact ha
+
+/- Commutativity makes it easy to prove similar versions of theorems for which one side has already been established. For example: -/
 
 @[simp]
 theorem mul_nneg_id_right {a : DCut} (ha: 0 ≤ a)
@@ -358,12 +377,17 @@ theorem mul_id_right {a : DCut} : a * 1 = a := by
 theorem mul_id_left {a : DCut} : 1 * a = a := by
   simp[mul_comm]
 
+/- Mathlib includes a class that keeps track of these properties. -/
 
+instance mul_one_inst : MulOneClass DCut := ⟨
+  @mul_id_left,
+  @mul_id_right
+⟩
 
 
 /- ## Associativity
 
-The proof that `mul_pos` is associatve amounts to a lot of book-keeping around some simple observations. -/
+The proof that `mul` is associatve amounts to a lot of book-keeping around some simple observations. We start with a proof that `mul_pos` is associatve, which has two directions to prove. Each uses the fact that the cuts are open.   -/
 
 theorem mul_pos_assoc {a b c : DCut} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
   : mul_pos a (mul_pos b c hb hc) ha (mul_is_pos hb hc) =
@@ -395,12 +419,7 @@ theorem mul_pos_assoc {a b c : DCut} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
     . simp_all
       nlinarith
 
-
-@[simp]
-theorem pre_mul_with_pos {a b : DCut} (ha : 0 < a) (hb : 0 < b)
-  : pre_mul a b ∪ odown 0 = pre_mul a b := by
-    have := mul_is_pos ha hb
-    simp_all[mul_pos,lt_inst,zero_rw]
+/- Extending this result to non-negative cuts requires reasoning about four cases, convenienly available through the `three_nn_ineqs` theorem. -/
 
 @[simp]
 theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
@@ -408,6 +427,7 @@ theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ 
     mul_nneg (mul_nneg a b ha hb) c (mul_is_nneg ha hb) hc := by
 
   rcases three_nn_ineqs ha hb hc with ⟨ ha', hb', hc' ⟩ | h | h | h
+
   . simp[mul_nneg]
     congr -- removes `∪ odown 0`
     simpa[mul_pos,ha',hb',hc'] using mul_pos_assoc ha' hb' hc'
@@ -416,7 +436,8 @@ theorem mul_nneg_assoc {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ 
   . simp[h]
 
 /-
-When a ≤ 0 while 0 ≤ b and 0 ≤ c then
+
+To prove associativity in general, it is tempting to look at 27 possible cases in which each of three cuts are positive, zero or negative. However, we can take advantage of some basic algebra to reduce the number of cases to eight. To proceed, note that when `a ≤ 0` while `0 ≤ b` and `0 ≤ c`, then
 ```hs
 (a*b)*c = a*(b*c)
 ```
@@ -441,12 +462,19 @@ theorem mul_neg_dist_right {a b : DCut} : (-a)*b = -(a*b) := by
   repeat
   simp[ha,hb,neg_le.mp]
 
+
+/- To make the proof more readable, we rewrite the theorem for non-negative cuts in terms of arbitrary cuts. -/
+
 theorem mul_assoc_all_nn {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
   : a * (b * c) = (a * b) * c := by
   simp[hmul_inst,mul]
   simp[ha,hb,hc,neg_le.mp] -- uses mul_nneg_assoc
 
+/- And we prove a simple theorem that allows us to flip the direction of an inequality involving a negative cut. -/
+
 theorem flip {a : DCut} (ha: a < 0) : 0 ≤ -a := neg_le'.mp (lt_imp_le ha)
+
+/- Finally, combining the above, we can use the simplifier, `flip` and  `mul_assoc_all_nn` to prove associativity for arbitrary cuts. -/
 
 theorem mul_assoc {a b c : DCut} : a * (b * c) = (a * b) * c := by
   rcases three_ineqs a b c with ⟨ ha, hb, hc ⟩ | ⟨ ha, hb, hc ⟩ |
@@ -462,28 +490,22 @@ theorem mul_assoc {a b c : DCut} : a * (b * c) = (a * b) * c := by
   . simpa using mul_assoc_all_nn ha (flip hb) (flip hc)
   . simpa using mul_assoc_all_nn (flip ha) (flip hb) (flip hc)
 
-/- ## Instantiating Multiplication Classes -/
 
-instance mul_zero_inst : MulZeroClass DCut := ⟨
-    @mul_zero_left,
-    @mul_zero_right
-  ⟩
 
-instance mul_one_inst : MulOneClass DCut := ⟨
-  @mul_id_left,
-  @mul_id_right
-⟩
+/- ## Instantiating Multiplication Classes
+
+With associatively and commutivity proved, we can show that multiplication forms a semigroup and a commutative magma. -/
 
 instance semigroup_inst : Semigroup DCut := ⟨
   λ x y z => Eq.symm (@mul_assoc x y z)
 ⟩
 
-instance semigroup_w_zero_inst : SemigroupWithZero DCut := ⟨ -- is this auotgenerated?
+instance semigroup_w_zero_inst : SemigroupWithZero DCut := ⟨
   @mul_zero_left,
   @mul_zero_right
 ⟩
 
-instance mul_zo_inst : MulZeroOneClass DCut := ⟨  -- is this auotgenerated?
+instance mul_zo_inst : MulZeroOneClass DCut := ⟨
   @mul_zero_left,
   @mul_zero_right
 ⟩
@@ -492,20 +514,25 @@ instance comm_magma_inst : CommMagma DCut := ⟨ @mul_comm ⟩
 
 instance comm_semigroup_inst : CommSemigroup DCut := ⟨ @mul_comm ⟩
 
-example {x y z :DCut} : (x+y)*z = z*(y+x) := by
-  rw[@_root_.mul_comm] -- This is mathlib's CommMagma mul_com
-  abel_nf
 
-/- ## Natural Powers and Monoid Instance -/
+
+/- ## Natural Powers and Monoid Instance
+
+Mathlib's class structure that leads to instantiating a type as a field includes showing the type is a Monoid, which includes a method for raising a cut `x` to a natural numbered power, as in `x^n`. We define that method here.
+-/
 
 def npow (n: ℕ) (x : DCut) : DCut := match n with
   | Nat.zero => 1
   | Nat.succ k => x * (npow k x)
 
+/- And show to obvious statements about such powers. -/
+
 theorem npow_zero {x : DCut} : npow 0 x = 1 := by rfl
 
 theorem npow_succ {n : ℕ} {x : DCut} : npow (n+1) x = npow n x * x := by
   simp[npow,mul_comm]
+
+/- Together these properties allow us to instante DCut as a Monoid, a Commutative Monoind, and a Commutative Monoid with zero. -/
 
 instance monoid_inst : Monoid DCut := ⟨
   @mul_id_left,
@@ -529,5 +556,7 @@ instance comm_monoid_wz_inst : CommMonoidWithZero DCut := ⟨
   @mul_zero_right
 ⟩
 
+/- Here is a simple example that uses theorems about monoids from Mathlib. -/
+
 example (x : DCut) : x^2 = x*x := by
-  exact pow_two x --> pow_two is a theorem about monoids from Mathlib
+  exact pow_two x

@@ -203,6 +203,13 @@ theorem ub_to_notin {y:ℚ} {A : Set ℚ}
   have := h y hy
   simp_all
 </code></pre>
+<p>The open property can be used extended.</p>
+<pre><code class="language-lean">theorem op2 {a : DCut} (q : ℚ) (hq : q ∈ a.A)
+  : ∃ x, ∃ y, x ∈ a.A ∧ y ∈ a.A ∧ q &lt; x ∧ x &lt; y := by
+  have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
+  have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
+  use s, t
+</code></pre>
 <h2 id="making-rationals-into-reals"><a class="header" href="#making-rationals-into-reals">Making Rationals into Reals</a></h2>
 <p>All rational numbers are also real numbers via the map that identifies a rational <code>q</code> with the interval <code>(∞,q)</code> of all rationals less than <code>q</code>. We call this set <code>odown q</code>, where <code>odown</code> is meant to abbreviate <code>open, downward closed</code>.</p>
 <pre><code class="language-lean">def odown (q : ℚ) : Set ℚ := { y | y &lt; q }
@@ -462,6 +469,18 @@ theorem has_ub (a : DCut) : ∃ x, x ∉ a.A ∧ ∀ y ∈ a.A, y &lt; x := by
   use! x, hx
   intro y hy
   exact a_lt_b hy hx
+
+theorem in_down {p q:ℚ} (h : p &lt; q) : p ∈ odown q := by
+  simp[odown]
+  exact h
+
+theorem in_zero {q:ℚ} (h: q&lt;0) : q ∈ A 0 := by
+  simp[zero_rw]
+  exact in_down h
+
+theorem in_one {q:ℚ} (h: q&lt;1) : q ∈ A 1 := by
+  simp[one_rw]
+  exact in_down h
 </code></pre>
 <h2 id="supporting-reasoning-by-cases"><a class="header" href="#supporting-reasoning-by-cases">Supporting Reasoning by Cases</a></h2>
 <p>Later, in the chapter on multiplication, it will be useful to reason about combinations of non-negative and negative cuts. With one cut <code>a</code>, there are two possibilities: <code>0 ≤ a</code> and <code>a &lt; 0</code>. For two cuts there are four possibilities, and for three cuts, there are eight possibilities.</p>

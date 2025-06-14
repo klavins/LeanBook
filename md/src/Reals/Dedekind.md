@@ -48,6 +48,14 @@ theorem ub_to_notin {y:ℚ} {A : Set ℚ}
   have := h y hy
   simp_all
 ```
+ The open property can be used extended. 
+```lean
+theorem op2 {a : DCut} (q : ℚ) (hq : q ∈ a.A)
+  : ∃ x, ∃ y, x ∈ a.A ∧ y ∈ a.A ∧ q < x ∧ x < y := by
+  have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
+  have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
+  use s, t
+```
  ## Making Rationals into Reals
 
 All rational numbers are also real numbers via the map that identifies a rational `q` with the interval `(∞,q)` of all rationals less than `q`. We call this set `odown q`, where `odown` is meant to abbreviate `open, downward closed`. 
@@ -328,6 +336,18 @@ theorem has_ub (a : DCut) : ∃ x, x ∉ a.A ∧ ∀ y ∈ a.A, y < x := by
   use! x, hx
   intro y hy
   exact a_lt_b hy hx
+
+theorem in_down {p q:ℚ} (h : p < q) : p ∈ odown q := by
+  simp[odown]
+  exact h
+
+theorem in_zero {q:ℚ} (h: q<0) : q ∈ A 0 := by
+  simp[zero_rw]
+  exact in_down h
+
+theorem in_one {q:ℚ} (h: q<1) : q ∈ A 1 := by
+  simp[one_rw]
+  exact in_down h
 ```
  ## Supporting Reasoning by Cases
 
