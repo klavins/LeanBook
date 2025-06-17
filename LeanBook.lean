@@ -15,5 +15,6 @@ import LeanBook.Chapters.Reals.Dedekind
 import LeanBook.Chapters.Reals.Add
 import LeanBook.Chapters.Reals.Subtract
 import LeanBook.Chapters.Reals.Max
+import LeanBook.Chapters.Reals.Multiply
 
 import LeanBook.Chapters.Appendix

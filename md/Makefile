@@ -25,7 +25,7 @@ NAT_FILES := $(foreach item,$(NAT_NAMES), $(MD_DIR)/Naturals/$(item).md)
 INT_NAMES := Intro Definition Properties Operators
 INT_FILES := $(foreach item,$(INT_NAMES), $(MD_DIR)/Integers/$(item).md)
 
-REAL_NAMES := Intro Dedekind Add Subtract Multiply Max
+REAL_NAMES := Intro Dedekind Add Subtract Multiply Max Distributivity
 REAL_FILES := $(foreach item,$(REAL_NAMES), $(MD_DIR)/Reals/$(item).md)
 
 ORD_NAMES := Definition Properties Nats Sets Information Strings Maps Completions 

@@ -556,7 +556,7 @@ instance comm_monoid_wz_inst : CommMonoidWithZero DCut := ⟨
   @mul_zero_right
 ⟩
 
-/- Here is a simple example that uses theorems about monoids from Mathlib. -/
+/- Here is a simple example that use a theorem about monoids from Mathlib. -/
 
 example (x : DCut) : x^2 = x*x := by
   exact pow_two x

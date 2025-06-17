@@ -202,6 +202,13 @@ theorem ub_to_notin {y:ℚ} {A : Set ℚ}
   intro h hy
   have := h y hy
   simp_all
+
+theorem notin_to_ub {y:ℚ} {a : DCut}
+  : y ∉ a.A → (∀ x ∈ a.A, x &lt; y)  := by
+  intro hy x hx
+  by_contra h
+  have := a.dc y x ⟨ by linarith, hx ⟩
+  exact hy this
 </code></pre>
 <p>The open property can be used extended.</p>
 <pre><code class="language-lean">theorem op2 {a : DCut} (q : ℚ) (hq : q ∈ a.A)
@@ -514,6 +521,14 @@ simp
 </code></pre>
 <p>We start with a theorem that can be used to rewrite <code>x&lt;0</code> as <code>¬0≤x</code>.</p>
 <pre><code class="language-lean">theorem neg_t {x : DCut} : x &lt; 0 ↔ ¬0 ≤ x := by
+  have := trichotomy_lt 0 x
+  simp_all[le_of_lt]
+  constructor
+  . intro h
+    exact ⟨ ne_of_gt h, not_lt_of_gt h ⟩
+  . tauto
+
+theorem neg_t' {x : DCut} : 0 &lt; x ↔ ¬x ≤ 0 := by
   have := trichotomy_lt 0 x
   simp_all[le_of_lt]
   constructor

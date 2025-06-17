@@ -257,6 +257,34 @@ instance add_monoid_wo_inst : AddMonoidWithOne DCut := ⟨
         exact hq
   ⟩
 ```
+ ## Useful properties 
+```lean
+theorem add_preserves_le { a b: DCut} (c:DCut): a ≤ b → a + c ≤ b + c := by
+  intro h q ⟨ x, ⟨ hx, ⟨ y, ⟨ hy, h' ⟩ ⟩ ⟩ ⟩
+  exact ⟨ x, ⟨ h hx, y, ⟨ hy, h' ⟩ ⟩ ⟩
+
+theorem negate_le { x : DCut } : 0 ≤ x ↔ -x ≤ 0 := by
+  constructor
+  . intro h
+    have := add_preserves_le (-x) h
+    simp at this
+    exact this
+  . intro h
+    have := add_preserves_le x h
+    simp at this
+    exact this
+
+theorem negate_le' { x : DCut } : 0 ≤ -x ↔ x ≤ 0 := by
+  constructor
+  . intro h
+    have := add_preserves_le x h
+    simp at this
+    exact this
+  . intro h
+    have := add_preserves_le (-x) h
+    simp at this
+    exact this
+```
 
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

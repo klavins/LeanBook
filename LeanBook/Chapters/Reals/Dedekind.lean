@@ -45,6 +45,13 @@ theorem ub_to_notin {y:ℚ} {A : Set ℚ}
   have := h y hy
   simp_all
 
+theorem notin_to_ub {y:ℚ} {a : DCut}
+  : y ∉ a.A → (∀ x ∈ a.A, x < y)  := by
+  intro hy x hx
+  by_contra h
+  have := a.dc y x ⟨ by linarith, hx ⟩
+  exact hy this
+
 /- The open property can be used extended. -/
 
 theorem op2 {a : DCut} (q : ℚ) (hq : q ∈ a.A)
@@ -394,6 +401,15 @@ theorem neg_t {x : DCut} : x < 0 ↔ ¬0 ≤ x := by
   . intro h
     exact ⟨ ne_of_gt h, not_lt_of_gt h ⟩
   . tauto
+
+theorem neg_t' {x : DCut} : 0 < x ↔ ¬x ≤ 0 := by
+  have := trichotomy_lt 0 x
+  simp_all[le_of_lt]
+  constructor
+  . intro h
+    exact ⟨ ne_of_gt h, not_lt_of_gt h ⟩
+  . tauto
+
 
 /- Then the proofs are straightforward. To see how these are used later, see the proofs of commutativity and associativity of multiplication. -/
 

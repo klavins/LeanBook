@@ -52,6 +52,7 @@
 - [Subtraction](./Reals/Subtract.md)
 - [Maximum](./Reals/Max.md)
 - [Multiplication](./Reals/Multiply.md)
+- [Distributivity](./Reals/Distributivity.md)
 
 # Partial Orders
 
