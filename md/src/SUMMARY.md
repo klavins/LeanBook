@@ -21,6 +21,7 @@
 # Type Theory
 
 - [λ-Calculus](./LambdaCalculus.md)
+- [Types](./Types.md)
 - [Propositional Logic](./PropositionalLogic.md)
 - [Curry-Howard Isomorphism](./CurryHoward.md)
 - [Inductive Types](./InductiveTypes.md)

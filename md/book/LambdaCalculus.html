@@ -386,139 +386,7 @@ def c₃ := λ ( f : α → α ) =&gt; λ ( x : α ) =&gt; f (f (f x))
   rfl
 </code></pre>
 <p>You can prove this by rfl because, as we will see, two lambda expressions that beta reduce to the same thing are considered <code>definitionally equal</code>. Although this is not scalable and in fact Lean has a much more expressive type system that we will harness soon.</p>
-<h3 id="church-numerals-are-inconvenient"><a class="header" href="#church-numerals-are-inconvenient">Church Numerals are Inconvenient</a></h3>
-<p>You can define other opertations on the natural numbers in a similar fashion. It is also fairly straightforward to define Booleans and Boolean Logic, as well as a number of other basic mathematical structures.</p>
-<p>Building up from these basic ideas to more complex mathematics is the point of Lean. Eventually, we will arrive at cutting edge mathematics in Lean. Because it is defined in terms of thee basic building blocks, we always have a proof that goes from the high level mathematica statements to the low level meaning in terms of the typed λ-calculus: That is, a proof from first princples.</p>
-<p>That said, it will ultimately be better to define a richer set of types. For example, we'll define the natural numbers and almost every other mathematical object in Lean using what are called <a href="InductiveTypes.html">Inductive Types</a>.</p>
-<h2 id="type-theory-questions"><a class="header" href="#type-theory-questions">Type Theory Questions</a></h2>
-<p>Now that we have a simple programming language and a way to assign types to terms in that language, we can explore a number of problems in type theory, each with its own purpose and challenges.</p>
-<p><strong>TYPE CHECKING</strong>: In a given context, does a term M have a given type σ?</p>
-<pre><code>Γ ⊢ M : σ
-</code></pre>
-<p><strong>WELL TYPEDNESS</strong>: Does there exist a context in which a type be assigned to a term M? Another way of saying this is "is M a legal term?"</p>
-<pre><code>? ⊢ M : ?
-</code></pre>
-<p><strong>TYPE INFERENCE</strong>: Can M be assigned a type consistent with a given context?</p>
-<pre><code>Γ ⊢ M : ?
-</code></pre>
-<p><strong>INHABITATION</strong>: Does there exist a term of a given type? If σ is a logical statement, then this is the question of whether σ has a proof.</p>
-<pre><code>Γ ⊢ ? : σ
-</code></pre>
-<h1 id="type-inference"><a class="header" href="#type-inference">Type Inference</a></h1>
-<p>Lean is good at type inference. We can go a step further with Lean and leave out types in expressions, letting Lean infer what they must be. For example, the Church numerals can be written more consicely, skipping some of the type declarations and using multi-argument lambdas, as follows:</p>
-<pre><code class="language-lean">#check λ _ y =&gt; y
-#check λ ( g : α → α ) y =&gt; g y
-#check λ ( g : α → α ) y =&gt; g (g y)
-</code></pre>
-<p>We haven't said what the type of y is in these expressions. And we haven't even given the first bound variable in c₀ a name, since it isn't used in the the body of the abstraction. Lean infers that y must have type α because it is being acted upon by a function from α to α. We can also write the other operations, like multiplication, more concisely:</p>
-<pre><code class="language-lean">#check λ (m n : N) f x =&gt; m (n f) x
-</code></pre>
-<p>We can't leave out all of the type information though. Consider:</p>
-<pre><code class="language-lean">#check_failure λ g y =&gt; g y
-</code></pre>
-<p>In the above, there are any number of ways types could be assigned to g and y, so Lean complains that it can't assign types to them. So while the expression is typeable, Lean can't infer a type for it and you have to give it more information.</p>
-<h3 id="self-application-is-untypeable"><a class="header" href="#self-application-is-untypeable">Self-application is Untypeable</a></h3>
-<p>Dropping types for the moment, define the term</p>
-<pre><code>Ω := λ x =&gt; x x
-</code></pre>
-<p>and consider <code>Ω</code> applied to itself <code>Ω</code>:</p>
-<pre><code>(λ x =&gt; x x) (λ x =&gt; x x)       —β—&gt;       (λ x =&gt; x x) (λ x =&gt; x x)
-</code></pre>
-<p>producing an infinite loop. Suppose you could give <code>M M</code> a type:</p>
-<pre><code>M M : σ
-</code></pre>
-<p>For this to work, <code>M</code> has to be a function:</p>
-<pre><code>M : τ → σ
-</code></pre>
-<p>But since <code>M</code> is operating on itself, <code>M</code> has to be of type <code>τ</code>:</p>
-<pre><code>M : τ
-</code></pre>
-<p>So <code>M</code> has two different types, which is not possible. Lean is not able to find a type for <code>x</code>. The placeholder symbol <code>_</code> is used by Lean as a way to ask the type checker to infer a type.</p>
-<pre><code class="language-lean">#check_failure (λ (M:_) =&gt; M M)
-</code></pre>
-<h2 id="propositions"><a class="header" href="#propositions">Propositions</a></h2>
-<p>Lean has a special type called <code>Prop</code> which stands for <code>Proposition</code>. It treats this type somewhat differently than all other types, but in most ways it ist just another type.</p>
-<pre><code class="language-lean">variable (p : Prop)
-#check Prop
-#check p
-</code></pre>
-<p>If p is of type <code>Prop</code>, then an element <code>hp : p</code> is evidence that the type p is not empty. Alternatively, you can think of hp as a <code>proof</code> of p.</p>
-<p>Furthermore, arrow types which above denoted functions, can be thought of as denoting <strong>implication</strong> if <code>Prop</code> is involved.</p>
-<pre><code class="language-lean">#check p → p
-</code></pre>
-<p>Armed with the lambda calculus and we can now prove theorems involving implication:</p>
-<pre><code class="language-lean">example (p : Prop) : p → p :=
-  λ hp =&gt; hp
-
-example (p q : Prop) : p → (p → q) → q :=
-  λ hp =&gt; λ hpq =&gt; hpq hp
-</code></pre>
-<h2 id="why-is-it-called-simply-typed"><a class="header" href="#why-is-it-called-simply-typed">Why is it Called "Simply Typed"?</a></h2>
-<p>You might be asking yourself, is there a non-simply typed λ-calculus? The answer is yes! We will get there eventually. Here's a preview:</p>
-<p><strong>Simple types:</strong> Terms depend on other tems. This is what we've covered so far. For example, the body of a lambda abstraction (a term) depends on the bound variable (also a term).</p>
-<pre><code class="language-lean">#check (λ x : Nat =&gt; x+1) --- the term x+1 depends on the term x.
-</code></pre>
-<p><strong>Polymorphism:</strong> Terms can depend on types. Polymorphism allows us to write functions that operate on a variety of types, instead of just a single type, by taking the type to be operated on as an argument. For example, the identity function <code>λ x : A =&gt; x</code> only operates on elements of type x. What if we wanted to define an arbitrary identity function for any type. Here is one way:</p>
-<pre><code class="language-lean">#check (λ α : Type =&gt; λ x : α =&gt; x) -- a polymorphic identity function.
-</code></pre>
-<p>A better way would be:</p>
-<pre><code class="language-lean">universe u
-def my_id {α : Type u} (x : α) := x
-
-#check my_id 1
-#check my_id "one"
-#check my_id my_id
-</code></pre>
-<p>Note the curly braces around <code>α : Type u</code> specify that the argument <code>α</code> is <em>implicit</em>. That is, that Lean should try to infer what it is. In the the examples <code>#check</code> statements above, Lean figures out which type the argument is, and therefor which type the overall expression is, by inspection.</p>
-<p><strong>Parameterized Types:</strong> Types can depend on types. The idea here is to build a type from other types. For example, a List type is fine, but it would nice to avoid having two make a separate data type for lists of different types of objects. In fact, Lean's standard library defines <code>List</code> as a parameterized type. You can see in the first <code>#check</code> below that making a list requires a type as an argument</p>
-<pre><code class="language-lean">#check List            -- Requires a type as an argument
-#check List Nat        -- The type of a list of natural numbers
-#check List (List Nat) -- The type of a a list of list of natural numbers
-</code></pre>
-<p>Lean is also good at figuring out what kind of list you are talking about in most contexts, as the following examples show.</p>
-<pre><code class="language-lean">#check [1,2,3]
-#check ["one","two","three"]
-</code></pre>
-<p><strong>Dependent types:</strong> Types can depend on terms. Finally, we can have types that depend on terms. For example, the type of vectors (from Lean's standard library) of natural numbers of length 10 depends on the term 10.</p>
-<pre><code class="language-lean">#check Vector Nat 10 -- Vectors of 10 Nats
-</code></pre>
-<p><strong>Calculus of Constructions:</strong> If we allow all of the above in type theory, we get what is called the Calculus of Constructions, or CoC. This theory was first described by Thierry Coqrand and emboded in the Coq proof assistant, now called Rocq. Lean and other proof assistants are also based on CoC.</p>
-<p><strong>Inductive Types</strong>: Types can be defined inductively. For example, the natural numbers are defined by a base case (zero) and a successor function (succ), from which all other natural numbers can be constructed. This is discussed in more detail in the chapter on <a href="./InductiveTypes.html">Inductive Types</a>.</p>
-<p><strong>Quotients</strong>: Quotients of types via equivalence relations. For example, a real number is defined to be the set of all Cauchy sequences of rational numbers that converge to it. That is, the reals are the quotient of the set of Cauchy Sequences by Cauchy equivalence. This is discussed in more detail in the chapter on <a href="./Quotients.html">Quotients</a>.</p>
-<h2 id="looking-ahead-the-curry-howard-correspondence"><a class="header" href="#looking-ahead-the-curry-howard-correspondence">Looking ahead: the Curry-Howard Correspondence</a></h2>
-<p>The most important problem in using type theory for proofs is INHABITATION, followed by TYPE CHECKING. To motivate why, we will see later the following remarkable fact, called the Curry-Howard corresponence, which says that in the judgement Γ ⊢ M : σ,</p>
-<ul>
-<li>Γ can be considered a set of givens or assumptions</li>
-<li>σ can be considered a mathematical statement like a theorem or lemma</li>
-<li>M can be considered a proof of the theorem assuming the statements in Γ.</li>
-</ul>
-<p>Thus, type checking amounts to checking that M is a proof of σ, which is a relatively straightfoward problem and we have seen that Lean is quite good at it. This is why tools like Lean are called <code>proof assistants</code>. They check to make sure your proofs are correct.</p>
-<p>On the other hand, type inhabitation amounts to finding a proof of σ. This is a very difficult problem, essentially the job of the working mathematician. From a computational point of view, finding a proof means searching over terms M until one finds one that has type σ. Depending on how expressive the programming language for terms is, this can either be a computationally intractable problem (meaning search is the best you can do) or it can be a computationally unsolvable problem (meaning there may not be an algorithm that is guaranteed to find an M of type σ). Both of these observations are job security for mathematicians!</p>
-<p>Going a step further, we'll see that an abstraction</p>
-<pre><code>λ p : σ =&gt; q
-</code></pre>
-<p>which may have type</p>
-<pre><code>σ → τ
-</code></pre>
-<p>is the general form of a proof of the statement σ → τ where → means "implies". It can be thought of as a transformation taking a proof of σ, which one assumes is available, and returning a proof of τ, which is thought of as a goal to be proved. Writing the details of what q is amounts to programming.</p>
-<p>As a computer scientist myself it is very satisfying to know that programming functions with given type specifications is <em>the same thing as</em> proving theorems!</p>
-<p>This idea is not merely cute. By building on it, as Lean and similar tools do, one can enocde an astonishingly large set of all of mathematics, and presumably knowledge in general. We'll learn how to take advantage of the Curry-Howard corresponence soon.</p>
-<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
-<p><span></span> 1) Define a lambda abstraction, called double, that takes a Church numeral and doubles it. Evaluate it on a few examples.</p>
-<p><span></span> 2) The following lamdba calculus expressions do not type check in Lean.</p>
-<pre><code class="language-lean">#check_failure λ x y =&gt; x y
-#check_failure λ x y z =&gt; x y z
-#check_failure λ x y =&gt; y (y (y x))
-#check_failure λ x y z =&gt; (y x) z
-</code></pre>
-<p>Rewrite them by giving them variables types. Use #check to make sure they work.</p>
-<p><span></span> 3) Prove the following example using only lambda calculus expressions</p>
-<pre><code class="language-lean">example (p q : Prop) : p → q → p → q → p := sorry
-</code></pre>
-<p><span></span> 4) Show two different lambda calculus proofs of the following example. Hint, compare the form of the proposition to the Church numerals.</p>
-<pre><code class="language-lean">example (p : Prop) : (p → p) → p → p := sorry
-</code></pre>
-<h2 id="references"><a class="header" href="#references">References</a></h2>
+<p>/- ## References</p>
 <p>Alonzo Church
 <a href="https://www.jstor.org/stable/2371045">An Unsolvable Problem of Elementary Number Theory</a>.
 American Journal of Mathematics, 1936.</p>
@@ -542,7 +410,7 @@ Copyright © 2025 Eric Klavins
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="PropositionalLogic.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="Types.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -556,7 +424,7 @@ Copyright © 2025 Eric Klavins
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="PropositionalLogic.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="Types.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -595,10 +595,35 @@ def c₃ := λ ( f : α → α ) =&gt; λ ( x : α ) =&gt; f (f (f x))
   rfl
 </code></pre>
 <p>You can prove this by rfl because, as we will see, two lambda expressions that beta reduce to the same thing are considered <code>definitionally equal</code>. Although this is not scalable and in fact Lean has a much more expressive type system that we will harness soon.</p>
-<h3 id="church-numerals-are-inconvenient"><a class="header" href="#church-numerals-are-inconvenient">Church Numerals are Inconvenient</a></h3>
-<p>You can define other opertations on the natural numbers in a similar fashion. It is also fairly straightforward to define Booleans and Boolean Logic, as well as a number of other basic mathematical structures.</p>
+<p>/- ## References</p>
+<p>Alonzo Church
+<a href="https://www.jstor.org/stable/2371045">An Unsolvable Problem of Elementary Number Theory</a>.
+American Journal of Mathematics, 1936.</p>
+<p>Haskell B Curry
+<a href="https://www.cambridge.org/core/journals/journal-of-symbolic-logic/article/abs/inconsistency-of-certain-formal-logics/FF38B653569E479408EC4DDD26DD7918">The Inconsistency of Certain Formal Logics</a>.
+The Journal of Symbolic Logic, 1942.</p>
+<p>Alonzo Church
+<a href="http://www.classes.cs.uchicago.edu/archive/2007/spring/32001-1/papers/church-1940.pdf">A formulation of the simple theory of types</a>.
+Journal of Symbolic Logic, 1940</p>
+<p>Uwe Nestmann and Students
+<a href="https://www.youtube.com/playlist?list=PLNwzBl6BGLwOKBFVbvp-GFjAA_ESZ--q4">The Lambda Cube Unboxed</a>.
+YouTube, 2020</p>
+<div style='height=50px'>&nbsp;</div><hr>
+Copyright © 2025 Eric Klavins
+<div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
+--  Copyright (C) 2025  Eric Klavins
+--
+--  This program is free software: you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation, either version 3 of the License, or
+--  (at your option) any later version.   
+</div>
+<p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
+<span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Types.lean'>Code</a> for this chapter</span></p>
+<h1 id="basic-type-theory"><a class="header" href="#basic-type-theory">Basic Type Theory</a></h1>
+<p>In the previous chapter we defined the integers in terms of the λ-calculus. You can define other opertations on the natural numbers in a similar fashion. It is also fairly straightforward to define Booleans and Boolean Logic, as well as a number of other basic mathematical structures.</p>
 <p>Building up from these basic ideas to more complex mathematics is the point of Lean. Eventually, we will arrive at cutting edge mathematics in Lean. Because it is defined in terms of thee basic building blocks, we always have a proof that goes from the high level mathematica statements to the low level meaning in terms of the typed λ-calculus: That is, a proof from first princples.</p>
-<p>That said, it will ultimately be better to define a richer set of types. For example, we'll define the natural numbers and almost every other mathematical object in Lean using what are called <a href="InductiveTypes.html">Inductive Types</a>.</p>
+<p>That said, it will ultimately be better to define a richer set of types, which is what this chapter covers. Eventually, we'll define the natural numbers and almost every other mathematical object in Lean using what are called <a href="InductiveTypes.html">Inductive Types</a>.</p>
 <h2 id="type-theory-questions"><a class="header" href="#type-theory-questions">Type Theory Questions</a></h2>
 <p>Now that we have a simple programming language and a way to assign types to terms in that language, we can explore a number of problems in type theory, each with its own purpose and challenges.</p>
 <p><strong>TYPE CHECKING</strong>: In a given context, does a term M have a given type σ?</p>
@@ -693,7 +718,7 @@ def my_id {α : Type u} (x : α) := x
 </code></pre>
 <p><strong>Calculus of Constructions:</strong> If we allow all of the above in type theory, we get what is called the Calculus of Constructions, or CoC. This theory was first described by Thierry Coqrand and emboded in the Coq proof assistant, now called Rocq. Lean and other proof assistants are also based on CoC.</p>
 <p><strong>Inductive Types</strong>: Types can be defined inductively. For example, the natural numbers are defined by a base case (zero) and a successor function (succ), from which all other natural numbers can be constructed. This is discussed in more detail in the chapter on <a href="./InductiveTypes.html">Inductive Types</a>.</p>
-<p><strong>Quotients</strong>: Quotients of types via equivalence relations. For example, a real number is defined to be the set of all Cauchy sequences of rational numbers that converge to it. That is, the reals are the quotient of the set of Cauchy Sequences by Cauchy equivalence. This is discussed in more detail in the chapter on <a href="./Quotients.html">Quotients</a>.</p>
+<p><strong>Quotients</strong>: Quotients of types via equivalence relations. For example, a real number is defined to be the set of all Cauchy sequences of rational numbers that converge to it. That is, the reals are the quotient of the set of Cauchy Sequences by Cauchy equivalence. A great example of quotients is covered in the chapter on the  <a href="./Integers/Intro.html">Integers</a>.</p>
 <h2 id="looking-ahead-the-curry-howard-correspondence"><a class="header" href="#looking-ahead-the-curry-howard-correspondence">Looking ahead: the Curry-Howard Correspondence</a></h2>
 <p>The most important problem in using type theory for proofs is INHABITATION, followed by TYPE CHECKING. To motivate why, we will see later the following remarkable fact, called the Curry-Howard corresponence, which says that in the judgement Γ ⊢ M : σ,</p>
 <ul>
@@ -727,19 +752,6 @@ def my_id {α : Type u} (x : α) := x
 <p><span></span> 4) Show two different lambda calculus proofs of the following example. Hint, compare the form of the proposition to the Church numerals.</p>
 <pre><code class="language-lean">example (p : Prop) : (p → p) → p → p := sorry
 </code></pre>
-<h2 id="references"><a class="header" href="#references">References</a></h2>
-<p>Alonzo Church
-<a href="https://www.jstor.org/stable/2371045">An Unsolvable Problem of Elementary Number Theory</a>.
-American Journal of Mathematics, 1936.</p>
-<p>Haskell B Curry
-<a href="https://www.cambridge.org/core/journals/journal-of-symbolic-logic/article/abs/inconsistency-of-certain-formal-logics/FF38B653569E479408EC4DDD26DD7918">The Inconsistency of Certain Formal Logics</a>.
-The Journal of Symbolic Logic, 1942.</p>
-<p>Alonzo Church
-<a href="http://www.classes.cs.uchicago.edu/archive/2007/spring/32001-1/papers/church-1940.pdf">A formulation of the simple theory of types</a>.
-Journal of Symbolic Logic, 1940</p>
-<p>Uwe Nestmann and Students
-<a href="https://www.youtube.com/playlist?list=PLNwzBl6BGLwOKBFVbvp-GFjAA_ESZ--q4">The Lambda Cube Unboxed</a>.
-YouTube, 2020</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 <div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
@@ -1047,7 +1059,7 @@ example { hf : False } : p :=
 <li>Prove <code>∅ ⊢ p → (p ∨ q)</code></li>
 <li>Prove <code>∅ ⊢ (p ∨ q) → (q ∨ p)</code></li>
 </ol>
-<h1 id="references-1"><a class="header" href="#references-1">REFERENCES</a></h1>
+<h1 id="references"><a class="header" href="#references">REFERENCES</a></h1>
 <p>Morten Heine Sørensen, Pawel Urzyczyn
 "Lectures on the Curry-Howard Isomorphism"
 Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>
@@ -1294,7 +1306,7 @@ example : (p → q) → (¬q → ¬p) :=
   λ proof : A =&gt; proof
 </code></pre>
 <p>so that the type of A is an implicit argument to my_lean_theorem.</p>
-<h2 id="references-2"><a class="header" href="#references-2">References</a></h2>
+<h2 id="references-1"><a class="header" href="#references-1">References</a></h2>
 <p>Morten Heine Sørensen, Pawel Urzyczyn
 "Lectures on the Curry-Howard Isomorphism"
 Elsevier. 1st Edition, Volume 149 - July 4, 2006.</p>
@@ -1671,7 +1683,7 @@ def conjugate (x : GaussianInt) : GaussianInt := sorry
 def cmul (x y : GaussianInt) : GaussianInt := sorry
 </code></pre>
 <p>Test all of these with eval to make sure they work.</p>
-<h2 id="references-3"><a class="header" href="#references-3">References</a></h2>
+<h2 id="references-2"><a class="header" href="#references-2">References</a></h2>
 <ul>
 <li>
 <p>https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html</p>
@@ -2974,7 +2986,7 @@ example (x y z : Int) : x+y+z = x+z+y := by
   _ = x+z+y   := by rw[add_assoc]
 </code></pre>
 <h2 id="exercises-4"><a class="header" href="#exercises-4">Exercises</a></h2>
-<h2 id="references-4"><a class="header" href="#references-4">References</a></h2>
+<h2 id="references-3"><a class="header" href="#references-3">References</a></h2>
 <p>The construction here is defined in a number of Algebra textbooks. For an early example, see the Nicolas Bourbaki collective's book <em>Algebra Part I</em>, 1943. The English translation of that book from 1974 has the relevant material on page 20.</p>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -3178,7 +3190,7 @@ Copyright © 2025 Eric Klavins
 </ul>
 <p>Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes (and several others) so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.</p>
 <p><span style='background: yellow'>TODO: List the relevant Mathlib classes or insert a tree diagram of them.</span></p>
-<h2 id="references-5"><a class="header" href="#references-5">References</a></h2>
+<h2 id="references-4"><a class="header" href="#references-4">References</a></h2>
 <p>A nice description of the Cauchy Completion: https://mathweb.ucsd.edu/~tkemp/140A/Construction.of.R.pdf</p>
 <p>Rudin, W.: Principles of Mathematical Analysis. Third Edition. International Series in Pure and Applied Mathematics. McGraw-Hill Book Co., New York – Aukland – Dusseldorf, 1976.</p>
 <p>A real analysis book in which ℝ is constructed from decimal expansions of the form f : ℕ → ℤ with f(0) being the integer part and f(n) ∈ {0, ..., 9} for n ≥ 1. <a href="https://docs.ufpr.br/%7Ehigidio/Ensino/Seminario/Davidson-Donsig-2010-Real%20Analysis%20and%20Aplications.pdf">Davidson and Donsig</a></p>

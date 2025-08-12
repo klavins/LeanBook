@@ -10,6 +10,7 @@ NAMES :=  Appendix \
           InductiveTypes \
 		  Introduction \
 		  LambdaCalculus \
+		  Types \
 		  Lean \
 		  Numbers \
 		  PropositionalLogic \
