@@ -485,7 +485,33 @@ As a computer scientist myself it is very satisfying to know that programming fu
 
 This idea is not merely cute. By building on it, as Lean and similar tools do, one can enocde an astonishingly large set of all of mathematics, and presumably knowledge in general. We'll learn how to take advantage of the Curry-Howard corresponence soon.
 
-## References
+## Exercises
+
+
+<span></span> 1) Define a lambda abstraction, called double, that takes a Church numeral and doubles it. Evaluate it on a few examples.
+
+
+<span></span> 2) The following lamdba calculus expressions do not type check in Lean. 
+```lean
+#check_failure λ x y => x y
+#check_failure λ x y z => x y z
+#check_failure λ x y => y (y (y x))
+#check_failure λ x y z => (y x) z
+```
+ Rewrite them by giving them variables types. Use #check to make sure they work.
+
+
+<span></span> 3) Prove the following example using only lambda calculus expressions 
+```lean
+example (p q : Prop) : p → q → p → q → p := sorry
+```
+
+
+<span></span> 4) Show two different lambda calculus proofs of the following example. Hint, compare the form of the proposition to the Church numerals.
+```lean
+example (p : Prop) : (p → p) → p → p := sorry
+```
+ ## References
 
 Alonzo Church
 [An Unsolvable Problem of Elementary Number Theory](https://www.jstor.org/stable/2371045).

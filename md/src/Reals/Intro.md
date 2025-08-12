@@ -12,7 +12,7 @@
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Intro.lean'>Code</a> for this chapter</span>
  # Real Numbers
 
-Having built ℕ inductively, ℤ from ℕ, and ℚ from ℕ and ℤ, we now turn to the real numbers ℝ. The key distinction between the ℚ and ℝ is that ℝ has the least upper bound property: every non-empty set of reals that is bounded from above has a least upper bound. The rationals ℚ do not have this property. For example, the set
+Having built ℕ inductively, then building ℤ from ℕ and ℚ from ℕ and ℤ, we now turn to the real numbers ℝ. The key distinction between ℚ and ℝ is that ℝ has the least upper bound property: every non-empty set of reals that is bounded from above has a least upper bound. The rationals ℚ do not have this property. For example, the set
 ```hs
 { q ∈ ℚ | q² < 2 }
 ```
@@ -32,14 +32,14 @@ In this chapter, mainly as an exercise in formalization, we instead construct �
 
 ## Axioms of the Reals
 
-To show that a set R is equivalent to the real numbers, we define the following relations and operations:
+To show that a set R is equivalent to the real numbers, we must define the following relations and operations:
 
 - Ordering relations: <, ≤, > and ≥
 - Addition and subtraction: +, -
 - Multiplication: *
 - Division: /
 
-and we require the following:
+and then prove the following:
 
 - R is totally ordered: ∀ x y ∈ R, x < y ∨ y < x ∨ x=y
 - R is a field
@@ -55,7 +55,7 @@ and we require the following:
     - Each element x has a multiplicative inverse x⁻¹ such that x*x⁻¹ = x⁻¹*x = 1.
  - R has the least upper bound property
 
-Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes and more so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.
+Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes (and several others) so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.
 
 <span style='background: yellow'>TODO: List the relevant Mathlib classes or insert a tree diagram of them.</span>
 

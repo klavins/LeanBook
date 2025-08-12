@@ -135,6 +135,29 @@ theorem sum_zero_right {a : DCut} : a + 0 = a := by
 instance add_zero_inst : AddZeroClass DCut :=
   ⟨ @sum_zero_left, @sum_zero_right ⟩
 ```
+ # Order Properties 
+```lean
+theorem sum_pos_pos {a b : DCut} (ha : 0 < a) (hb : 0 < b) : 0 < a + b := by
+  constructor
+  . intro h
+    have ha0 := pos_has_zero.mp ha
+    have hb0 := pos_has_zero.mp hb
+    have : 0 ∈ (a+b).A := by
+      exact ⟨ 0, ⟨ ha0, ⟨ 0, ⟨ hb0, by exact Rat.zero_add 0 ⟩ ⟩ ⟩ ⟩
+    simp[←h,zero_rw,odown] at this
+  . intro q hq
+    have : q ∈ b.A := by
+      simp[zero_rw,odown] at hq
+      exact b.dc q 0 ⟨ by linarith, zero_in_pos hb ⟩
+    exact ⟨ 0, ⟨ zero_in_pos ha, ⟨ q, ⟨ this, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem sum_nneg_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by
+  rcases two_nn_ineqs ha hb with ⟨ ha, hb ⟩ | h | h
+  . apply lt_imp_le
+    apply sum_pos_pos ha hb
+  . simp[h,sum_zero_left,hb]
+  . simp[h,sum_zero_right,ha]
+```
 
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

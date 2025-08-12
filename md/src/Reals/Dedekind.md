@@ -37,31 +37,10 @@ structure DCut where
   op : ∀ x ∈ A, ∃ y ∈ A, x < y      -- open
 
 open DCut
-
-def DCut.B (c : DCut) : Set ℚ := Set.univ \ c.A
-
-theorem not_in_a_in_b {c :DCut} {q : ℚ} : q ∉ c.A → q ∈ c.B := by simp[B]
-
-theorem ub_to_notin {y:ℚ} {A : Set ℚ}
-  : (∀ x ∈ A, x < y) → y ∉ A := by
-  intro h hy
-  have := h y hy
-  simp_all
-
-theorem notin_to_ub {y:ℚ} {a : DCut}
-  : y ∉ a.A → (∀ x ∈ a.A, x < y)  := by
-  intro hy x hx
-  by_contra h
-  have := a.dc y x ⟨ by linarith, hx ⟩
-  exact hy this
 ```
- The open property can be used extended. 
+ We have only defined the lower part, `A` of a cut. The upper part of the cut, `B` is defined simply: 
 ```lean
-theorem op2 {a : DCut} (q : ℚ) (hq : q ∈ a.A)
-  : ∃ x, ∃ y, x ∈ a.A ∧ y ∈ a.A ∧ q < x ∧ x < y := by
-  have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
-  have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
-  use s, t
+def DCut.B (c : DCut) : Set ℚ := Set.univ \ c.A
 ```
  ## Making Rationals into Reals
 
@@ -69,7 +48,9 @@ All rational numbers are also real numbers via the map that identifies a rationa
 ```lean
 def odown (q : ℚ) : Set ℚ := { y | y < q }
 ```
- To prove that `odown q` is a Dedekind cut requires we show it is nonempty, not `ℚ` itself, downward closed, and open. For the first two theorems we use use the facts that `q-1 ∈ (∞,q)` and `q+1 ∉ (∞,q)`. 
+ To prove that `odown q` is a Dedekind cut requires we show it is nonempty, not `ℚ` itself, downward closed, and open. We will need to do this sort of proof over and over in this section, as we show various other ways of constructing sets of rationals are indeed Dedekind cuts.
+
+For the first two theorems we use use the facts that `q-1 ∈ (∞,q)` and `q+1 ∉ (∞,q)`. 
 ```lean
 theorem odown_ne {q : ℚ} : ∃ x, x ∈ odown q := by
   use q-1
@@ -86,7 +67,7 @@ theorem odown_dc {q : ℚ} : ∀ x y, x ≤ y ∧ y ∈ odown q → x ∈ odown 
   simp_all[odown]
   linarith
 ```
- To prove `odown q` is open, we are given `x ∈ odown` and need to supply `y ∈ odown q` with `x < y`. Since `q` is the least upper bound of `odown q`, we choose `(x+q)/2`.
+ To prove `odown q` is open, we are given `x ∈ odown` and need to supply `y ∈ odown q` with `x < y`. Since `q` is the least upper bound of `odown q`, we choose `(x+q)/2`, which is less than `q` and greater than `x`. 
 ```lean
 theorem odown_op {q : ℚ} : ∀ x ∈ odown q, ∃ y ∈ odown q, x < y:= by
   intro x hx
@@ -127,8 +108,50 @@ instance non_triv_inst : Nontrivial DCut := ⟨ ⟨ 0, 1, zero_ne_one ⟩ ⟩
 ```
  ## Simple Properties of Cuts
 
-Here we define some simple properties that wil make subsequent proofs less cumbersome. The first says for `x in A` and `y in B`, that `x < y`.
+Next we define a few basic properties that will be used in later proofs, but that are also good exercises here.
 
+First, if `q` is not in `A` then `q` is in `B`, and vice verse, which together imply that `A` and `B` are a partition of `ℚ`.  
+```lean
+theorem not_in_a_in_b {c :DCut} {q : ℚ} : q ∉ c.A → q ∈ c.B := by
+  simp[B]
+
+theorem not_in_b_in_a {c :DCut} {q : ℚ} : q ∉ c.B → q ∈ c.A := by
+  simp[B]
+```
+ We also have two simple properties describing `A` as a downward closed set. The first simply uses the ordering property of `ℚ`, while the second follows from the fact that `A` is downward closed. 
+```lean
+theorem ub_to_notin {y:ℚ} {A : Set ℚ}
+  : (∀ x ∈ A, x < y) → y ∉ A := by
+  intro h hy
+  have := h y hy
+  simp_all
+
+theorem notin_to_ub {y:ℚ} {a : DCut}
+  : y ∉ a.A → (∀ x ∈ a.A, x < y)  := by
+  intro hy x hx
+  by_contra h
+  have := a.dc y x ⟨ by linarith, hx ⟩
+  exact hy this
+```
+ The fact that `A` is open can be used to show a few simple properties as well. Since `A` is open, you can find an element in `A` bigger than any given element in `A`. Thus, you can find two values in `A` bigger than any given element. In fact, you can find an arbitary number of elements in `A` bigger than a given element (see exercises).  
+```lean
+theorem op2 {a : DCut} (q : ℚ) (hq : q ∈ a.A)
+  : ∃ x, ∃ y, x ∈ a.A ∧ y ∈ a.A ∧ q < x ∧ x < y := by
+  have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
+  have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
+  use s, t
+```
+ The following is a simple helper theorem that uses the fact that cuts are open. It is used to simplify a proof in the multiplication section. 
+```lean
+theorem op_from_two_vals {a : DCut} {x y : ℚ} (hx : x ∈ a.A) (hy : y ∈ a.A)
+  : ∃ z ∈ a.A, x < z ∧ y < z := by
+  by_cases h : x < y
+  . have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := a.op y hy
+    exact ⟨ z, ⟨ hz1, ⟨ by linarith, hz2 ⟩ ⟩ ⟩
+  . have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := a.op x hx
+    exact ⟨ z, ⟨ hz1, ⟨ hz2, by linarith ⟩ ⟩ ⟩
+```
+ Next, we show  `x in A` and `y in B`, that `x < y`. 
 ```lean
 theorem b_gt_a {c : DCut} {x y : ℚ} : x ∈ c.A → y ∈ c.B → x < y := by
   intro hx hy
@@ -142,7 +165,7 @@ theorem a_lt_b {c : DCut} {x y : ℚ }: x ∈ c.A → y ∉ c.A → x < y := by
   intro hx hy
   exact b_gt_a hx (not_in_a_in_b hy)
 ```
- Since `A` is downward closed, one can easily show `B` is upward closed. 
+ Next we show that since `A` is downward closed, one can easily show `B` is upward closed. 
 ```lean
 theorem b_up_closed {c : DCut} {a b: ℚ} : a ∉ c.A → a ≤ b → b ∉ c.A := by
   intro h1 h2 h3
@@ -177,11 +200,10 @@ theorem DCut.le_of_lt {x y: DCut} : x ≤ y ↔ x = y ∨ x < y := by
     | inl h1 => exact Eq.subset (congrArg A h1)
     | inr h1 => exact h1.right
 ```
- We can easily prove that cuts form a partial order, which allows us to regiest DCut with Mathlib's PartialOrder class. 
+ We can easily prove that cuts form a partial order, which allows us to regiester `DCut` with Mathlib's PartialOrder class. <span style='background: yellow'>TODO: Can't you just used the fact that `⊆` is a partial order?</span> 
 ```lean
 theorem refl {a: DCut} : a ≤ a := by
-  intro q hq
-  exact hq
+  simp_all[le_inst,lt_inst]
 
 theorem anti_symm {a b: DCut} : a ≤ b → b ≤ a → a = b := by
   intro hab hba
@@ -315,6 +337,8 @@ theorem zero_le_one : (0:DCut) ≤ 1 := by
   simp_all[zero_rw,one_rw,odown]
   linarith
 
+instance zero_le_one_inst : ZeroLEOneClass DCut := ⟨ zero_le_one ⟩
+
 theorem not_gt_to_le {a : DCut} : ¬ 0 < a ↔ a ≤ 0 := by
   constructor
   . have := trichotomy_lt 0 a
@@ -434,7 +458,15 @@ theorem three_nn_ineqs {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ 
   simp[le_of_lt] at ha hb hc
   tauto
 ```
- **Exercise**: Show that `ofRat` is indeed an order embedding, that is `x ≤ y → ofRat x ≤ ofRat y` for all rational numbers `x` and `y`. 
+ **Exercise**:
+
+1. Show that `ofRat` is indeed an order embedding, that is `x ≤ y → ofRat x ≤ ofRat y` for all rational numbers `x` and `y`.
+
+1. Let `(A,B)` be a cut. Show that for any `q ∈ A`, there exists a function `f : ℕ → A` such that<br>
+a) `q i ∈ A`<br>
+b) `q < f 0` and for all `i`, `f i < f j`
+
+
 
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

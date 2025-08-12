@@ -643,6 +643,19 @@ instance comm_monoid_wz_inst : CommMonoidWithZero DCut := ⟨
 <pre><code class="language-lean">example (x : DCut) : x^2 = x*x := by
   exact pow_two x
 </code></pre>
+<h1 id="properties"><a class="header" href="#properties">Properties</a></h1>
+<pre><code class="language-lean">theorem prod_in_pos_mul {a b : DCut} {x y: ℚ} (ha : 0 &lt; a) (hb : 0 &lt; b)
+                        (hx : x ∈ a.A) (hy : y ∈ b.A) (hx0 : 0 &lt; x)
+  : x*y ∈ (mul_pos a b ha hb).A := by
+  obtain ⟨ x', ⟨ hx1', hx2' ⟩ ⟩ := a.op x hx
+  obtain ⟨ y', ⟨ hy1', hy2' ⟩ ⟩ := op_from_two_vals hy (zero_in_pos hb)
+  have hy' : 0 ≤ y' := by  linarith
+  have hxy' : x * y &lt; x' * y' := by
+    have h1 : 0 &lt; x' := by linarith
+    have h2 : y ≤ y' := by linarith
+    nlinarith
+  exact ⟨ x', ⟨ hx1', ⟨ y', ⟨ hy1', ⟨ by linarith, ⟨ by linarith, hxy' ⟩ ⟩  ⟩ ⟩ ⟩ ⟩
+</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 

@@ -425,6 +425,29 @@ theorem negate_le' { x : DCut } : 0 ≤ -x ↔ x ≤ 0 := by
     have := add_preserves_le (-x) h
     simp at this
     exact this
+
+theorem neg_sum_eq {a b c: DCut} : a = b+c ↔ -a = -b + -c := by
+ constructor
+ repeat
+ intro h
+ apply neg_inj.mp
+ simp[h,add_comm]
+
+
+theorem neg_of_rat {x : ℚ} : -ofRat x = ofRat (-x) := by
+  simp[ofRat,neg_inst,neg,preneg,odown]
+  ext q
+  constructor
+  . choose a ha b hb h
+    simp_all
+    linarith
+  . intro hq
+    simp_all
+    use! q+x, (by linarith), x, (by linarith)
+    linarith
+
+theorem sub_rats {x y: ℚ} : ofRat (x-y) = ofRat x - ofRat y := by
+  rw[←add_neg,neg_of_rat,Rat.sub_eq_add_neg,add_rats]
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins

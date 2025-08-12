@@ -712,6 +712,21 @@ def my_id {α : Type u} (x : α) := x
 <p>is the general form of a proof of the statement σ → τ where → means "implies". It can be thought of as a transformation taking a proof of σ, which one assumes is available, and returning a proof of τ, which is thought of as a goal to be proved. Writing the details of what q is amounts to programming.</p>
 <p>As a computer scientist myself it is very satisfying to know that programming functions with given type specifications is <em>the same thing as</em> proving theorems!</p>
 <p>This idea is not merely cute. By building on it, as Lean and similar tools do, one can enocde an astonishingly large set of all of mathematics, and presumably knowledge in general. We'll learn how to take advantage of the Curry-Howard corresponence soon.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<p><span></span> 1) Define a lambda abstraction, called double, that takes a Church numeral and doubles it. Evaluate it on a few examples.</p>
+<p><span></span> 2) The following lamdba calculus expressions do not type check in Lean.</p>
+<pre><code class="language-lean">#check_failure λ x y =&gt; x y
+#check_failure λ x y z =&gt; x y z
+#check_failure λ x y =&gt; y (y (y x))
+#check_failure λ x y z =&gt; (y x) z
+</code></pre>
+<p>Rewrite them by giving them variables types. Use #check to make sure they work.</p>
+<p><span></span> 3) Prove the following example using only lambda calculus expressions</p>
+<pre><code class="language-lean">example (p q : Prop) : p → q → p → q → p := sorry
+</code></pre>
+<p><span></span> 4) Show two different lambda calculus proofs of the following example. Hint, compare the form of the proposition to the Church numerals.</p>
+<pre><code class="language-lean">example (p : Prop) : (p → p) → p → p := sorry
+</code></pre>
 <h2 id="references"><a class="header" href="#references">References</a></h2>
 <p>Alonzo Church
 <a href="https://www.jstor.org/stable/2371045">An Unsolvable Problem of Elementary Number Theory</a>.
@@ -1027,7 +1042,7 @@ example { hf : False } : p :=
 <p>⊢ φ ∨ ¬φ</p>
 <p>for all propositions φ. However, this statement is not provable using the inference rules above. To prove this meta-mathematical observation is beyond the scope of this lecture and requires an argument about the formal <code>semantics</code> of intuitionist propositional logic. For now, accept the fact that φ ∨ ¬φ cannot be proved rom the inference rules given, despite its seeming obviousness.</p>
 <p>For this reason, intutionistic logic is weaker than classical logic. However, we can obtain classical logic by adding the above as a new axiom. When we get to proving statements in Lean, we'll see that we can add this axiom into our proofs if we would like to, so it is not big problem. However, it is also remarkable how much of mathematics we can do without this axiom.</p>
-<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<h2 id="exercises-1"><a class="header" href="#exercises-1">Exercises</a></h2>
 <ol>
 <li>Prove <code>∅ ⊢ p → (p ∨ q)</code></li>
 <li>Prove <code>∅ ⊢ (p ∨ q) → (q ∨ p)</code></li>
@@ -1309,7 +1324,7 @@ def N := (α → α) → α → α
 </code></pre>
 <p>It would be vastly preferable if (a) every object of a given type was a legitimate representative of that type and every object also had exactly one representative.</p>
 <p><strong>Pattern Matching and Induction:</strong> To prove properties above objects of a given type, it is useful to apply induction on the structure of the object. For example, a natural number is either zero, or it is the successor of some other natural number. To prove a statement about natural numbers one would like support for pattern matching on the way the number was constructed.</p>
-<p><strong>Termination:</strong> As we have seem, operations on terms of a given type in the pure lambda calculus are not guaranteed to terminate. However, we will see that all terms of a given inductive type support <em>structural recursion</em>: We can define functions on that break the term into smaller pieces which eventual lead to indivisible elements, at which point the function terminates.</p>
+<p><strong>Termination:</strong> As we have seem, operations on terms of a given type in the pure lambda calculus are not guaranteed to terminate. However, we will see that all terms of a given inductive type support <em>structural recursion</em>: We can define functions on that break the term into smaller pieces which eventually lead to indivisible elements, at which point the function terminates.</p>
 <p>Thus, Lean and other type theoretic languages include a way to define types inductively. One lists all the ways to construct objects of a given type. Lean then provides a powerful pattern matching capability that can be used in definitions and theorems when operating or reasoning on an object defined inductively.</p>
 <h3 id="namespaces"><a class="header" href="#namespaces">Namespaces</a></h3>
 <p>In this chapter we will be redefining several fundamental types in Lean, such as the natural numbers <code>ℕ</code> and the propositional connectives <code>And</code> and <code>Or</code>. Since these are part of Lean's standard library (included by default), if we do not take appropriate measures, we will get naming collisions. The easiest way to avoid this is to open a temporary namespace.</p>
@@ -1333,7 +1348,7 @@ def N := (α → α) → α → α
 def t := Two.a
 #eval t
 </code></pre>
-<p><strong>Example:</strong> The simplest inductive yype has <em>no</em> constructors, meaning it specifies the empty type.</p>
+<p><strong>Example:</strong> The simplest inductive type has <em>no</em> constructors, meaning it specifies the empty type.</p>
 <pre><code class="language-lean">inductive Empty
 </code></pre>
 <h2 id="constructors-with-arguments"><a class="header" href="#constructors-with-arguments">Constructors With Arguments</a></h2>
@@ -1341,7 +1356,7 @@ def t := Two.a
 <p><strong>Example:</strong> The type Nat of <strong>Natural Numbers</strong> is defined by two constructors:</p>
 <pre><code class="language-lean">inductive Nat where
   | zero : Nat
-  | succ : Nat → Nat           -- succ stand for `successor`
+  | succ : Nat → Nat           -- succ stands for `successor`
 
 open Nat
 #check succ (succ (succ zero)) -- 3
@@ -1351,7 +1366,7 @@ open Nat
 </code></pre>
 <p>using so-called dot-notation.</p>
 <p>Objects of type <code>Nat</code> thus either have the form <code>zero</code> or they consist of some finite number of applications of <code>succ</code> to the element <code>zero</code>. With more types, we can define even more complicated objects.</p>
-<p><strong>Example:</strong> A simple model of arithmetic expressions can be defined by the type:</p>
+<p><strong>Example:</strong> A simple grammar for arithmetic expressions can be defined by the type:</p>
 <pre><code class="language-lean">inductive Expr where
   | var : String → Expr
   | add : Expr → Expr → Expr
@@ -1384,7 +1399,7 @@ open Expr
 
 open Nat
 
-#reduce plus (succ zero) (succ zero)
+#reduce plus (succ zero) (succ zero)  -- zero.succ.succ
 </code></pre>
 <p><strong>Example:</strong> Swap Adds and Muls</p>
 <pre><code class="language-lean">def Expr.swap (e : Expr) := match e with
@@ -1420,7 +1435,7 @@ end NatList
 
 namespace List
 #check cons "lean" (cons "is cool" empty)       -- ["lean", "is cool"]
-#check cons 3.4 (cons 1.21 empty)       -- ["lean", "is cool"]
+#check cons 3.4 (cons 1.21 empty)               -- [3.14, 1.21]
 
 end List
 </code></pre>
@@ -1437,7 +1452,7 @@ Copyright © 2025 Eric Klavins
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Connectives.lean'>Code</a> for this chapter</span></p>
 <h1 id="propositional-logic-connectives"><a class="header" href="#propositional-logic-connectives">Propositional Logic Connectives</a></h1>
-<p>One of the remarkable things about inductive types is that the capture all of propositional logic, first order logic, and more. Thus, instead of defining <em>and</em>, <em>or</em> and the other logical connectives as built-in operators in the Lean language, they are just defined in the standard library in terms of more primited inductive types.</p>
+<p>One of the remarkable things about inductive types is that they capture all of propositional logic, first order logic, and more. Thus, instead of defining <em>and</em>, <em>or</em> and the other logical connectives as built-in operators in the Lean language, they are just defined in the standard library in terms of more primitive inductive types.</p>
 <pre><code class="language-lean">namespace Temp
 </code></pre>
 <h2 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type"><em>And</em> is an Inductive Type</a></h2>
@@ -1466,7 +1481,7 @@ Copyright © 2025 Eric Klavins
 <p>For the body of this lambda abstraction, we need to <code>introduce</code> an And type, which requires proofs of p and q respectively. Using the inductive definition of And we get</p>
 <pre><code>λ hp hq =&gt; And.intro hp hq
 </code></pre>
-<pre><code class="language-lean">def g (p q : Prop) : p → q → And p q :=
+<pre><code class="language-lean">example (p q : Prop) : p → q → And p q :=
   λ hp =&gt; λ hq =&gt; And.intro hp hq
 </code></pre>
 <h2 id="and-eliminiation"><a class="header" href="#and-eliminiation">And Eliminiation</a></h2>
@@ -1493,12 +1508,12 @@ example (p q : Prop) : (And p q) → (And q p) :=
   λ hpq =&gt; And.intro hpq.right hpq.left
 </code></pre>
 <h3 id="match-is-enough"><a class="header" href="#match-is-enough">Match is Enough</a></h3>
-<p>Note that the elimination rules above are a <em>convenience</em> we defined to make the proof look more like propositional logic. We could also just write:</p>
+<p>Note that the elimination rules above are a <em>convenience</em> we defined to make the proof look more like propositional logic. We could also have written:</p>
 <pre><code class="language-lean">example (p q : Prop) : (And p q) → p :=
   λ hpq =&gt; match hpq with
     | And.intro hp _ =&gt; hp
 </code></pre>
-<p>This pattern suggests that with inductive types, we can think of match as a generic elimination rule.</p>
+<p>This pattern illustrates how with inductive types we can think of <code>match</code> as a generic elimination rule.</p>
 <h2 id="or-is-inductive"><a class="header" href="#or-is-inductive">Or is Inductive</a></h2>
 <p>To introduce new OR propositions, we use the two introduction rules</p>
 <pre><code>                 Γ ⊢ φ                              Γ ⊢ ψ
@@ -1534,7 +1549,7 @@ example (p q : Prop) : (And p q) → (And q p) :=
     (λ hp =&gt; Or.inr hp)               -- p → (q ∨ p)
     (λ hq =&gt; Or.inl hq)               -- q → (q ∨ p)
 </code></pre>
-<p>Once again, the elimination rule is just a convenience and the proof could be written with match.</p>
+<p>Once again, the elimination rule is just a convenience and the proof could have been written with <code>match</code>.</p>
 <h2 id="false-is-inductive"><a class="header" href="#false-is-inductive">False is Inductive</a></h2>
 <p>Finally, we have <code>False</code>, which has no introduction rule, kind of like <code>Empty</code>, except we add the requirement that <code>False</code> is also type of <code>Prop</code>.</p>
 <pre><code class="language-lean">inductive False : Prop
@@ -1560,25 +1575,25 @@ example (p q : Prop) : (And p q) → (And q p) :=
 <pre><code class="language-lean">example (p q : Prop): And p (Not p) → q :=
   λ h =&gt; False.elim (h.right h.left)
 </code></pre>
-<p>By the way, this is another way to prove the HW1 example:</p>
+<p>By the way, this elimination rule provides another way to prove the example:</p>
 <pre><code class="language-lean">example : False → True :=
-  λ h =&gt; False.elim h
+  False.elim
 </code></pre>
 <h2 id="notation"><a class="header" href="#notation">Notation</a></h2>
-<p>The main difference between what we have defined here and Lean is that Lean defines notation like <code>∨</code> and <code>∧</code>. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.</p>
+<p>The main difference between what we have defined here and Lean is that Lean defines notation like <code>∨</code> and <code>∧</code>. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or, And, and Not notation.</p>
 <pre><code class="language-hs">infixr:30 " ∨ "  =&gt; Temp.Or
 infixr:35 " ∧ "   =&gt; Temp.And
 notation:max "¬" p:40 =&gt; Temp.Not p
 </code></pre>
-<p>The numbers define the precedence of the operations. So <code>v</code> has lower precedence than <code>∧</code>, which has lower precedence than <code>-</code>.</p>
+<p>The numbers define the precedence of the operations. So <code>v</code> has lower precedence than <code>∧</code>, which has lower precedence than <code>¬</code>.</p>
 <p>Now we can write</p>
 <pre><code class="language-lean">end Temp -- start using Lean's propositions
 
 example (p q : Prop): (p ∧ (¬p)) → q :=
   λ h =&gt; False.elim (h.right h.left)
 </code></pre>
-<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
-<p>You should try to do as many of these as possible. These are borrowed from the <a href="https://lean-lang.org/theorem_proving_in_lean4/title_page.html">Theorem Proving in Lean Book</a>.</p>
+<h2 id="exercises-2"><a class="header" href="#exercises-2">Exercises</a></h2>
+<p><span></span> 1) Try to do as many of these as possible. These are borrowed from the <a href="https://lean-lang.org/theorem_proving_in_lean4/title_page.html">Theorem Proving in Lean Book</a>.</p>
 <pre><code class="language-lean">variable (p q r : Prop)
 
 example (h : p ∨ q) : q ∨ p := sorry
@@ -1600,6 +1615,62 @@ example : p ∧ False ↔ False := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 </code></pre>
+<p><span></span> 2) Consider the Not-Or operation also known as Nor. It has the following inference rules:</p>
+<pre><code>                 Γ ⊢ ¬p   Γ ⊢ ¬q
+  `Nor-Intro` ———————————————————
+                  Γ ⊢ Nor p q
+
+
+                    Γ ⊢ Nor p q                            Γ ⊢ Nor p q
+  `Nor-Elim-Left` ——————————————         `Nor-Elim-Right` —————————————
+                      Γ ⊢ ¬p                                 Γ ⊢ ¬q
+
+</code></pre>
+<p>Define these in Lean. Here is a start:</p>
+<pre><code class="language-lean">inductive Nor (p q : Prop) : Prop where
+  | intro : ¬p → ¬q → Nor p q
+
+def Nor.elim_left {p q : Prop} (hnpq : Nor p q) := sorry
+
+def Nor.elim_right {p q : Prop} (hnpq : Nor p q) := sorry
+</code></pre>
+<p><span></span> 3) Use the above Nor inference rules, and the regular inference rules from Lean's propopsitional logic, to prove the following examples. Note, <em>do not</em> use the Classical logic option for these. It isn't needed.</p>
+<pre><code class="language-lean">example (p : Prop) : ¬p → (Nor p p) := sorry
+example (p q : Prop) : (Nor p q) → ¬(p ∨ q) := sorry
+example (p q : Prop) : ¬(p ∨ q) → (Nor p q) := sorry
+
+6) Using the definition of natural numbers below, define functions that perform multiplication and exponentiation similarly to how addition was defined in the Lecture on Inductive Types. Do *not* use Lean's built in natural numbers to do this. Evaluate your functions on a few examples to show they work. -/
+
+namespace Temp
+
+inductive Nat where
+  | zero : Nat
+  | succ : Nat → Nat           -- succ stand for `successor`
+
+open Nat
+
+def mult (m n : Nat) : Nat := sorry
+def exp (m n : Nat) : Nat := sorry
+</code></pre>
+<p><span></span>
+4) Using Lean's built in Integer class, we can define a new inductive type <code>GaussianInt</code> as follows:</p>
+<pre><code class="language-lean">inductive GaussianInt where
+  | gint : Int → Int → GaussianInt
+
+open GaussianInt
+</code></pre>
+<p>For example, we can represent the complex number 1 + 2 i with</p>
+<pre><code class="language-lean">#check gint 1 2
+</code></pre>
+<p>Define real, imaginary, addition, subtraction, complex conjugate, and multiplication operations for GaussianInt:</p>
+<pre><code class="language-lean">def re (x : GaussianInt) : Int := sorry
+def im (x : GaussianInt) : Int := sorry
+def cadd (x y : GaussianInt) : GaussianInt := sorry
+def csub (x y : GaussianInt) : GaussianInt := sorry
+def conjugate (x : GaussianInt) : GaussianInt := sorry
+def cmul (x y : GaussianInt) : GaussianInt := sorry
+</code></pre>
+<p>Test all of these with eval to make sure they work.</p>
 <h2 id="references-3"><a class="header" href="#references-3">References</a></h2>
 <ul>
 <li>
@@ -1887,6 +1958,77 @@ example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
              λ hpq : P w ∧ Q w  =&gt;                                 -- proof of →
              (Exists.intro w (And.intro hpq.right hpq.left))
   Exists.elim h₁ h₂
+</code></pre>
+<h2 id="exercises-3"><a class="header" href="#exercises-3">Exercises</a></h2>
+<p><span></span></p>
+<ol>
+<li>Prove the following FOL examples using introduction, elimination, etc using either direct proofs or tactics. Do not use the built in theorems from the standard library that match these, that's too easy.</li>
+</ol>
+<pre><code class="language-lean">variable (p q : Type → Prop)
+variable (r : Prop)
+
+example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
+  sorry
+
+example : (∀ x, p x → r) ↔ (∃ x, p x) → r :=
+  sorry
+</code></pre>
+<p><span></span> 2) Consider the following definition of the sum of the first n squares.</p>
+<pre><code class="language-lean">def S (n : Nat) : Nat := match n with
+  | Nat.zero =&gt; 0
+  | Nat.succ x =&gt; n*n + S x
+</code></pre>
+<p>Show the following result using induction.</p>
+<pre><code class="language-lean">example (n : Nat) : 6 * (S n) = (n * (n+1)) * (2*n+1) :=
+  sorry
+</code></pre>
+<p><span></span> 3) Given the definitions of Person, on_right, and next_to:</p>
+<pre><code class="language-lean">inductive Person where | mary | steve | ed | jolin
+open Person
+
+def on_right (p : Person) := match p with
+  | mary =&gt; steve
+  | steve =&gt; ed
+  | ed =&gt; jolin
+  | jolin =&gt; mary
+
+def next_to (p q : Person) := on_right p = q ∨ on_right q = p
+</code></pre>
+<p>Prove the following examples:</p>
+<pre><code class="language-lean">example : ∀ p , ∀ q , on_right p = q → next_to p q :=
+  sorry
+
+example : ∀ p : Person, ∃ q : Person, next_to p q :=
+  sorry
+
+example : ∀ p : Person, ∃ q : Person, ¬next_to p q :=
+  sorry
+</code></pre>
+<p><span></span> 4) Besides ∀ and ∃, there are other quantifiers we can define. For example, the "Exists Exactly One" quantifer allows you to state that there is only one of something. We usually written ∃! as in</p>
+<pre><code class="language-hs">    ∃! x, P x
+</code></pre>
+<p>which states there is exactly one <code>x</code> such that <code>P x</code> is true.</p>
+<p>We can define this quantifer inductively, just as we did for Exists:</p>
+<pre><code class="language-lean">inductive Exists1 {α : Type} (p : α → Prop) : Prop where
+  | intro (x : α) (h : p x ∧ ∀ y : α, p y → x = y) : Exists1 p
+</code></pre>
+<p>However, it is a pain to define the notation E!. So we will just have to write</p>
+<pre><code class="language-hs">    Exists1 (λ x =&gt; P x)
+</code></pre>
+<p>instead of the above.</p>
+<p>a) <span></span> Prove the elimination theorem for Exists1</p>
+<pre><code class="language-lean">theorem Exists1.elim {α : Type} {P : α → Prop} {b : Prop}
+   (h₁ : Exists1 (λ x =&gt; P x)) (h₂ : ∀ (a : α), P a → b) : b := sorry
+</code></pre>
+<p><span></span> b) Prove the following examples:</p>
+<pre><code class="language-lean">example : ∀ x, Exists1 (λ y : Person =&gt; x ≠ y ∧ ¬next_to y x ) :=  by
+  sorry
+
+example (α : Type) (P : α → Prop) : Exists1 ( λ x =&gt; P x ) → ¬ ∀ x, ¬ P x  := sorry
+
+example : Exists1 (λ x =&gt; x=0) := sorry
+
+example : ¬Exists1 (λ x =&gt; x ≠ 0) := sorry
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -2831,7 +2973,7 @@ example (x y z : Int) : x+y+z = x+z+y := by
   _ = x+(z+y) := by rw[add_comm y z]
   _ = x+z+y   := by rw[add_assoc]
 </code></pre>
-<h2 id="exercises-1"><a class="header" href="#exercises-1">Exercises</a></h2>
+<h2 id="exercises-4"><a class="header" href="#exercises-4">Exercises</a></h2>
 <h2 id="references-4"><a class="header" href="#references-4">References</a></h2>
 <p>The construction here is defined in a number of Algebra textbooks. For an early example, see the Nicolas Bourbaki collective's book <em>Algebra Part I</em>, 1943. The English translation of that book from 1974 has the relevant material on page 20.</p>
 <div style='height=50px'>&nbsp;</div><hr>
@@ -2988,7 +3130,7 @@ Copyright © 2025 Eric Klavins
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Intro.lean'>Code</a> for this chapter</span></p>
 <h1 id="real-numbers"><a class="header" href="#real-numbers">Real Numbers</a></h1>
-<p>Having built ℕ inductively, ℤ from ℕ, and ℚ from ℕ and ℤ, we now turn to the real numbers ℝ. The key distinction between the ℚ and ℝ is that ℝ has the least upper bound property: every non-empty set of reals that is bounded from above has a least upper bound. The rationals ℚ do not have this property. For example, the set</p>
+<p>Having built ℕ inductively, then building ℤ from ℕ and ℚ from ℕ and ℤ, we now turn to the real numbers ℝ. The key distinction between ℚ and ℝ is that ℝ has the least upper bound property: every non-empty set of reals that is bounded from above has a least upper bound. The rationals ℚ do not have this property. For example, the set</p>
 <pre><code class="language-hs">{ q ∈ ℚ | q² &lt; 2 }
 </code></pre>
 <p>has no least upper bound in ℚ, although in ℝ the least upper bound is <code>√2</code> (for a Lean proof that the square root of 2 is no rational, see <a href="https://leanprover-community.github.io/mathematics_in_lean/C05_Elementary_Number_Theory.html#irrational-roots">Chapter 5</a> of <em>MIL</em>.)</p>
@@ -3002,14 +3144,14 @@ Copyright © 2025 Eric Klavins
 <p>Converges to <code>π</code>.</p>
 <p>In this chapter, mainly as an exercise in formalization, we instead construct ℝ from <em>Dedekind Cuts</em> in which every real number is equated to the set of rational numbers less than it. We roughly follow the decription of this approach presented in Rudin's book <em>Principles of Mathematical Analysis</em> (which also, by the way, describes the Cauchy Sequence approach.)</p>
 <h2 id="axioms-of-the-reals"><a class="header" href="#axioms-of-the-reals">Axioms of the Reals</a></h2>
-<p>To show that a set R is equivalent to the real numbers, we define the following relations and operations:</p>
+<p>To show that a set R is equivalent to the real numbers, we must define the following relations and operations:</p>
 <ul>
 <li>Ordering relations: &lt;, ≤, &gt; and ≥</li>
 <li>Addition and subtraction: +, -</li>
 <li>Multiplication: *</li>
 <li>Division: /</li>
 </ul>
-<p>and we require the following:</p>
+<p>and then prove the following:</p>
 <ul>
 <li>R is totally ordered: ∀ x y ∈ R, x &lt; y ∨ y &lt; x ∨ x=y</li>
 <li>R is a field
@@ -3034,7 +3176,7 @@ Copyright © 2025 Eric Klavins
 </li>
 <li>R has the least upper bound property</li>
 </ul>
-<p>Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes and more so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.</p>
+<p>Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes (and several others) so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.</p>
 <p><span style='background: yellow'>TODO: List the relevant Mathlib classes or insert a tree diagram of them.</span></p>
 <h2 id="references-5"><a class="header" href="#references-5">References</a></h2>
 <p>A nice description of the Cauchy Completion: https://mathweb.ucsd.edu/~tkemp/140A/Construction.of.R.pdf</p>
@@ -3073,36 +3215,16 @@ structure DCut where
   op : ∀ x ∈ A, ∃ y ∈ A, x &lt; y      -- open
 
 open DCut
-
-def DCut.B (c : DCut) : Set ℚ := Set.univ \ c.A
-
-theorem not_in_a_in_b {c :DCut} {q : ℚ} : q ∉ c.A → q ∈ c.B := by simp[B]
-
-theorem ub_to_notin {y:ℚ} {A : Set ℚ}
-  : (∀ x ∈ A, x &lt; y) → y ∉ A := by
-  intro h hy
-  have := h y hy
-  simp_all
-
-theorem notin_to_ub {y:ℚ} {a : DCut}
-  : y ∉ a.A → (∀ x ∈ a.A, x &lt; y)  := by
-  intro hy x hx
-  by_contra h
-  have := a.dc y x ⟨ by linarith, hx ⟩
-  exact hy this
 </code></pre>
-<p>The open property can be used extended.</p>
-<pre><code class="language-lean">theorem op2 {a : DCut} (q : ℚ) (hq : q ∈ a.A)
-  : ∃ x, ∃ y, x ∈ a.A ∧ y ∈ a.A ∧ q &lt; x ∧ x &lt; y := by
-  have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
-  have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
-  use s, t
+<p>We have only defined the lower part, <code>A</code> of a cut. The upper part of the cut, <code>B</code> is defined simply:</p>
+<pre><code class="language-lean">def DCut.B (c : DCut) : Set ℚ := Set.univ \ c.A
 </code></pre>
 <h2 id="making-rationals-into-reals"><a class="header" href="#making-rationals-into-reals">Making Rationals into Reals</a></h2>
 <p>All rational numbers are also real numbers via the map that identifies a rational <code>q</code> with the interval <code>(∞,q)</code> of all rationals less than <code>q</code>. We call this set <code>odown q</code>, where <code>odown</code> is meant to abbreviate <code>open, downward closed</code>.</p>
 <pre><code class="language-lean">def odown (q : ℚ) : Set ℚ := { y | y &lt; q }
 </code></pre>
-<p>To prove that <code>odown q</code> is a Dedekind cut requires we show it is nonempty, not <code>ℚ</code> itself, downward closed, and open. For the first two theorems we use use the facts that <code>q-1 ∈ (∞,q)</code> and <code>q+1 ∉ (∞,q)</code>.</p>
+<p>To prove that <code>odown q</code> is a Dedekind cut requires we show it is nonempty, not <code>ℚ</code> itself, downward closed, and open. We will need to do this sort of proof over and over in this section, as we show various other ways of constructing sets of rationals are indeed Dedekind cuts.</p>
+<p>For the first two theorems we use use the facts that <code>q-1 ∈ (∞,q)</code> and <code>q+1 ∉ (∞,q)</code>.</p>
 <pre><code class="language-lean">theorem odown_ne {q : ℚ} : ∃ x, x ∈ odown q := by
   use q-1
   simp[odown]
@@ -3117,7 +3239,7 @@ theorem odown_nf {q : ℚ} : ∃ x, x ∉ odown q := by
   simp_all[odown]
   linarith
 </code></pre>
-<p>To prove <code>odown q</code> is open, we are given <code>x ∈ odown</code> and need to supply <code>y ∈ odown q</code> with <code>x &lt; y</code>. Since <code>q</code> is the least upper bound of <code>odown q</code>, we choose <code>(x+q)/2</code>.</p>
+<p>To prove <code>odown q</code> is open, we are given <code>x ∈ odown</code> and need to supply <code>y ∈ odown q</code> with <code>x &lt; y</code>. Since <code>q</code> is the least upper bound of <code>odown q</code>, we choose <code>(x+q)/2</code>, which is less than <code>q</code> and greater than <code>x</code>.</p>
 <pre><code class="language-lean">theorem odown_op {q : ℚ} : ∀ x ∈ odown q, ∃ y ∈ odown q, x &lt; y:= by
   intro x hx
   use (x+q)/2
@@ -3154,7 +3276,45 @@ theorem zero_ne_one : (0:DCut) ≠ 1 := by
 instance non_triv_inst : Nontrivial DCut := ⟨ ⟨ 0, 1, zero_ne_one ⟩ ⟩
 </code></pre>
 <h2 id="simple-properties-of-cuts"><a class="header" href="#simple-properties-of-cuts">Simple Properties of Cuts</a></h2>
-<p>Here we define some simple properties that wil make subsequent proofs less cumbersome. The first says for <code>x in A</code> and <code>y in B</code>, that <code>x &lt; y</code>.</p>
+<p>Next we define a few basic properties that will be used in later proofs, but that are also good exercises here.</p>
+<p>First, if <code>q</code> is not in <code>A</code> then <code>q</code> is in <code>B</code>, and vice verse, which together imply that <code>A</code> and <code>B</code> are a partition of <code>ℚ</code>.</p>
+<pre><code class="language-lean">theorem not_in_a_in_b {c :DCut} {q : ℚ} : q ∉ c.A → q ∈ c.B := by
+  simp[B]
+
+theorem not_in_b_in_a {c :DCut} {q : ℚ} : q ∉ c.B → q ∈ c.A := by
+  simp[B]
+</code></pre>
+<p>We also have two simple properties describing <code>A</code> as a downward closed set. The first simply uses the ordering property of <code>ℚ</code>, while the second follows from the fact that <code>A</code> is downward closed.</p>
+<pre><code class="language-lean">theorem ub_to_notin {y:ℚ} {A : Set ℚ}
+  : (∀ x ∈ A, x &lt; y) → y ∉ A := by
+  intro h hy
+  have := h y hy
+  simp_all
+
+theorem notin_to_ub {y:ℚ} {a : DCut}
+  : y ∉ a.A → (∀ x ∈ a.A, x &lt; y)  := by
+  intro hy x hx
+  by_contra h
+  have := a.dc y x ⟨ by linarith, hx ⟩
+  exact hy this
+</code></pre>
+<p>The fact that <code>A</code> is open can be used to show a few simple properties as well. Since <code>A</code> is open, you can find an element in <code>A</code> bigger than any given element in <code>A</code>. Thus, you can find two values in <code>A</code> bigger than any given element. In fact, you can find an arbitary number of elements in <code>A</code> bigger than a given element (see exercises).</p>
+<pre><code class="language-lean">theorem op2 {a : DCut} (q : ℚ) (hq : q ∈ a.A)
+  : ∃ x, ∃ y, x ∈ a.A ∧ y ∈ a.A ∧ q &lt; x ∧ x &lt; y := by
+  have ⟨s, ⟨ hs1, hs2 ⟩ ⟩ := a.op q hq
+  have ⟨t, ⟨ ht1, ht2 ⟩ ⟩ := a.op s hs1
+  use s, t
+</code></pre>
+<p>The following is a simple helper theorem that uses the fact that cuts are open. It is used to simplify a proof in the multiplication section.</p>
+<pre><code class="language-lean">theorem op_from_two_vals {a : DCut} {x y : ℚ} (hx : x ∈ a.A) (hy : y ∈ a.A)
+  : ∃ z ∈ a.A, x &lt; z ∧ y &lt; z := by
+  by_cases h : x &lt; y
+  . have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := a.op y hy
+    exact ⟨ z, ⟨ hz1, ⟨ by linarith, hz2 ⟩ ⟩ ⟩
+  . have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := a.op x hx
+    exact ⟨ z, ⟨ hz1, ⟨ hz2, by linarith ⟩ ⟩ ⟩
+</code></pre>
+<p>Next, we show  <code>x in A</code> and <code>y in B</code>, that <code>x &lt; y</code>.</p>
 <pre><code class="language-lean">theorem b_gt_a {c : DCut} {x y : ℚ} : x ∈ c.A → y ∈ c.B → x &lt; y := by
   intro hx hy
   simp[B] at hy
@@ -3166,7 +3326,7 @@ instance non_triv_inst : Nontrivial DCut := ⟨ ⟨ 0, 1, zero_ne_one ⟩ ⟩
   intro hx hy
   exact b_gt_a hx (not_in_a_in_b hy)
 </code></pre>
-<p>Since <code>A</code> is downward closed, one can easily show <code>B</code> is upward closed.</p>
+<p>Next we show that since <code>A</code> is downward closed, one can easily show <code>B</code> is upward closed.</p>
 <pre><code class="language-lean">theorem b_up_closed {c : DCut} {a b: ℚ} : a ∉ c.A → a ≤ b → b ∉ c.A := by
   intro h1 h2 h3
   exact h1 (c.dc a b ⟨ h2, h3 ⟩)
@@ -3196,10 +3356,9 @@ theorem DCut.le_of_lt {x y: DCut} : x ≤ y ↔ x = y ∨ x &lt; y := by
     | inl h1 =&gt; exact Eq.subset (congrArg A h1)
     | inr h1 =&gt; exact h1.right
 </code></pre>
-<p>We can easily prove that cuts form a partial order, which allows us to regiest DCut with Mathlib's PartialOrder class.</p>
+<p>We can easily prove that cuts form a partial order, which allows us to regiester <code>DCut</code> with Mathlib's PartialOrder class. <span style='background: yellow'>TODO: Can't you just used the fact that <code>⊆</code> is a partial order?</span></p>
 <pre><code class="language-lean">theorem refl {a: DCut} : a ≤ a := by
-  intro q hq
-  exact hq
+  simp_all[le_inst,lt_inst]
 
 theorem anti_symm {a b: DCut} : a ≤ b → b ≤ a → a = b := by
   intro hab hba
@@ -3329,6 +3488,8 @@ theorem zero_le_one : (0:DCut) ≤ 1 := by
   simp_all[zero_rw,one_rw,odown]
   linarith
 
+instance zero_le_one_inst : ZeroLEOneClass DCut := ⟨ zero_le_one ⟩
+
 theorem not_gt_to_le {a : DCut} : ¬ 0 &lt; a ↔ a ≤ 0 := by
   constructor
   . have := trichotomy_lt 0 a
@@ -3440,7 +3601,17 @@ theorem three_nn_ineqs {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ 
   simp[le_of_lt] at ha hb hc
   tauto
 </code></pre>
-<p><strong>Exercise</strong>: Show that <code>ofRat</code> is indeed an order embedding, that is <code>x ≤ y → ofRat x ≤ ofRat y</code> for all rational numbers <code>x</code> and <code>y</code>.</p>
+<p><strong>Exercise</strong>:</p>
+<ol>
+<li>
+<p>Show that <code>ofRat</code> is indeed an order embedding, that is <code>x ≤ y → ofRat x ≤ ofRat y</code> for all rational numbers <code>x</code> and <code>y</code>.</p>
+</li>
+<li>
+<p>Let <code>(A,B)</code> be a cut. Show that for any <code>q ∈ A</code>, there exists a function <code>f : ℕ → A</code> such that<br>
+a) <code>q i ∈ A</code><br>
+b) <code>q &lt; f 0</code> and for all <code>i</code>, <code>f i &lt; f j</code></p>
+</li>
+</ol>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 <div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
@@ -3573,6 +3744,28 @@ theorem sum_zero_right {a : DCut} : a + 0 = a := by
 
 instance add_zero_inst : AddZeroClass DCut :=
   ⟨ @sum_zero_left, @sum_zero_right ⟩
+</code></pre>
+<h1 id="order-properties"><a class="header" href="#order-properties">Order Properties</a></h1>
+<pre><code class="language-lean">theorem sum_pos_pos {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) : 0 &lt; a + b := by
+  constructor
+  . intro h
+    have ha0 := pos_has_zero.mp ha
+    have hb0 := pos_has_zero.mp hb
+    have : 0 ∈ (a+b).A := by
+      exact ⟨ 0, ⟨ ha0, ⟨ 0, ⟨ hb0, by exact Rat.zero_add 0 ⟩ ⟩ ⟩ ⟩
+    simp[←h,zero_rw,odown] at this
+  . intro q hq
+    have : q ∈ b.A := by
+      simp[zero_rw,odown] at hq
+      exact b.dc q 0 ⟨ by linarith, zero_in_pos hb ⟩
+    exact ⟨ 0, ⟨ zero_in_pos ha, ⟨ q, ⟨ this, by linarith ⟩ ⟩ ⟩ ⟩
+
+theorem sum_nneg_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by
+  rcases two_nn_ineqs ha hb with ⟨ ha, hb ⟩ | h | h
+  . apply lt_imp_le
+    apply sum_pos_pos ha hb
+  . simp[h,sum_zero_left,hb]
+  . simp[h,sum_zero_right,ha]
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -3840,6 +4033,29 @@ theorem negate_le' { x : DCut } : 0 ≤ -x ↔ x ≤ 0 := by
     have := add_preserves_le (-x) h
     simp at this
     exact this
+
+theorem neg_sum_eq {a b c: DCut} : a = b+c ↔ -a = -b + -c := by
+ constructor
+ repeat
+ intro h
+ apply neg_inj.mp
+ simp[h,add_comm]
+
+
+theorem neg_of_rat {x : ℚ} : -ofRat x = ofRat (-x) := by
+  simp[ofRat,neg_inst,neg,preneg,odown]
+  ext q
+  constructor
+  . choose a ha b hb h
+    simp_all
+    linarith
+  . intro hq
+    simp_all
+    use! q+x, (by linarith), x, (by linarith)
+    linarith
+
+theorem sub_rats {x y: ℚ} : ofRat (x-y) = ofRat x - ofRat y := by
+  rw[←add_neg,neg_of_rat,Rat.sub_eq_add_neg,add_rats]
 </code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
@@ -4517,6 +4733,19 @@ instance comm_monoid_wz_inst : CommMonoidWithZero DCut := ⟨
 <pre><code class="language-lean">example (x : DCut) : x^2 = x*x := by
   exact pow_two x
 </code></pre>
+<h1 id="properties"><a class="header" href="#properties">Properties</a></h1>
+<pre><code class="language-lean">theorem prod_in_pos_mul {a b : DCut} {x y: ℚ} (ha : 0 &lt; a) (hb : 0 &lt; b)
+                        (hx : x ∈ a.A) (hy : y ∈ b.A) (hx0 : 0 &lt; x)
+  : x*y ∈ (mul_pos a b ha hb).A := by
+  obtain ⟨ x', ⟨ hx1', hx2' ⟩ ⟩ := a.op x hx
+  obtain ⟨ y', ⟨ hy1', hy2' ⟩ ⟩ := op_from_two_vals hy (zero_in_pos hb)
+  have hy' : 0 ≤ y' := by  linarith
+  have hxy' : x * y &lt; x' * y' := by
+    have h1 : 0 &lt; x' := by linarith
+    have h2 : y ≤ y' := by linarith
+    nlinarith
+  exact ⟨ x', ⟨ hx1', ⟨ y', ⟨ hy1', ⟨ by linarith, ⟨ by linarith, hxy' ⟩ ⟩  ⟩ ⟩ ⟩ ⟩
+</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 <div style="break-before: page; page-break-before: always;"></div><div style='display:none'>
@@ -4530,48 +4759,7 @@ Copyright © 2025 Eric Klavins
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Distributivity.lean'>Code</a> for this chapter</span></p>
 <h1 id="the-distributive-property"><a class="header" href="#the-distributive-property">The Distributive Property</a></h1>
-<pre><code class="language-lean">theorem sum_pos_pos {a b : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) : 0 &lt; a + b := by
-  constructor
-  . intro h
-    have ha0 := pos_has_zero.mp ha
-    have hb0 := pos_has_zero.mp hb
-    have : 0 ∈ (a+b).A := by
-      exact ⟨ 0, ⟨ ha0, ⟨ 0, ⟨ hb0, by exact Rat.zero_add 0 ⟩ ⟩ ⟩ ⟩
-    simp[←h,zero_rw,odown] at this
-  . intro q hq
-    have : q ∈ b.A := by
-      simp[zero_rw,odown] at hq
-      exact b.dc q 0 ⟨ by linarith, zero_in_pos hb ⟩
-    exact ⟨ 0, ⟨ zero_in_pos ha, ⟨ q, ⟨ this, by linarith ⟩ ⟩ ⟩ ⟩
-
-theorem sum_nneg_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by
-  rcases two_nn_ineqs ha hb with ⟨ ha, hb ⟩ | h | h
-  . apply lt_imp_le
-    apply sum_pos_pos ha hb
-  . simp[h,sum_zero_left,hb]
-  . simp[h,sum_zero_right,ha]
-
-theorem op_from_two_vals {a : DCut} {x y : ℚ} (hx : x ∈ a.A) (hy : y ∈ a.A)
-  : ∃ z ∈ a.A, x &lt; z ∧ y &lt; z := by
-  by_cases h : x &lt; y
-  . have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := a.op y hy
-    exact ⟨ z, ⟨ hz1, ⟨ by linarith, hz2 ⟩ ⟩ ⟩
-  . have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := a.op x hx
-    exact ⟨ z, ⟨ hz1, ⟨ hz2, by linarith ⟩ ⟩ ⟩
-
-theorem prod_in_pos_mul {a b : DCut} {x y: ℚ} (ha : 0 &lt; a) (hb : 0 &lt; b)
-                        (hx : x ∈ a.A) (hy : y ∈ b.A) (hx0 : 0 &lt; x)
-  : x*y ∈ (mul_pos a b ha hb).A := by
-  obtain ⟨ x', ⟨ hx1', hx2' ⟩ ⟩ := a.op x hx
-  obtain ⟨ y', ⟨ hy1', hy2' ⟩ ⟩ := op_from_two_vals hy (zero_in_pos hb)
-  have hy' : 0 ≤ y' := by  linarith
-  have hxy' : x * y &lt; x' * y' := by
-    have h1 : 0 &lt; x' := by linarith
-    have h2 : y ≤ y' := by linarith
-    nlinarith
-  exact ⟨ x', ⟨ hx1', ⟨ y', ⟨ hy1', ⟨ by linarith, ⟨ by linarith, hxy' ⟩ ⟩  ⟩ ⟩ ⟩ ⟩
-
-theorem pos_distrib {a b c : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) (hc : 0 &lt; c)
+<pre><code class="language-lean">theorem pos_distrib {a b c : DCut} (ha : 0 &lt; a) (hb : 0 &lt; b) (hc : 0 &lt; c)
   : mul_pos a (sum b c) ha (sum_pos_pos hb hc) = sum (mul_pos a b ha hb) (mul_pos a c ha hc) := by
 
   ext q
@@ -4637,21 +4825,6 @@ theorem nneg_distrib {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
     exact pos_distrib ha' hb' hc'
   repeat
   simp[h]
-
-example {a b:DCut} : a = b ↔ -a = -b := by exact Iff.symm neg_inj
-
-theorem neg_sum_eq {a b c: DCut} : a = b+c ↔ -a = -b + -c := by
- constructor
- repeat
- intro h
- apply neg_inj.mp
- simp[h,add_comm]
-
-example {a b:DCut} : a*b = (-a)*(-b) := by
-  simp only [mul_neg_dist_left, mul_neg_dist_right, neg_neg]
-
-example {a b:DCut} : -a + -b = -(a+b) := by
-  exact Eq.symm (neg_add a b)
 
 theorem nn_distrib {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
   : a * (b + c) = a*b + a*c := by
@@ -4724,13 +4897,16 @@ theorem distrib {a b c : DCut}
     simp only [←neg_add, mul_neg_dist_left, mul_neg_dist_right, neg_neg] at this
     exact this
 
-instance nuna_inst :  NonUnitalNonAssocSemiring DCut := ⟨
+theorem distrib_right {a b c : DCut}
+  : (a+b)*c = a*c+b*c := by
+  have := @distrib c a b
+  rw [mul_comm] at this
+  simp[this,mul_comm,add_comm]
+</code></pre>
+<h2 id="cuts-form-a-commutative-ring"><a class="header" href="#cuts-form-a-commutative-ring">Cuts Form a Commutative Ring</a></h2>
+<pre><code class="language-lean">instance nunasr_inst :  NonUnitalNonAssocSemiring DCut := ⟨
   @distrib,
-  by
-    intro a b c
-    have := @distrib c a b
-    rw [mul_comm] at this
-    simp[this,mul_comm,add_comm],
+  @distrib_right,
   @mul_zero_left,
   @mul_zero_right
 ⟩
@@ -4739,65 +4915,58 @@ instance nusr_inst : NonUnitalSemiring DCut := ⟨
   λ x y z =&gt; Eq.symm (@mul_assoc x y z)
 ⟩
 
-#print Semiring
-
 instance semi_ring_inst : Semiring DCut := ⟨
   @mul_id_left,
   @mul_id_right,
   rfl,
-  λ n =&gt; Nat.cast_add_one n,
+  Nat.cast_add_one,
   npow,
   @npow_zero,
   @npow_succ
 ⟩
 
-theorem neg_of_rat {x : ℚ} : -ofRat x = ofRat (-x) := by
-  simp[ofRat,neg_inst,neg,preneg,odown]
-  ext q
-  constructor
-  . choose a ha b hb h
-    simp_all
-    linarith
-  . intro hq
-    simp_all
-    use! q+x, (by linarith), x, (by linarith)
-    linarith
+def smul (z : ℤ) (a : DCut) : DCut := (ofRat z) * a
 
-theorem sub_rats {x y: ℚ} : ofRat (x-y) = ofRat x - ofRat y := by
-  rw[←add_neg,neg_of_rat,Rat.sub_eq_add_neg,add_rats]
+theorem smul_zero_left {a : DCut} : smul 0 a = 0 := by
+  have : ofRat 0 = 0 := rfl
+  simp[smul,this,mul_zero_left]
 
-instance ring_inst : Ring DCut := ⟨
-  λ a b =&gt; rfl,
-  λ z a =&gt; (ofRat z) * a,
-  by
-    intro a
-    have : ofRat 0 = 0 := rfl
-    simp[this,mul_zero_left],
-  by
-    intro n a
-    simp[add_rats,mul_comm,distrib]
-    have : ofRat 1 = 1 := rfl
-    simp[this],
-  by
-    intro n a
-    simp[add_rats,mul_comm,distrib]
-    simp[←neg_of_rat],
-  @neg_add_cancel_left,
-  λ n =&gt; rfl,
-  by
-    intro n
+theorem smul_succ {n : ℕ} {a : DCut}
+  : smul (↑n.succ) a = smul (↑n) a + a := by
+  simp[smul,add_rats,mul_comm,distrib]
+  have : ofRat 1 = 1 := rfl
+  simp[this]
+
+theorem smul_neg_succ {n : ℕ} {a : DCut}
+  : smul (Int.negSucc n) a = -smul (↑n.succ) a := by
+  simp[smul,add_rats,mul_comm,distrib]
+  simp[←neg_of_rat]
+
+theorem int_cast_neg_succ (n : ℕ) :
+    int_cast_inst.intCast (Int.negSucc n) = -↑(n + 1) := by
     simp[IntCast.intCast,Int.negSucc,add_rats,neg_inst]
     simp[←neg_of_rat]
     have : -ofRat 1 = -1 := rfl
     simp[this]
     rfl
+
+instance ring_inst : Ring DCut := ⟨
+  add_neg,
+  smul,
+  @smul_zero_left,
+  @smul_succ,
+  @smul_neg_succ,
+  @neg_add_cancel_left,
+  λ _ =&gt; rfl,
+  int_cast_neg_succ
 ⟩
 
 instance com_ring_inst : CommRing DCut := ⟨
   @mul_comm
 ⟩
-
-example {a b c : DCut} : a*(b+c) - c = a*c - c + a*b := by
+</code></pre>
+<p>With <code>CommRing</code> instantiated, we should be able to use the <code>ring</code> tactic on cuts.</p>
+<pre><code class="language-lean">example {a b c : DCut} : a*(b+c) - c = a*c - c + a*b := by
   ring
 
 example {a b : DCut} : (a-b)^2 = a^2 - 2*a*b + b^2 := by
@@ -5235,7 +5404,7 @@ example : AntiChain my_anti_chain := by
     rw[←hsm,←hsn] at hmn
     exact id (Ne.symm hmn) (congrArg singleton (h rfl))
 </code></pre>
-<h2 id="exercises-2"><a class="header" href="#exercises-2">Exercises</a></h2>
+<h2 id="exercises-5"><a class="header" href="#exercises-5">Exercises</a></h2>
 <ol>
 <li>Show the rational numbers ℚ with the natural order ≤ form a Poset</li>
 </ol>
@@ -5295,7 +5464,7 @@ theorem order_iso_bijective {P Q : Type u} [Poset P] [Poset Q] (φ : P → Q)
   intro ⟨ h1, h2 ⟩
   exact ⟨ order_embed_1to1 φ h2, h1 ⟩
 </code></pre>
-<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <pre><code class="language-lean">example : OrderPreserving (λ _ : ℕ =&gt; 0) := by
   intro x y h
   dsimp
@@ -5854,7 +6023,7 @@ theorem DM.join_least {P : Type u} [Poset P]
   simp[this] at h
   exact h (DM.ext hxb)
 </code></pre>
-<h2 id="examples-2"><a class="header" href="#examples-2">Examples</a></h2>
+<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
 <h3 id="a-finite-example"><a class="header" href="#a-finite-example">A Finite Example</a></h3>
 <pre><code class="language-lean">namespace Temp
 
@@ -5908,7 +6077,7 @@ example : ∃ b : DM MyPoset, ∀ x, b ≤ x := by
 
 end Temp
 </code></pre>
-<h2 id="exercises-3"><a class="header" href="#exercises-3">Exercises</a></h2>
+<h2 id="exercises-6"><a class="header" href="#exercises-6">Exercises</a></h2>
 <ol>
 <li>Show <code>DM ℕ</code> is isomorphic to <code>ℕ ∪ {∞}</code> where <code>x ≤ ∞</code> for all <code>x</code>.</li>
 </ol>

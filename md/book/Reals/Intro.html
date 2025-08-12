@@ -172,7 +172,7 @@
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Intro.lean'>Code</a> for this chapter</span></p>
 <h1 id="real-numbers"><a class="header" href="#real-numbers">Real Numbers</a></h1>
-<p>Having built ℕ inductively, ℤ from ℕ, and ℚ from ℕ and ℤ, we now turn to the real numbers ℝ. The key distinction between the ℚ and ℝ is that ℝ has the least upper bound property: every non-empty set of reals that is bounded from above has a least upper bound. The rationals ℚ do not have this property. For example, the set</p>
+<p>Having built ℕ inductively, then building ℤ from ℕ and ℚ from ℕ and ℤ, we now turn to the real numbers ℝ. The key distinction between ℚ and ℝ is that ℝ has the least upper bound property: every non-empty set of reals that is bounded from above has a least upper bound. The rationals ℚ do not have this property. For example, the set</p>
 <pre><code class="language-hs">{ q ∈ ℚ | q² &lt; 2 }
 </code></pre>
 <p>has no least upper bound in ℚ, although in ℝ the least upper bound is <code>√2</code> (for a Lean proof that the square root of 2 is no rational, see <a href="https://leanprover-community.github.io/mathematics_in_lean/C05_Elementary_Number_Theory.html#irrational-roots">Chapter 5</a> of <em>MIL</em>.)</p>
@@ -186,14 +186,14 @@
 <p>Converges to <code>π</code>.</p>
 <p>In this chapter, mainly as an exercise in formalization, we instead construct ℝ from <em>Dedekind Cuts</em> in which every real number is equated to the set of rational numbers less than it. We roughly follow the decription of this approach presented in Rudin's book <em>Principles of Mathematical Analysis</em> (which also, by the way, describes the Cauchy Sequence approach.)</p>
 <h2 id="axioms-of-the-reals"><a class="header" href="#axioms-of-the-reals">Axioms of the Reals</a></h2>
-<p>To show that a set R is equivalent to the real numbers, we define the following relations and operations:</p>
+<p>To show that a set R is equivalent to the real numbers, we must define the following relations and operations:</p>
 <ul>
 <li>Ordering relations: &lt;, ≤, &gt; and ≥</li>
 <li>Addition and subtraction: +, -</li>
 <li>Multiplication: *</li>
 <li>Division: /</li>
 </ul>
-<p>and we require the following:</p>
+<p>and then prove the following:</p>
 <ul>
 <li>R is totally ordered: ∀ x y ∈ R, x &lt; y ∨ y &lt; x ∨ x=y</li>
 <li>R is a field
@@ -218,7 +218,7 @@
 </li>
 <li>R has the least upper bound property</li>
 </ul>
-<p>Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes and more so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.</p>
+<p>Mathlib defines classes for all of these properties. Thus, as we prove them in Lean, we will register intances of these classes (and several others) so that our construction works with all of the theorems and tactics that Mathlib provides for notation, ordering, groups, rings, and fields.</p>
 <p><span style='background: yellow'>TODO: List the relevant Mathlib classes or insert a tree diagram of them.</span></p>
 <h2 id="references"><a class="header" href="#references">References</a></h2>
 <p>A nice description of the Cauchy Completion: https://mathweb.ucsd.edu/~tkemp/140A/Construction.of.R.pdf</p>

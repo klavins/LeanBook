@@ -182,7 +182,7 @@ def N := (α → α) → α → α
 </code></pre>
 <p>It would be vastly preferable if (a) every object of a given type was a legitimate representative of that type and every object also had exactly one representative.</p>
 <p><strong>Pattern Matching and Induction:</strong> To prove properties above objects of a given type, it is useful to apply induction on the structure of the object. For example, a natural number is either zero, or it is the successor of some other natural number. To prove a statement about natural numbers one would like support for pattern matching on the way the number was constructed.</p>
-<p><strong>Termination:</strong> As we have seem, operations on terms of a given type in the pure lambda calculus are not guaranteed to terminate. However, we will see that all terms of a given inductive type support <em>structural recursion</em>: We can define functions on that break the term into smaller pieces which eventual lead to indivisible elements, at which point the function terminates.</p>
+<p><strong>Termination:</strong> As we have seem, operations on terms of a given type in the pure lambda calculus are not guaranteed to terminate. However, we will see that all terms of a given inductive type support <em>structural recursion</em>: We can define functions on that break the term into smaller pieces which eventually lead to indivisible elements, at which point the function terminates.</p>
 <p>Thus, Lean and other type theoretic languages include a way to define types inductively. One lists all the ways to construct objects of a given type. Lean then provides a powerful pattern matching capability that can be used in definitions and theorems when operating or reasoning on an object defined inductively.</p>
 <h3 id="namespaces"><a class="header" href="#namespaces">Namespaces</a></h3>
 <p>In this chapter we will be redefining several fundamental types in Lean, such as the natural numbers <code>ℕ</code> and the propositional connectives <code>And</code> and <code>Or</code>. Since these are part of Lean's standard library (included by default), if we do not take appropriate measures, we will get naming collisions. The easiest way to avoid this is to open a temporary namespace.</p>
@@ -206,7 +206,7 @@ def N := (α → α) → α → α
 def t := Two.a
 #eval t
 </code></pre>
-<p><strong>Example:</strong> The simplest inductive yype has <em>no</em> constructors, meaning it specifies the empty type.</p>
+<p><strong>Example:</strong> The simplest inductive type has <em>no</em> constructors, meaning it specifies the empty type.</p>
 <pre><code class="language-lean">inductive Empty
 </code></pre>
 <h2 id="constructors-with-arguments"><a class="header" href="#constructors-with-arguments">Constructors With Arguments</a></h2>
@@ -214,7 +214,7 @@ def t := Two.a
 <p><strong>Example:</strong> The type Nat of <strong>Natural Numbers</strong> is defined by two constructors:</p>
 <pre><code class="language-lean">inductive Nat where
   | zero : Nat
-  | succ : Nat → Nat           -- succ stand for `successor`
+  | succ : Nat → Nat           -- succ stands for `successor`
 
 open Nat
 #check succ (succ (succ zero)) -- 3
@@ -224,7 +224,7 @@ open Nat
 </code></pre>
 <p>using so-called dot-notation.</p>
 <p>Objects of type <code>Nat</code> thus either have the form <code>zero</code> or they consist of some finite number of applications of <code>succ</code> to the element <code>zero</code>. With more types, we can define even more complicated objects.</p>
-<p><strong>Example:</strong> A simple model of arithmetic expressions can be defined by the type:</p>
+<p><strong>Example:</strong> A simple grammar for arithmetic expressions can be defined by the type:</p>
 <pre><code class="language-lean">inductive Expr where
   | var : String → Expr
   | add : Expr → Expr → Expr
@@ -257,7 +257,7 @@ open Expr
 
 open Nat
 
-#reduce plus (succ zero) (succ zero)
+#reduce plus (succ zero) (succ zero)  -- zero.succ.succ
 </code></pre>
 <p><strong>Example:</strong> Swap Adds and Muls</p>
 <pre><code class="language-lean">def Expr.swap (e : Expr) := match e with
@@ -293,7 +293,7 @@ end NatList
 
 namespace List
 #check cons "lean" (cons "is cool" empty)       -- ["lean", "is cool"]
-#check cons 3.4 (cons 1.21 empty)       -- ["lean", "is cool"]
+#check cons 3.4 (cons 1.21 empty)               -- [3.14, 1.21]
 
 end List
 </code></pre>

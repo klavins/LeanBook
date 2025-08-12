@@ -27,7 +27,7 @@ def nc : N := λ (f : α  → α) (x : α) => x
 
 **Pattern Matching and Induction:** To prove properties above objects of a given type, it is useful to apply induction on the structure of the object. For example, a natural number is either zero, or it is the successor of some other natural number. To prove a statement about natural numbers one would like support for pattern matching on the way the number was constructed.
 
-**Termination:** As we have seem, operations on terms of a given type in the pure lambda calculus are not guaranteed to terminate. However, we will see that all terms of a given inductive type support _structural recursion_: We can define functions on that break the term into smaller pieces which eventual lead to indivisible elements, at which point the function terminates.
+**Termination:** As we have seem, operations on terms of a given type in the pure lambda calculus are not guaranteed to terminate. However, we will see that all terms of a given inductive type support _structural recursion_: We can define functions on that break the term into smaller pieces which eventually lead to indivisible elements, at which point the function terminates.
 
 Thus, Lean and other type theoretic languages include a way to define types inductively. One lists all the ways to construct objects of a given type. Lean then provides a powerful pattern matching capability that can be used in definitions and theorems when operating or reasoning on an object defined inductively.
 
@@ -61,7 +61,7 @@ inductive Two where
 def t := Two.a
 #eval t
 ```
- **Example:** The simplest inductive yype has _no_ constructors, meaning it specifies the empty type. 
+ **Example:** The simplest inductive type has _no_ constructors, meaning it specifies the empty type. 
 ```lean
 inductive Empty
 ```
@@ -73,7 +73,7 @@ You can also have constructors that take arguments and transform them into objec
 ```lean
 inductive Nat where
   | zero : Nat
-  | succ : Nat → Nat           -- succ stand for `successor`
+  | succ : Nat → Nat           -- succ stands for `successor`
 
 open Nat
 #check succ (succ (succ zero)) -- 3
@@ -86,7 +86,7 @@ open Nat
 
 Objects of type `Nat` thus either have the form `zero` or they consist of some finite number of applications of `succ` to the element `zero`. With more types, we can define even more complicated objects.
 
-**Example:** A simple model of arithmetic expressions can be defined by the type: 
+**Example:** A simple grammar for arithmetic expressions can be defined by the type: 
 ```lean
 inductive Expr where
   | var : String → Expr
@@ -126,7 +126,7 @@ def Nat.plus (n m : Nat) := match n with
 
 open Nat
 
-#reduce plus (succ zero) (succ zero)
+#reduce plus (succ zero) (succ zero)  -- zero.succ.succ
 ```
  **Example:** Swap Adds and Muls
 ```lean
@@ -166,7 +166,7 @@ inductive List {α : Type} where
 
 namespace List
 #check cons "lean" (cons "is cool" empty)       -- ["lean", "is cool"]
-#check cons 3.4 (cons 1.21 empty)       -- ["lean", "is cool"]
+#check cons 3.4 (cons 1.21 empty)               -- [3.14, 1.21]
 
 end List
 ```

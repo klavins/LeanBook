@@ -436,6 +436,77 @@ example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
              (Exists.intro w (And.intro hpq.right hpq.left))
   Exists.elim h₁ h₂
 </code></pre>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<p><span></span></p>
+<ol>
+<li>Prove the following FOL examples using introduction, elimination, etc using either direct proofs or tactics. Do not use the built in theorems from the standard library that match these, that's too easy.</li>
+</ol>
+<pre><code class="language-lean">variable (p q : Type → Prop)
+variable (r : Prop)
+
+example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
+  sorry
+
+example : (∀ x, p x → r) ↔ (∃ x, p x) → r :=
+  sorry
+</code></pre>
+<p><span></span> 2) Consider the following definition of the sum of the first n squares.</p>
+<pre><code class="language-lean">def S (n : Nat) : Nat := match n with
+  | Nat.zero =&gt; 0
+  | Nat.succ x =&gt; n*n + S x
+</code></pre>
+<p>Show the following result using induction.</p>
+<pre><code class="language-lean">example (n : Nat) : 6 * (S n) = (n * (n+1)) * (2*n+1) :=
+  sorry
+</code></pre>
+<p><span></span> 3) Given the definitions of Person, on_right, and next_to:</p>
+<pre><code class="language-lean">inductive Person where | mary | steve | ed | jolin
+open Person
+
+def on_right (p : Person) := match p with
+  | mary =&gt; steve
+  | steve =&gt; ed
+  | ed =&gt; jolin
+  | jolin =&gt; mary
+
+def next_to (p q : Person) := on_right p = q ∨ on_right q = p
+</code></pre>
+<p>Prove the following examples:</p>
+<pre><code class="language-lean">example : ∀ p , ∀ q , on_right p = q → next_to p q :=
+  sorry
+
+example : ∀ p : Person, ∃ q : Person, next_to p q :=
+  sorry
+
+example : ∀ p : Person, ∃ q : Person, ¬next_to p q :=
+  sorry
+</code></pre>
+<p><span></span> 4) Besides ∀ and ∃, there are other quantifiers we can define. For example, the "Exists Exactly One" quantifer allows you to state that there is only one of something. We usually written ∃! as in</p>
+<pre><code class="language-hs">    ∃! x, P x
+</code></pre>
+<p>which states there is exactly one <code>x</code> such that <code>P x</code> is true.</p>
+<p>We can define this quantifer inductively, just as we did for Exists:</p>
+<pre><code class="language-lean">inductive Exists1 {α : Type} (p : α → Prop) : Prop where
+  | intro (x : α) (h : p x ∧ ∀ y : α, p y → x = y) : Exists1 p
+</code></pre>
+<p>However, it is a pain to define the notation E!. So we will just have to write</p>
+<pre><code class="language-hs">    Exists1 (λ x =&gt; P x)
+</code></pre>
+<p>instead of the above.</p>
+<p>a) <span></span> Prove the elimination theorem for Exists1</p>
+<pre><code class="language-lean">theorem Exists1.elim {α : Type} {P : α → Prop} {b : Prop}
+   (h₁ : Exists1 (λ x =&gt; P x)) (h₂ : ∀ (a : α), P a → b) : b := sorry
+</code></pre>
+<p><span></span> b) Prove the following examples:</p>
+<pre><code class="language-lean">example : ∀ x, Exists1 (λ y : Person =&gt; x ≠ y ∧ ¬next_to y x ) :=  by
+  sorry
+
+example (α : Type) (P : α → Prop) : Exists1 ( λ x =&gt; P x ) → ¬ ∀ x, ¬ P x  := sorry
+
+example : Exists1 (λ x =&gt; x=0) := sorry
+
+example : ¬Exists1 (λ x =&gt; x ≠ 0) := sorry
+</code></pre>
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
 

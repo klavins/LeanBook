@@ -12,47 +12,6 @@
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Reals/Distributivity.lean'>Code</a> for this chapter</span>
  # The Distributive Property 
 ```lean
-theorem sum_pos_pos {a b : DCut} (ha : 0 < a) (hb : 0 < b) : 0 < a + b := by
-  constructor
-  . intro h
-    have ha0 := pos_has_zero.mp ha
-    have hb0 := pos_has_zero.mp hb
-    have : 0 ∈ (a+b).A := by
-      exact ⟨ 0, ⟨ ha0, ⟨ 0, ⟨ hb0, by exact Rat.zero_add 0 ⟩ ⟩ ⟩ ⟩
-    simp[←h,zero_rw,odown] at this
-  . intro q hq
-    have : q ∈ b.A := by
-      simp[zero_rw,odown] at hq
-      exact b.dc q 0 ⟨ by linarith, zero_in_pos hb ⟩
-    exact ⟨ 0, ⟨ zero_in_pos ha, ⟨ q, ⟨ this, by linarith ⟩ ⟩ ⟩ ⟩
-
-theorem sum_nneg_nneg {a b : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a + b := by
-  rcases two_nn_ineqs ha hb with ⟨ ha, hb ⟩ | h | h
-  . apply lt_imp_le
-    apply sum_pos_pos ha hb
-  . simp[h,sum_zero_left,hb]
-  . simp[h,sum_zero_right,ha]
-
-theorem op_from_two_vals {a : DCut} {x y : ℚ} (hx : x ∈ a.A) (hy : y ∈ a.A)
-  : ∃ z ∈ a.A, x < z ∧ y < z := by
-  by_cases h : x < y
-  . have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := a.op y hy
-    exact ⟨ z, ⟨ hz1, ⟨ by linarith, hz2 ⟩ ⟩ ⟩
-  . have ⟨ z, ⟨ hz1, hz2 ⟩ ⟩ := a.op x hx
-    exact ⟨ z, ⟨ hz1, ⟨ hz2, by linarith ⟩ ⟩ ⟩
-
-theorem prod_in_pos_mul {a b : DCut} {x y: ℚ} (ha : 0 < a) (hb : 0 < b)
-                        (hx : x ∈ a.A) (hy : y ∈ b.A) (hx0 : 0 < x)
-  : x*y ∈ (mul_pos a b ha hb).A := by
-  obtain ⟨ x', ⟨ hx1', hx2' ⟩ ⟩ := a.op x hx
-  obtain ⟨ y', ⟨ hy1', hy2' ⟩ ⟩ := op_from_two_vals hy (zero_in_pos hb)
-  have hy' : 0 ≤ y' := by  linarith
-  have hxy' : x * y < x' * y' := by
-    have h1 : 0 < x' := by linarith
-    have h2 : y ≤ y' := by linarith
-    nlinarith
-  exact ⟨ x', ⟨ hx1', ⟨ y', ⟨ hy1', ⟨ by linarith, ⟨ by linarith, hxy' ⟩ ⟩  ⟩ ⟩ ⟩ ⟩
-
 theorem pos_distrib {a b c : DCut} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
   : mul_pos a (sum b c) ha (sum_pos_pos hb hc) = sum (mul_pos a b ha hb) (mul_pos a c ha hc) := by
 
@@ -119,21 +78,6 @@ theorem nneg_distrib {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
     exact pos_distrib ha' hb' hc'
   repeat
   simp[h]
-
-example {a b:DCut} : a = b ↔ -a = -b := by exact Iff.symm neg_inj
-
-theorem neg_sum_eq {a b c: DCut} : a = b+c ↔ -a = -b + -c := by
- constructor
- repeat
- intro h
- apply neg_inj.mp
- simp[h,add_comm]
-
-example {a b:DCut} : a*b = (-a)*(-b) := by
-  simp only [mul_neg_dist_left, mul_neg_dist_right, neg_neg]
-
-example {a b:DCut} : -a + -b = -(a+b) := by
-  exact Eq.symm (neg_add a b)
 
 theorem nn_distrib {a b c : DCut} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c)
   : a * (b + c) = a*b + a*c := by
@@ -206,13 +150,17 @@ theorem distrib {a b c : DCut}
     simp only [←neg_add, mul_neg_dist_left, mul_neg_dist_right, neg_neg] at this
     exact this
 
-instance nuna_inst :  NonUnitalNonAssocSemiring DCut := ⟨
+theorem distrib_right {a b c : DCut}
+  : (a+b)*c = a*c+b*c := by
+  have := @distrib c a b
+  rw [mul_comm] at this
+  simp[this,mul_comm,add_comm]
+```
+ ## Cuts Form a Commutative Ring 
+```lean
+instance nunasr_inst :  NonUnitalNonAssocSemiring DCut := ⟨
   @distrib,
-  by
-    intro a b c
-    have := @distrib c a b
-    rw [mul_comm] at this
-    simp[this,mul_comm,add_comm],
+  @distrib_right,
   @mul_zero_left,
   @mul_zero_right
 ⟩
@@ -221,64 +169,58 @@ instance nusr_inst : NonUnitalSemiring DCut := ⟨
   λ x y z => Eq.symm (@mul_assoc x y z)
 ⟩
 
-#print Semiring
-
 instance semi_ring_inst : Semiring DCut := ⟨
   @mul_id_left,
   @mul_id_right,
   rfl,
-  λ n => Nat.cast_add_one n,
+  Nat.cast_add_one,
   npow,
   @npow_zero,
   @npow_succ
 ⟩
 
-theorem neg_of_rat {x : ℚ} : -ofRat x = ofRat (-x) := by
-  simp[ofRat,neg_inst,neg,preneg,odown]
-  ext q
-  constructor
-  . choose a ha b hb h
-    simp_all
-    linarith
-  . intro hq
-    simp_all
-    use! q+x, (by linarith), x, (by linarith)
-    linarith
+def smul (z : ℤ) (a : DCut) : DCut := (ofRat z) * a
 
-theorem sub_rats {x y: ℚ} : ofRat (x-y) = ofRat x - ofRat y := by
-  rw[←add_neg,neg_of_rat,Rat.sub_eq_add_neg,add_rats]
+theorem smul_zero_left {a : DCut} : smul 0 a = 0 := by
+  have : ofRat 0 = 0 := rfl
+  simp[smul,this,mul_zero_left]
 
-instance ring_inst : Ring DCut := ⟨
-  λ a b => rfl,
-  λ z a => (ofRat z) * a,
-  by
-    intro a
-    have : ofRat 0 = 0 := rfl
-    simp[this,mul_zero_left],
-  by
-    intro n a
-    simp[add_rats,mul_comm,distrib]
-    have : ofRat 1 = 1 := rfl
-    simp[this],
-  by
-    intro n a
-    simp[add_rats,mul_comm,distrib]
-    simp[←neg_of_rat],
-  @neg_add_cancel_left,
-  λ n => rfl,
-  by
-    intro n
+theorem smul_succ {n : ℕ} {a : DCut}
+  : smul (↑n.succ) a = smul (↑n) a + a := by
+  simp[smul,add_rats,mul_comm,distrib]
+  have : ofRat 1 = 1 := rfl
+  simp[this]
+
+theorem smul_neg_succ {n : ℕ} {a : DCut}
+  : smul (Int.negSucc n) a = -smul (↑n.succ) a := by
+  simp[smul,add_rats,mul_comm,distrib]
+  simp[←neg_of_rat]
+
+theorem int_cast_neg_succ (n : ℕ) :
+    int_cast_inst.intCast (Int.negSucc n) = -↑(n + 1) := by
     simp[IntCast.intCast,Int.negSucc,add_rats,neg_inst]
     simp[←neg_of_rat]
     have : -ofRat 1 = -1 := rfl
     simp[this]
     rfl
+
+instance ring_inst : Ring DCut := ⟨
+  add_neg,
+  smul,
+  @smul_zero_left,
+  @smul_succ,
+  @smul_neg_succ,
+  @neg_add_cancel_left,
+  λ _ => rfl,
+  int_cast_neg_succ
 ⟩
 
 instance com_ring_inst : CommRing DCut := ⟨
   @mul_comm
 ⟩
-
+```
+ With `CommRing` instantiated, we should be able to use the `ring` tactic on cuts. 
+```lean
 example {a b c : DCut} : a*(b+c) - c = a*c - c + a*b := by
   ring
 

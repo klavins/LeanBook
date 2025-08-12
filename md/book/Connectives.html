@@ -172,7 +172,7 @@
 <p><span style='color: orange'><em><strong>UNDER CONSTRUCTION</strong></em></span><br>
 <span style='color: lightgray; font-size: 10pt'><a href='https://github.com/klavins/LeanBook/blob/main/main/../LeanBook/Chapters/Connectives.lean'>Code</a> for this chapter</span></p>
 <h1 id="propositional-logic-connectives"><a class="header" href="#propositional-logic-connectives">Propositional Logic Connectives</a></h1>
-<p>One of the remarkable things about inductive types is that the capture all of propositional logic, first order logic, and more. Thus, instead of defining <em>and</em>, <em>or</em> and the other logical connectives as built-in operators in the Lean language, they are just defined in the standard library in terms of more primited inductive types.</p>
+<p>One of the remarkable things about inductive types is that they capture all of propositional logic, first order logic, and more. Thus, instead of defining <em>and</em>, <em>or</em> and the other logical connectives as built-in operators in the Lean language, they are just defined in the standard library in terms of more primitive inductive types.</p>
 <pre><code class="language-lean">namespace Temp
 </code></pre>
 <h2 id="and-is-an-inductive-type"><a class="header" href="#and-is-an-inductive-type"><em>And</em> is an Inductive Type</a></h2>
@@ -201,7 +201,7 @@
 <p>For the body of this lambda abstraction, we need to <code>introduce</code> an And type, which requires proofs of p and q respectively. Using the inductive definition of And we get</p>
 <pre><code>λ hp hq =&gt; And.intro hp hq
 </code></pre>
-<pre><code class="language-lean">def g (p q : Prop) : p → q → And p q :=
+<pre><code class="language-lean">example (p q : Prop) : p → q → And p q :=
   λ hp =&gt; λ hq =&gt; And.intro hp hq
 </code></pre>
 <h2 id="and-eliminiation"><a class="header" href="#and-eliminiation">And Eliminiation</a></h2>
@@ -228,12 +228,12 @@ example (p q : Prop) : (And p q) → (And q p) :=
   λ hpq =&gt; And.intro hpq.right hpq.left
 </code></pre>
 <h3 id="match-is-enough"><a class="header" href="#match-is-enough">Match is Enough</a></h3>
-<p>Note that the elimination rules above are a <em>convenience</em> we defined to make the proof look more like propositional logic. We could also just write:</p>
+<p>Note that the elimination rules above are a <em>convenience</em> we defined to make the proof look more like propositional logic. We could also have written:</p>
 <pre><code class="language-lean">example (p q : Prop) : (And p q) → p :=
   λ hpq =&gt; match hpq with
     | And.intro hp _ =&gt; hp
 </code></pre>
-<p>This pattern suggests that with inductive types, we can think of match as a generic elimination rule.</p>
+<p>This pattern illustrates how with inductive types we can think of <code>match</code> as a generic elimination rule.</p>
 <h2 id="or-is-inductive"><a class="header" href="#or-is-inductive">Or is Inductive</a></h2>
 <p>To introduce new OR propositions, we use the two introduction rules</p>
 <pre><code>                 Γ ⊢ φ                              Γ ⊢ ψ
@@ -269,7 +269,7 @@ example (p q : Prop) : (And p q) → (And q p) :=
     (λ hp =&gt; Or.inr hp)               -- p → (q ∨ p)
     (λ hq =&gt; Or.inl hq)               -- q → (q ∨ p)
 </code></pre>
-<p>Once again, the elimination rule is just a convenience and the proof could be written with match.</p>
+<p>Once again, the elimination rule is just a convenience and the proof could have been written with <code>match</code>.</p>
 <h2 id="false-is-inductive"><a class="header" href="#false-is-inductive">False is Inductive</a></h2>
 <p>Finally, we have <code>False</code>, which has no introduction rule, kind of like <code>Empty</code>, except we add the requirement that <code>False</code> is also type of <code>Prop</code>.</p>
 <pre><code class="language-lean">inductive False : Prop
@@ -295,25 +295,25 @@ example (p q : Prop) : (And p q) → (And q p) :=
 <pre><code class="language-lean">example (p q : Prop): And p (Not p) → q :=
   λ h =&gt; False.elim (h.right h.left)
 </code></pre>
-<p>By the way, this is another way to prove the HW1 example:</p>
+<p>By the way, this elimination rule provides another way to prove the example:</p>
 <pre><code class="language-lean">example : False → True :=
-  λ h =&gt; False.elim h
+  False.elim
 </code></pre>
 <h2 id="notation"><a class="header" href="#notation">Notation</a></h2>
-<p>The main difference between what we have defined here and Lean is that Lean defines notation like <code>∨</code> and <code>∧</code>. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or and And and Not notation.</p>
+<p>The main difference between what we have defined here and Lean is that Lean defines notation like <code>∨</code> and <code>∧</code>. We won't redo that entire infrastructure here. But to give a sense of it, here is how Lean defines infix notation for Or, And, and Not notation.</p>
 <pre><code class="language-hs">infixr:30 " ∨ "  =&gt; Temp.Or
 infixr:35 " ∧ "   =&gt; Temp.And
 notation:max "¬" p:40 =&gt; Temp.Not p
 </code></pre>
-<p>The numbers define the precedence of the operations. So <code>v</code> has lower precedence than <code>∧</code>, which has lower precedence than <code>-</code>.</p>
+<p>The numbers define the precedence of the operations. So <code>v</code> has lower precedence than <code>∧</code>, which has lower precedence than <code>¬</code>.</p>
 <p>Now we can write</p>
 <pre><code class="language-lean">end Temp -- start using Lean's propositions
 
 example (p q : Prop): (p ∧ (¬p)) → q :=
   λ h =&gt; False.elim (h.right h.left)
 </code></pre>
-<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
-<p>You should try to do as many of these as possible. These are borrowed from the <a href="https://lean-lang.org/theorem_proving_in_lean4/title_page.html">Theorem Proving in Lean Book</a>.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<p><span></span> 1) Try to do as many of these as possible. These are borrowed from the <a href="https://lean-lang.org/theorem_proving_in_lean4/title_page.html">Theorem Proving in Lean Book</a>.</p>
 <pre><code class="language-lean">variable (p q r : Prop)
 
 example (h : p ∨ q) : q ∨ p := sorry
@@ -335,6 +335,62 @@ example : p ∧ False ↔ False := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 </code></pre>
+<p><span></span> 2) Consider the Not-Or operation also known as Nor. It has the following inference rules:</p>
+<pre><code>                 Γ ⊢ ¬p   Γ ⊢ ¬q
+  `Nor-Intro` ———————————————————
+                  Γ ⊢ Nor p q
+
+
+                    Γ ⊢ Nor p q                            Γ ⊢ Nor p q
+  `Nor-Elim-Left` ——————————————         `Nor-Elim-Right` —————————————
+                      Γ ⊢ ¬p                                 Γ ⊢ ¬q
+
+</code></pre>
+<p>Define these in Lean. Here is a start:</p>
+<pre><code class="language-lean">inductive Nor (p q : Prop) : Prop where
+  | intro : ¬p → ¬q → Nor p q
+
+def Nor.elim_left {p q : Prop} (hnpq : Nor p q) := sorry
+
+def Nor.elim_right {p q : Prop} (hnpq : Nor p q) := sorry
+</code></pre>
+<p><span></span> 3) Use the above Nor inference rules, and the regular inference rules from Lean's propopsitional logic, to prove the following examples. Note, <em>do not</em> use the Classical logic option for these. It isn't needed.</p>
+<pre><code class="language-lean">example (p : Prop) : ¬p → (Nor p p) := sorry
+example (p q : Prop) : (Nor p q) → ¬(p ∨ q) := sorry
+example (p q : Prop) : ¬(p ∨ q) → (Nor p q) := sorry
+
+6) Using the definition of natural numbers below, define functions that perform multiplication and exponentiation similarly to how addition was defined in the Lecture on Inductive Types. Do *not* use Lean's built in natural numbers to do this. Evaluate your functions on a few examples to show they work. -/
+
+namespace Temp
+
+inductive Nat where
+  | zero : Nat
+  | succ : Nat → Nat           -- succ stand for `successor`
+
+open Nat
+
+def mult (m n : Nat) : Nat := sorry
+def exp (m n : Nat) : Nat := sorry
+</code></pre>
+<p><span></span>
+4) Using Lean's built in Integer class, we can define a new inductive type <code>GaussianInt</code> as follows:</p>
+<pre><code class="language-lean">inductive GaussianInt where
+  | gint : Int → Int → GaussianInt
+
+open GaussianInt
+</code></pre>
+<p>For example, we can represent the complex number 1 + 2 i with</p>
+<pre><code class="language-lean">#check gint 1 2
+</code></pre>
+<p>Define real, imaginary, addition, subtraction, complex conjugate, and multiplication operations for GaussianInt:</p>
+<pre><code class="language-lean">def re (x : GaussianInt) : Int := sorry
+def im (x : GaussianInt) : Int := sorry
+def cadd (x y : GaussianInt) : GaussianInt := sorry
+def csub (x y : GaussianInt) : GaussianInt := sorry
+def conjugate (x : GaussianInt) : GaussianInt := sorry
+def cmul (x y : GaussianInt) : GaussianInt := sorry
+</code></pre>
+<p>Test all of these with eval to make sure they work.</p>
 <h2 id="references"><a class="header" href="#references">References</a></h2>
 <ul>
 <li>

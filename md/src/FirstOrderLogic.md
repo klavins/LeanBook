@@ -330,6 +330,92 @@ example (h₁ : ∃ x, P x ∧ Q x) : ∃ x, Q x ∧ P x :=
              (Exists.intro w (And.intro hpq.right hpq.left))
   Exists.elim h₁ h₂
 ```
+ ## Exercises
+
+<span></span>
+1) Prove the following FOL examples using introduction, elimination, etc using either direct proofs or tactics. Do not use the built in theorems from the standard library that match these, that's too easy. 
+```lean
+variable (p q : Type → Prop)
+variable (r : Prop)
+
+example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
+  sorry
+
+example : (∀ x, p x → r) ↔ (∃ x, p x) → r :=
+  sorry
+```
+ <span></span> 2) Consider the following definition of the sum of the first n squares. 
+```lean
+def S (n : Nat) : Nat := match n with
+  | Nat.zero => 0
+  | Nat.succ x => n*n + S x
+```
+ Show the following result using induction. 
+```lean
+example (n : Nat) : 6 * (S n) = (n * (n+1)) * (2*n+1) :=
+  sorry
+```
+ <span></span> 3) Given the definitions of Person, on_right, and next_to: 
+```lean
+inductive Person where | mary | steve | ed | jolin
+open Person
+
+def on_right (p : Person) := match p with
+  | mary => steve
+  | steve => ed
+  | ed => jolin
+  | jolin => mary
+
+def next_to (p q : Person) := on_right p = q ∨ on_right q = p
+```
+ Prove the following examples: 
+```lean
+example : ∀ p , ∀ q , on_right p = q → next_to p q :=
+  sorry
+
+example : ∀ p : Person, ∃ q : Person, next_to p q :=
+  sorry
+
+example : ∀ p : Person, ∃ q : Person, ¬next_to p q :=
+  sorry
+```
+ <span></span> 4) Besides ∀ and ∃, there are other quantifiers we can define. For example, the "Exists Exactly One" quantifer allows you to state that there is only one of something. We usually written ∃! as in
+
+```hs
+    ∃! x, P x
+```
+
+which states there is exactly one `x` such that `P x` is true.
+
+We can define this quantifer inductively, just as we did for Exists: 
+```lean
+inductive Exists1 {α : Type} (p : α → Prop) : Prop where
+  | intro (x : α) (h : p x ∧ ∀ y : α, p y → x = y) : Exists1 p
+```
+ However, it is a pain to define the notation E!. So we will just have to write
+
+```hs
+    Exists1 (λ x => P x)
+```
+
+instead of the above.
+
+a) <span></span> Prove the elimination theorem for Exists1 
+```lean
+theorem Exists1.elim {α : Type} {P : α → Prop} {b : Prop}
+   (h₁ : Exists1 (λ x => P x)) (h₂ : ∀ (a : α), P a → b) : b := sorry
+```
+ <span></span> b) Prove the following examples: 
+```lean
+example : ∀ x, Exists1 (λ y : Person => x ≠ y ∧ ¬next_to y x ) :=  by
+  sorry
+
+example (α : Type) (P : α → Prop) : Exists1 ( λ x => P x ) → ¬ ∀ x, ¬ P x  := sorry
+
+example : Exists1 (λ x => x=0) := sorry
+
+example : ¬Exists1 (λ x => x ≠ 0) := sorry
+```
 
 <div style='height=50px'>&nbsp;</div><hr>
 Copyright © 2025 Eric Klavins
